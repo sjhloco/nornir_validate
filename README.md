@@ -76,6 +76,8 @@ python nornir_validate.py
 
 If the overall compliance report passes (all command validations comply) a message is returned to Nornir (can optionally save to file). If it does not comply or a validation was skipped (due to napalm_validate implementation error) the report is returned to Nornir as well as marking the Nornir task as failed.
 
+![run_example](https://user-images.githubusercontent.com/33333983/143689029-bccadb2b-83aa-4e56-9117-62d723a612aa.gif)
+
 ### Imported
 
 Rather than using the inventory in *nornir_validate* the ***validate_task*** function can be imported into a script to make use of an already existing nornir inventory.
