@@ -16,8 +16,33 @@ python -m venv ~/venv/nr_val
 source ~/venv/nr_val/bin/activate
 
 Install the packages
+cd nornir_validate/
+pip install -r requirements.txt
 
-pip install -r firewall_policy_report/requirements.txt
+### Caveats
+
+Are a couple of bugs that are not fixed in latest releases of nornir and netmiko so describes how to get round these:
+
+**netmiko**/
+If you are using python3.9 you will come across this error as described in [bug](https://github.com/ktbyers/netmiko/pull/2274)
+`IsADirectoryError: [Errno 21] Is a directory: '/Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/ntc_templates/templates'`
+
+This is fixed but the current Netmiko version of 3.4 doesn't have the fix in it so use the following to copy a fixed file version over. Replace the */Users/mucholoco/venv/nr_val* with where and what you called your venv.
+
+```bash
+mv /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py_ORIG
+cp bug_fixes/utilities.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py
+```
+
+**nornir_utils**/
+This [bug](xxx) is purely visual so doesn't effect the functionality so you don't have apply this fix if it doesnt bother you.
+
+```bash
+mv /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py_ORIG
+cp bug_fixes/print_result.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py
+```
+
+## Run
 
 Before being able to generate a compliance report the following three elements are needed:
 
@@ -25,9 +50,7 @@ Before being able to generate a compliance report the following three elements a
 - **desired_state template:** A jinja template (default *desired_state.j2*) that is rendered using the input variables to create the desired state of the device
 - **actual_state python logic:** A python method (*actual_state.py*) that creates a data structure from the device command output that can be used as a comparison against the actual state
 
-All of these will require building to fit the needs of your environment, these are explained in more detail in the later sections
-
-## Run
+All of these will require building to fit the needs of your environment, these are explained in more detail in the later sections.
 
 *nornir_validate* can be run independently as a standalone script or imported into an existing script and use that scripts Nornir inventory.
 
@@ -35,7 +58,7 @@ All of these will require building to fit the needs of your environment, these a
 
 Running *nornir_validate* independently will cause it to create its own Nornir inventory looking in the *nornir_validate* root directory for *config.yml* and the *inventory* directory for *hosts.yml*, *groups.yml* and *defaults.yml*)
 
-By default it uses an input variable file called *input_data.yml* located in the the *nornir_template* directory and does not save the compliance report to file. Either of these can be changed in the variable section at the start of *nornir_template.py* or overridden by using flags ar runtime.
+By default it uses an input variable file called *input_data.yml* located in the *nornir_validate* directory and does not save the compliance report to file. Either of these can be changed in the variable section at the start of *nornir_template.py* or overridden by using flags at runtime.
 
 ```python
 input_file = "input_data.yml"
@@ -47,58 +70,35 @@ report_directory = None
 | -i or --filename | Overrides the value set in the *input_file* variable |
 | -d or --directory | Overrides the value set in *directory* variable |
 
-Specifying anything but *None* as the *report_directory* will cause the report to be saved in that location, the naming format will be *hostname_compliance_report_YYYY-MM-DD.json*
+Specifying anything other than *None* as the *report_directory* will cause the report to be saved in that location, the naming format will be *hostname_compliance_report_YYYY-MM-DD.json*
 
 ```python
 python nornir_validate.py
 ```
 
+If the overall compliance report passes (all command validations comply) a message is returned to Nornir (can optionally save to file). If it does not comply or a validation was skipped (due to napalm_validate implementation error) the report is returned to Nornir as well as marking the Nornir task as failed.
+
 ### Imported
 
-Rather than creating a new Nornir inventory nornir_inventory can be imported into an existing Nornir script to make use of an already existing Nornir inventory.
+Rather than using the inventory in *nornir_validate* the *validate_task* function can be imported into a script to make use of an already existing Nornir inventory.
 
 ```python
-from nornir_template import actual_state_engine
+from nornir import InitNornir
+from nornir_utils.plugins.functions import print_result
+from nornir_validate import validate_task
 
 nr = InitNornir(config_file="config.yml")
 result = nr.run(task=validate_task)
 print_result(result)
 ```
 
-If you wanted to changed the input file or directory either of these can be used as an function argument.
+If you wanted to changed the input file or directory either of these can be used as an argument when calling the function.
 
 ```python
-result = nr.run(task=validate_task, input_file='/Users/user1/input_vars.yml', directory='/Users/user1/')
+result = nr.run(task=validate_task, input_file='/Users/mucholoco/nornir_validate/my_input_data.yml', directory='/Users/mucholoco/nornir_validate/')
 ```
 
-
-
-
-
-
-
-
-If the overall compliance report passes (all command validations comply) a message is returned to Nornir (optionally save to file). If it does not comply or a validation was skipped (due to napalm_validate implementation error) the report is returned to Nornir as well as marking the Nornir task as failed.
-
-
-
-
-If the *directory* argument is passed in at nornir_validate runtime the report will also be saved to file as *'directory/hostname_compliance_report.json'*. The default action is to not save the report to file.
-
-
-
-Any compliance failures are printed to screen, can also optionally save the full compliance report to file.
-
-
-
-
-
-
-
-
-
-
-
+### Input Variables
 
 The input variable file is made up of three optional dictionaries. For any conflicting variables *groups* takes precedence over *all* and *hosts* over *groups*.
 
