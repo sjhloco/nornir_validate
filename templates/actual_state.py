@@ -43,36 +43,6 @@ def remove_char(input_data:str, char: str) -> str:
         return input_data
 
 
-# ##################### Engine to create structured actual output #####################
-# def actual_state_engine(host: "Nornir", cmd_output:Dict[str, List]) -> Dict[str, Dict]:
-#     actual_state: Dict[str, Any] = {}
-#     os_type: List = []
-
-#     # Gets os_type from host_var OS types (platform)
-#     os_type.append(host.platform)
-#     os_type.append(host.get_connection_parameters('scrapli').platform)
-#     os_type.append(host.get_connection_parameters('netmiko').platform)
-#     os_type.append(host.get_connection_parameters('napalm').platform)
-#     # Loops through getting command and output from the command
-#     for cmd, output in cmd_output.items():
-#         tmp_dict = defaultdict(dict)
-#         # EMPTY: If output is empty just adds an empty dictionary
-#         if output == None:
-#             actual_state[cmd] = tmp_dict
-#         # if os_type == 'ios' or os_type == 'ios-xe':
-#         if 'ios' in os_type:
-#             iosxe_format(cmd, output, tmp_dict, actual_state)
-#         elif 'nxos' in os_type:
-#             pass
-#         elif 'asa' in os_type:
-#             pass
-#     return actual_state
-
-
-
-
-
-
 ##################### IOS/IOS-XE desired state formatting #####################
 def iosxe_format(cmd:str, output:List, tmp_dict:Dict[str, None], actual_state: Dict[str, None]) -> Dict[str, Dict]:
     # ACL: Creates ACL dicts in the format [{acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, pst_port: port}]

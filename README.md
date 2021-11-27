@@ -1,14 +1,104 @@
 # Nornir Validate
 
-Uses Nornir to gather (*netmiko*) and format the data before feeding this into *napalm-validate* in the form of *actual_state* and *desired_state* to produce a *compliance report*. Any compliance failures are printed to screen, can also optionally save the full compliance report to file.
+Uses Nornir to gather (*netmiko*) and format device output before feeding this into *napalm-validate* in the form of *actual_state* and *desired_state* to produce a *compliance report*. The idea behind this is to run pre and post checks on any devices within the network based and an input file of your desired network state.
 
-### nornir_validate engine
+As the name suggests I have not reinvented the wheel here, I have just extended *napalm_validate* to validate on commands rather than getters to allow for the flexibility of being able to validate on any command output. This is done by importing the *napalm_validate compare* method and feeding the desire_sate and actual_state manually. To understand what I am waffling about in this README you need to understand the following terms:
 
-The engine is split into three functions:
+- **desired_state:** The state you expect the device to be in. For example you could expect that the device has certain BGP peers or all ports in all port-channels are up
+- **actual_state:** This is the live state of the device gathered from connecting to and running commands on that device
 
-- **input_task:** Imports the variables from the input file (nornir *load_yaml*) and feeds these into *template_task* to create the *desired_state* that is then added as a host_var of the same name
-- **template_task:** From a Jinja template renders the input variables (*nornir-template*) in YAML format before loading (serializing) it as a python object (the *desired_state*)
-- **validate_task:** Gathers the command outputs from the device (*netmiko* with *textfsm*) and formats this into the *actual_state* which along with the *desired_report* is fed into the *compliance_report*
+## Installation and Prerequisites
+
+Clone the repository and create a virtual environment
+
+git clone https://github.com/sjhloco/nornir_validate.git
+python -m venv ~/venv/nr_val
+source ~/venv/nr_val/bin/activate
+
+Install the packages
+
+pip install -r firewall_policy_report/requirements.txt
+
+Before being able to generate a compliance report the following three elements are needed:
+
+- **input variables**: A yaml file (default *input_data.yml*) that holds the host and group variables that describe the desired state of that device. used by the desired state template to build the desired state of the device
+- **desired_state template:** A jinja template (default *desired_state.j2*) that is rendered using the input variables to create the desired state of the device
+- **actual_state python logic:** A python method (*actual_state.py*) that creates a data structure from the device command output that can be used as a comparison against the actual state
+
+All of these will require building to fit the needs of your environment, these are explained in more detail in the later sections
+
+## Run
+
+*nornir_validate* can be run independently as a standalone script or imported into an existing script and use that scripts Nornir inventory.
+
+### Standalone
+
+Running *nornir_validate* independently will cause it to create its own Nornir inventory looking in the *nornir_validate* root directory for *config.yml* and the *inventory* directory for *hosts.yml*, *groups.yml* and *defaults.yml*)
+
+By default it uses an input variable file called *input_data.yml* located in the the *nornir_template* directory and does not save the compliance report to file. Either of these can be changed in the variable section at the start of *nornir_template.py* or overridden by using flags ar runtime.
+
+```python
+input_file = "input_data.yml"
+report_directory = None
+```
+
+| flag           | Description |
+| -------------- | ----------- |
+| -i or --filename | Overrides the value set in the *input_file* variable |
+| -d or --directory | Overrides the value set in *directory* variable |
+
+Specifying anything but *None* as the *report_directory* will cause the report to be saved in that location, the naming format will be *hostname_compliance_report_YYYY-MM-DD.json*
+
+```python
+python nornir_validate.py
+```
+
+### Imported
+
+Rather than creating a new Nornir inventory nornir_inventory can be imported into an existing Nornir script to make use of an already existing Nornir inventory.
+
+```python
+from nornir_template import actual_state_engine
+
+nr = InitNornir(config_file="config.yml")
+result = nr.run(task=validate_task)
+print_result(result)
+```
+
+If you wanted to changed the input file or directory either of these can be used as an function argument.
+
+```python
+result = nr.run(task=validate_task, input_file='/Users/user1/input_vars.yml', directory='/Users/user1/')
+```
+
+
+
+
+
+
+
+
+If the overall compliance report passes (all command validations comply) a message is returned to Nornir (optionally save to file). If it does not comply or a validation was skipped (due to napalm_validate implementation error) the report is returned to Nornir as well as marking the Nornir task as failed.
+
+
+
+
+If the *directory* argument is passed in at nornir_validate runtime the report will also be saved to file as *'directory/hostname_compliance_report.json'*. The default action is to not save the report to file.
+
+
+
+Any compliance failures are printed to screen, can also optionally save the full compliance report to file.
+
+
+
+
+
+
+
+
+
+
+
 
 The input variable file is made up of three optional dictionaries. For any conflicting variables *groups* takes precedence over *all* and *hosts* over *groups*.
 
@@ -148,51 +238,7 @@ will create the *actual_state* of:
 
 For each command the formatting will be different as the captured data is different, however the principle will be the same. The command (*cmd*) and result (*tmp_dict*) are added to the *actual_state* dictionary and returned to the engine.
 
-### Compliance Report
 
-The compliance report makes use of the *napalm_validate compare* method to produce a compliance report based on static input files of command output (data has been structured) rather than Naplam getters. It validates on a per-command basis rather than a per-getter basis.
-
-The *desired_state* dictionary is iterated through and the *command* (key) used to call the *command output* from the *actual_state* so that both actual and desired state command outputs are passed into napalm_validate. If the overall  compliance report passes (all command validations comply) a message is returned to Nornir. If it does not comply or a validation was skipped (due to napalm_validate implementation error) the report is returned to Nornir as well as marking the Nornir task as failed.
-
-If the *directory* argument is passed in at nornir_validate runtime the report will also be saved to file as *'directory/hostname_compliance_report.json'*. The default action is to not save the report to file.
-
-### Run
-
-Running *nornir_validate* independently will cause it to create its own Nornir inventory looking in the *nornir_validate* root directory for *config.yml* and the *inventory* directory for *hosts.yml*, *groups.yml* and *defaults.yml*)
-
-```python
-python nornir_validate.py
-```
-
-By default it uses an input variable file called *input_data.yml* located in the the *nornir_template* directory and does not save the compliance report to file. Either of these can be changed in the variable section at the start of *nornir_template.py*. The name for the compliance report will be in the format *hostname_compliance_report_YYYY-MM-DD.json*
-
-```python
-input_file = "input_data.yml"           # Name of the input variable file (needs its full path)
-report_directory = None                        # Enter a directory location to save compliance report to file
-```
-
-Alternatively either of these settings can be done at run time using flags.
-
-| flag           | Description |
-| -------------- | ----------- |
-| -i or --filename | Overrides the value set in the *input_file* variable |
-| -d or --directory | Overrides the value set in *directory* variable |
-
-Rather than creating a new Nornir inventory nornir_inventory can be imported into an existing Nornir script to make use of an already existing Nornir inventory.
-
-```python
-from nornir_template import actual_state_engine
-
-nr = InitNornir(config_file="config.yml")
-result = nr.run(task=validate_task)
-print_result(result)
-```
-
-If you wanted to changed the input file or directory either of these can be used as an function argument.
-
-```python
-result = nr.run(task=validate_task, input_file='/Users/user1/input_vars.yml', directory='/Users/user1/')
-```
 
 Validation builder is other folder etc, etc
 
