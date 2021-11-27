@@ -1,64 +1,62 @@
 # Nornir Validate
 
-Uses Nornir to gather (*netmiko*) and format device output before feeding this into *napalm-validate* in the form of *actual_state* and *desired_state* to produce a *compliance report*. The idea behind this is to run pre and post checks on any devices within the network based and an input file of your desired network state.
+Uses Nornir (with *nornir-netmiko*) to gather and format device output before feeding this into *napalm-validate* in the form of *actual_state* and *desired_state* to produce a *compliance report*. The idea behind this is for running pre and post checks on network devices based and an input file of your desired device state.
 
-As the name suggests I have not reinvented the wheel here, I have just extended *napalm_validate* to validate on commands rather than getters to allow for the flexibility of being able to validate on any command output. This is done by importing the *napalm_validate compare* method and feeding the desire_sate and actual_state manually. To understand what I am waffling about in this README you need to understand the following terms:
+As the name suggests I have not reinvented the wheel here, I have just extended *napalm_validate* to validate on commands rather than getters to allow validation of any command output. This is done by importing the *napalm_validate compare* method and feeding in the desire_state and actual_state manually. To understand what I am waffling on about in this README you need to understand the following terms:
 
 - **desired_state:** The state you expect the device to be in. For example you could expect that the device has certain BGP peers or all ports in all port-channels are up
-- **actual_state:** This is the live state of the device gathered from connecting to and running commands on that device
+- **actual_state:** This is real-time live state of the device gathered by connecting to it and running show commands
 
 ## Installation and Prerequisites
 
-Clone the repository and create a virtual environment
+Clone the repository, create a virtual environment and install the required python packages
 
+```bash
 git clone https://github.com/sjhloco/nornir_validate.git
 python -m venv ~/venv/nr_val
 source ~/venv/nr_val/bin/activate
-
-Install the packages
 cd nornir_validate/
 pip install -r requirements.txt
+```
 
 ### Caveats
 
-Are a couple of bugs that are not fixed in latest releases of nornir and netmiko so describes how to get round these:
+There a couple of bugs in current releases of nornir and netmiko that effect how this script runs, below describes the workarounds for these.
 
-**netmiko**/
-If you are using python3.9 you will come across this error as described in [bug](https://github.com/ktbyers/netmiko/pull/2274)
+**netmiko**\
+If using python3.9 at runtime will get the error as described in [bug](https://github.com/ktbyers/netmiko/pull/2274)
 `IsADirectoryError: [Errno 21] Is a directory: '/Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/ntc_templates/templates'`
 
-This is fixed but the current Netmiko version of 3.4 doesn't have the fix in it so use the following to copy a fixed file version over. Replace the */Users/mucholoco/venv/nr_val* with where and what you called your venv.
+The current Netmiko version of 3.4 doesn't have the fix yet so replace *utilities.py* with the fixed file in the Netmiko directory. Dont forget to swap */Users/mucholoco/venv/nr_val* with where and what you called your virtual environment.
 
 ```bash
 mv /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py_ORIG
 cp bug_fixes/utilities.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py
 ```
 
-**nornir_utils**/
-This [bug](xxx) is purely visual so doesn't effect the functionality so you don't have apply this fix if it doesnt bother you.
+**nornir_utils**\
+This [bug](xxx) is purely cosmetic so doesn't effect the functionality, is upto you if you want to apply the fix.
 
 ```bash
 mv /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py_ORIG
 cp bug_fixes/print_result.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py
 ```
 
-## Run
+## Running nornir-validate
 
-Before being able to generate a compliance report the following three elements are needed:
+Before being able to generate a meaning compliance report you will need to edit the following elements to fit your own environments desired state. These are explained in more detail in the later sections.
 
 - **input variables**: A yaml file (default *input_data.yml*) that holds the host and group variables that describe the desired state of that device. used by the desired state template to build the desired state of the device
 - **desired_state template:** A jinja template (default *desired_state.j2*) that is rendered using the input variables to create the desired state of the device
 - **actual_state python logic:** A python method (*actual_state.py*) that creates a data structure from the device command output that can be used as a comparison against the actual state
 
-All of these will require building to fit the needs of your environment, these are explained in more detail in the later sections.
-
 *nornir_validate* can be run independently as a standalone script or imported into an existing script and use that scripts Nornir inventory.
 
 ### Standalone
 
-Running *nornir_validate* independently will cause it to create its own Nornir inventory looking in the *nornir_validate* root directory for *config.yml* and the *inventory* directory for *hosts.yml*, *groups.yml* and *defaults.yml*)
+When run as standalone *nornir_validate* will create its own Nornir inventory looking in the *nornir_validate* root directory for *config.yml* and the *inventory* directory for *hosts.yml*, *groups.yml* and *defaults.yml*.
 
-By default it uses an input variable file called *input_data.yml* located in the *nornir_validate* directory and does not save the compliance report to file. Either of these can be changed in the variable section at the start of *nornir_template.py* or overridden by using flags at runtime.
+By default it uses the input variable file */nornir_validate/input_data.yml* and does not save the compliance report to file. Either of these can be changed in the variable section at the start of *nornir_template.py* or overridden by using flags at runtime.
 
 ```python
 input_file = "input_data.yml"
@@ -67,10 +65,10 @@ report_directory = None
 
 | flag           | Description |
 | -------------- | ----------- |
-| -i or --filename | Overrides the value set in the *input_file* variable |
-| -d or --directory | Overrides the value set in *directory* variable |
+| `-i` or `--filename` | Overrides the value set in the *input_file* variable |
+| `-d` or `--directory` | Overrides the value set in *directory* variable |
 
-Specifying anything other than *None* as the *report_directory* will cause the report to be saved in that location, the naming format will be *hostname_compliance_report_YYYY-MM-DD.json*
+Specifying anything other than *None* for the *report_directory* will cause the compliance report to be saved in that location, the naming format is *hostname_compliance_report_YYYY-MM-DD.json*
 
 ```python
 python nornir_validate.py
@@ -80,7 +78,7 @@ If the overall compliance report passes (all command validations comply) a messa
 
 ### Imported
 
-Rather than using the inventory in *nornir_validate* the *validate_task* function can be imported into a script to make use of an already existing Nornir inventory.
+Rather than using the inventory in *nornir_validate* the ***validate_task*** function can be imported into a script to make use of an already existing nornir inventory.
 
 ```python
 from nornir import InitNornir
@@ -92,7 +90,7 @@ result = nr.run(task=validate_task)
 print_result(result)
 ```
 
-If you wanted to changed the input file or directory either of these can be used as an argument when calling the function.
+To change the input file or directory using this method add either as an argument when calling the function.
 
 ```python
 result = nr.run(task=validate_task, input_file='/Users/mucholoco/nornir_validate/my_input_data.yml', directory='/Users/mucholoco/nornir_validate/')
