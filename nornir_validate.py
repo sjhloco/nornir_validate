@@ -16,9 +16,13 @@ from compliance_report import compliance_report
 
 
 ############################### Manually defined variables and user input ###############################
-input_file = "input_data.yml"                   # Name of the input variable file (needs its full path)
-report_directory = None                         # Enter a directory location to save compliance report to file
+# Name of the input variable file (needs its full path)
+input_file = "input_data.yml"
+# Enter a directory location to save compliance report to file
+report_directory = None
 
+
+############################### Input Arguments ###############################
 def _create_parser() -> Dict[str, Any]:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -35,15 +39,15 @@ def input_task(task: Task, input_file: str, template_task: str) -> str:
     desired_state: Dict[str, Any] = {}
     #1a. LOAD: Load the the input file
     input_vars = task.run(task=load_yaml, file=input_file)
-    #1b. TMPL: Create the desired_state for each feature to be validated (double if to stop error if top level dict not exist)
+    #1b. TMPL: Create the desired_state for each feature to be validated (double 'if' to stop error if top level dict not exist)
     if input_vars.result.get('hosts') != None:
         if input_vars.result['hosts'].get(str(task.host)) != None:
-            task.run(task=template_task, input_vars=input_vars.result['hosts'][str(task.host)], desired_state=desired_state)
+            task.run(task=template_task, tmpl_path="templates/", input_vars=input_vars.result['hosts'][str(task.host)], desired_state=desired_state)
     if input_vars.result.get('groups') != None:
         if input_vars.result['groups'].get(str(task.host.groups[0])) != None:
-            task.run(task=template_task, input_vars=input_vars.result['groups'][str(task.host.groups[0])], desired_state=desired_state)
+            task.run(task=template_task, tmpl_path="templates/", input_vars=input_vars.result['groups'][str(task.host.groups[0])], desired_state=desired_state)
     if input_vars.result.get('all') != None:
-        task.run(task=template_task, input_vars=input_vars.result['all'], desired_state=desired_state)
+        task.run(task=template_task, tmpl_path="templates/", input_vars=input_vars.result['all'], desired_state=desired_state)
     #1c. VAR: Create host_var of combined desired states or exits if nothing to be validated
     if len(desired_state) == 0:
         result_text = u"\u26A0\uFE0F  No validations were performed as no desired_state was generated, check input file and template"
@@ -53,11 +57,11 @@ def input_task(task: Task, input_file: str, template_task: str) -> str:
 
 
 #################### 2. Creates desired state YML from template and serializes it ####################
-def template_task(task: Task, input_vars: str, desired_state: Dict[str, Any]) -> str:
+def template_task(task: Task, tmpl_path: str, input_vars: str, desired_state: Dict[str, Any]) -> str:
     for val_feature, feature_vars in input_vars.items():
         tmp_desired_state = task.run(task=template_file,
                                             template="desired_state.j2",
-                                            path="templates/",
+                                            path=tmpl_path,
                                             feature=val_feature,
                                             input_vars=feature_vars).result
         # Converts jinja string into yaml and list of dicts [cmd: {seq: ket:val}] into a dict of cmds {cmd: {seq: key:val}}

@@ -14,6 +14,31 @@ def fix_home_path(input_path: str) -> str:
     else:
         return input_path
 
+
+# REPORT_FILE: If a hostname and directory are passed in as function arguments saves report to file
+def report_file(hostname: str, directory: str, report: Dict[str, Any], complies: bool, skipped: bool):
+    filename = os.path.join(fix_home_path(directory),  hostname + '_compliance_report_' + str(datetime.date.today()) + '.json')
+    # If report file already exists conditionally updates 'skipped' and 'complies' with report outcome
+    if os.path.exists(filename):
+        with open(filename, 'r') as file_content:
+            existing_report = json.load(file_content)
+        if list(report.values())[0].get('skipped'):
+            existing_report['skipped'].extend(skipped)
+        if existing_report.get('complies') == True:   # No need to add if already failing compliance
+            existing_report['complies'] = complies
+    # If creating a new report file adds 'complies' and 'skipped' with report outcome
+    else:
+        existing_report = {}
+        existing_report['complies'] = complies
+        existing_report['skipped'] = skipped
+    # Writes to file the full napalm_validate result (including an existing report)
+    existing_report.update(report)
+    with open(filename, 'w') as file_content:
+        json.dump(existing_report, file_content)
+    report_text = " The report can be viewed using:  "\
+                    f"\n \33[3m\033[1;37m\33[30m  cat {filename} | python -m json.tool \033[0;0m"
+
+
 # VALIDATE: Uses naplam_validate on custom data fed into it (still supports '_mode: strict') to validate and create reports
 def compliance_report(desired_state: Dict[str, Dict], actual_state: Dict[str, Dict], hostname: str, directory: str):
     report: Dict[str, Any] = {}
@@ -28,37 +53,18 @@ def compliance_report(desired_state: Dict[str, Dict], actual_state: Dict[str, Di
             # If validation couldn't be run on a command adds skipped key to the cmd dictionary
             except NotImplementedError:
                 report[cmd] = {"skipped": True, "reason": "NotImplemented"}
-    # RESULT: Results of compliance report (complies = validation result, skipped = validation didn't run)
+    # RESULT: Results of compliance report (complies = validation result, skipped (list of skipped cmds) = validation didn't run)
     complies = all([each_cmpl.get("complies", True) for each_cmpl in report.values()])
     skipped = [cmd for cmd, output in report.items() if output.get("skipped", False)]
-    report_text = ''        # Empty value if report_file not created
-
-    # REPORT_FILE: If a hostname and directory are passed in as function arguments saves report to file
+    # REPORT_FILE: Save report to file, if not add complies and skipped dictionary to report
     if hostname != None and directory != None:
-        filename = os.path.join(fix_home_path(directory),  hostname + '_compliance_report_' + str(datetime.date.today()) + '.json')
-        # If report file already exists conditionally updates 'skipped' and 'complies' with report outcome
-        if os.path.exists(filename):
-            with open(filename, 'r') as file_content:
-                existing_report = json.load(file_content)
-            if list(report.values())[0].get('skipped'):
-                existing_report['skipped'].extend(skipped)
-            if existing_report.get('complies'):         # No need to add if already failing compliance
-                existing_report['complies'] = complies
-        # If creating a new report file adds 'complies' and 'skipped' with report outcome
-        else:
-            existing_report = {}
-            existing_report['complies'] = complies
-            existing_report['skipped'] = skipped
-        # Writes to file the full napalm_validate result (including an existing report)
-        existing_report.update(report)
-        with open(filename, 'w') as file_content:
-            json.dump(existing_report, file_content)
-        report_text = " The report can be viewed using:  "\
-                     f"\n \33[3m\033[1;37m\33[30m  cat {filename} | python -m json.tool \033[0;0m"
-
-    # RETURN_RESULT: Returns the report if compliance failed and sets the state to failed (used by Nornir)
-    # Also create report dict as that is used in validation builder
-    if complies == True:
+        report_file(hostname, directory, report, complies, skipped)
+    else:
+        report['complies'] = complies
+        report['skipped'] = skipped
+        report_text = ''        # Empty value if report_file not created
+    # RETURN_RESULT: If compliance fails set state failed (used by Nornir). report dict is used in validation builder
+    if report['complies'] == True:
         return dict(failed=False, result=u"\u2705 Validation report complies, desired_state and actual_state match." + report_text, report=report)
-    if complies == False or skipped == True:
+    if report['complies'] == False or skipped == True:
         return dict(failed=True, result=report, report=report)

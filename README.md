@@ -96,15 +96,17 @@ To change the input file or directory add either as an argument when calling the
 result = nr.run(task=validate_task, input_file='/Users/mucholoco/nornir_validate/my_input_data.yml', directory='/Users/mucholoco/nornir_validate/')
 ```
 
-### Input Variables
+## Input Variables
 
-The input variable file is made up of three optional dictionaries. For any conflicting variables *groups* takes precedence over *all* and *hosts* over *groups*.
+The input variable file holds the host_vars and group_vars that are rendered by the desired state template tp produce the desired state. It is made up of three optional dictionaries:
 
 - **hosts:** Dictionary of host names each holding dictionaries of host-specific variables for the different features being validated
 - **groups:** Dictionary of group names each holding dictionaries of group-specific variables for the different features being validated
 - **all**: Dictionaries of variables for the different features being validated that are the same across all hosts
 
-The host or group name must be an exact match of the host or group name within the nornir inventory. This below input file example will check the OSPF neighbors on *all* devices, the two ACLs on all devices in the *ios* group and the port-channel state and port member ship on the host *HME-SWI-VSS01*.
+If there are any conflictions between the variables, *groups* take precedence over *all* and *hosts* over *groups*.
+
+The host or group name must be an exact match of the host or group name within the nornir inventory. THe result of the below example will check the OSPF neighbors on *all* devices, ACLs on all hosts in the *ios* group and the port-channel state and port membership on host *HME-SWI-VSS01*.
 
 ```yaml
 hosts:
@@ -132,11 +134,9 @@ all:
     nbrs: [192.168.255.1, 2.2.2.2]
 ```
 
-### Desired state
+## Desired state
 
-A YAML formatted data structure built from a template (with *nornir-template*) using data from the input variable file. The output us is not saved to file but still needs loading to serialise YAML and the output converted from a list of dicts *[cmd: {seq: ket:val}]* into a dictionary of cmds *{cmd: {seq: key:val}}*.
-
-The formatting is the same as used with napalm_validate with lists of commands, so for example to check OSPF and port-channels from the above example the jinja template would be as follows. *feature* matches the name of the features within the input file. *strict* mode means that it has to be an exact match, no more or no less. This can be omitted if that is not a requirement.
+The input variable file is rendered by a jinja template to produce a YAML formatted list if dictionaries with the key being the command and the value the desired output. *feature* matches the name of the features within the input file to make the rendering conditional. *strict* mode means that it has to be an exact match, no more or no less. This can be omitted if that is not a requirement.
 
 ```jinja
 {% if feature == 'ospf' %}
@@ -162,7 +162,7 @@ The formatting is the same as used with napalm_validate with lists of commands, 
 {% endif %}
 ```
 
-Below is an example of what the YAML output after rendering the template with the example input variables. Note, the remarks are not checked as are not part of the command out from the device.
+Below is an example of the YAML output after rendering the template with the example input variables.
 
 ```yaml
 - show etherchannel summary:
@@ -184,7 +184,7 @@ Below is an example of what the YAML output after rendering the template with th
       state: FULL
 ```
 
-The resulting python object generated from serialising the YAML output is saved as the host_var *desired_state*.
+The resulting python object is generated from serialising the YAML output and is stored as host_var *desired_state* to be later compared against the actual state in the compliance report.
 
 ```python
 {'show etherchannel summary': {'Po2': {'members': {'Gi0/15': {'mbr_status': 'P'},
@@ -197,17 +197,13 @@ The resulting python object generated from serialising the YAML output is saved 
                            '_mode': 'strict'}}
 ```
 
-### Actual state
+## Actual state
 
-The actual_state is the devices command output converted into a data structure that matches that of the desired state. Due to complexity in creating the data structure python logic rather than jinja templating is used to accomplish this. To allow for ease of expansion *actual_state.py* is split into three sections.
+Netmiko is used to gather the command outputs and create a NTC textFSM formatted data model from them which are then passed into *actual_state.py* to convert them into a data structure that matches that of the desired state. Due to complexity in creating the data structure python logic rather than jinja templating is used to accomplish this.
 
-- ***Mini-functions:*** Functions used by any other functions for repeatable tasks to keep it DRY
-- ***actual_state_engine:*** The engine that will run the specific actual state formatting function dependant on the devices OS
-- ***os_type_formatting:*** Per-OS function to create the actual state file for all the commands for that specific device OS type
+Based on the *os_type* of the device (nornir *platform*) a dictionary of the *command* (key) and *command output* (value) are passed through an os_type specific method to a structured nested dictionary (dictionary of dictionaries) that matches the formatting of the desired state.
 
-The *validate_task* function (in *nornir_validate.py*) passes the command output into *actual_state.py* as a dictionary with the *command* as the key and the *command output* as the value. The *actual_state_engine* function loops through the dictionary and passes both the key and value into the OS specific *os_type_formatting* function based on the OS type got from the Nornir *platform* host_var. The *command* (key) is matched upon and formatting applied on the *command output* (value) to create a structured nested dictionary (dictionary of dictionaries) that matches the desired state.
-
-For example, the python logic to format the OSPF and port-channel:
+For example, the python logic to format the OSPF and port-channel looks like this.
 
 ```python
     if "show ip ospf neighbor" in cmd:
@@ -223,7 +219,7 @@ For example, the python logic to format the OSPF and port-channel:
             tmp_dict[each_po['po_name']]['members'] = po_mbrs
 ```
 
-will create the *actual_state* of:
+This will create an *actual_state* of:
 
 ```python
 {'show etherchannel summary': {'Po3': {'members': {'Gi0/15': {'mbr_status': 'D'},
@@ -234,15 +230,15 @@ will create the *actual_state* of:
                            '2.2.2.2': {'state': 'FULL'}}}
 ```
 
-For each command the formatting will be different as the captured data is different, however the principle will be the same. The command (*cmd*) and result (*tmp_dict*) are added to the *actual_state* dictionary and returned to the engine.
+For each command the formatting will be different as the captured data is different, however the principle is same in terms of the structure. The command (*cmd*) and result (*tmp_dict*) are added to the *actual_state* dictionary and returned to be used along with the desired_state in the compliance_report.
 
+## Validation builder
 
+At the moment there are only example desired_state templates and actual_state python logic for IOS commands *show ip access-lists*, *show ip ospf neighbor* and *show etherchannel summary*. The *validation_builder* directory has a script to assist with building new validations, there is a README in this directory which give more details on running this.
 
-Validation builder is other folder etc, etc
-
-1. Add to github private, finish README and understand how works (test with importing)
-2. Add unit tests
-3. run black on it to get formatting correct
+1. run black on it to get formatting correct
+2. proof read everything and code
+3. enter PR for napalm
 4. Publish on github
 
 

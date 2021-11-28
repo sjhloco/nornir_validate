@@ -32,7 +32,7 @@ The script can be run with any of these flags to assist with the different stage
 
 The following steps walk through creating a new validation using the validate builder.
 
-### 1. Create the desired state template
+## 1. Create the desired state template
 
 The first step is to define the Jinja2 template (*desired_state.j2*) which is used to create the *desired_state*. This is a YAML formatted list of nested dictionaries with the command being the key.
 
@@ -75,7 +75,7 @@ vvvv desired_state_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END desired_state_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-### 2. Discover textFSM formatted command output
+## 2. Discover textFSM formatted command output
 
 The discovery stage will gather the command output from the device and format it in to data structure. Within *desired_state.yml* define a dictionary of commands of which to gather the output, the command is the key and the value can be an empty dictionary as at this stage it is just being used to run the command.
 
@@ -100,7 +100,7 @@ vvvv discovery_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END discovery_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-### 3. Create actual state
+## 3. Create actual state
 
 Based on the discovery output build the formatting for the actual state in *actual_state.py* on a *os_type* basis. The idea is that the result of this formatting should match the JSON formatted output from step1 (minus top-level dict of *result* and *_mode*).
 

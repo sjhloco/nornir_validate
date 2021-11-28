@@ -57,6 +57,9 @@ def iosxe_format(cmd:str, output:List, tmp_dict:Dict[str, None], actual_state: D
                 tmp_dict[each_ace['line_num']]['dst'] = acl_scr_dst(each_ace, 'dst')
                 if each_ace.get('dst_port')  != None:
                     tmp_dict[each_ace['line_num']]['dst_port'] = each_ace['dst_port']
+                elif each_ace.get('icmp_type')  != None:
+                    tmp_dict[each_ace['line_num']]['icmp_type'] = each_ace['icmp_type']
+
     # OSPF: Creates OSPF dicts in the format {ospf_nbr_rid: {state: nbr_state}}
     elif "show ip ospf neighbor" in cmd:
         for each_nhbr in output:

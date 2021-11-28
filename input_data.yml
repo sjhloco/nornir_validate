@@ -19,7 +19,7 @@ all:
       ace:
         - { deny: 10.10.20.11 }
         - { permit: any }
-#   po:
-#     - name: Po3
-#       mode: LACP
-#       members: [Gi0/15, Gi0/16]
+  # po:
+  #   - name: Po3
+  #     mode: LACP
+  #     members: [Gi0/15, Gi0/16]
