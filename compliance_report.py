@@ -35,8 +35,7 @@ def report_file(hostname: str, directory: str, report: Dict[str, Any], complies:
     existing_report.update(report)
     with open(filename, 'w') as file_content:
         json.dump(existing_report, file_content)
-    report_text = " The report can be viewed using:  "\
-                    f"\n \33[3m\033[1;37m\33[30m  cat {filename} | python -m json.tool \033[0;0m"
+    return f" The report can be viewed using:  \n \33[3m\033[1;37m\33[30m  cat {filename} | python -m json.tool \033[0;0m"
 
 
 # VALIDATE: Uses naplam_validate on custom data fed into it (still supports '_mode: strict') to validate and create reports
@@ -56,10 +55,12 @@ def compliance_report(desired_state: Dict[str, Dict], actual_state: Dict[str, Di
     # RESULT: Results of compliance report (complies = validation result, skipped (list of skipped cmds) = validation didn't run)
     complies = all([each_cmpl.get("complies", True) for each_cmpl in report.values()])
     skipped = [cmd for cmd, output in report.items() if output.get("skipped", False)]
-    report_text = ''        # Empty value if report_file not created
+
     # REPORT_FILE: Save report to file, if not add complies and skipped dictionary to report
     if hostname != None and directory != None:
-        report_file(hostname, directory, report, complies, skipped)
+        report_text = report_file(hostname, directory, report, complies, skipped)
+    else:
+        report_text = ''        # Empty value if report_file not created
     # These must be added after the report
     report['complies'] = complies
     report['skipped'] = skipped
