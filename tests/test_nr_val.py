@@ -8,10 +8,10 @@ from nornir import InitNornir
 from nornir.core.task import Result
 
 from .test_data import desired_actual_cmd
-from nornir_validate import template_task
-from nornir_validate import input_task
-from nornir_validate import actual_state_engine
-from compliance_report import compliance_report
+from nr_val import template_task
+from nr_val import input_task
+from nr_val import actual_state_engine
+from compliance_report import report
 from compliance_report import report_file
 
 
@@ -83,7 +83,7 @@ class TestNornirValidate:
 class TestComplianceReport:
 
     #5a. COMPL_REPORT: Tests compliance report pass and ignoring empty outputs
-    def test_compliance_report(self):
+    def test_report(self):
         state = {"show ip ospf neighbor": {"192.168.255.1": {"state": "FULL"}}, "show version": None}
         desired_output = {
                     "failed": False,
@@ -96,7 +96,7 @@ class TestComplianceReport:
                             "missing": [],
                             "extra": []},
                         "skipped": []}}
-        actual_output = compliance_report(state, state, 'TEST_HOST', None)
+        actual_output = report(state, state, 'TEST_HOST', None)
         assert actual_output == desired_output, "❌ compliance_report: Report for a compliance of true failed"
 
         #5b. COMPL_REPORT: Tests compliance report fail when combining the compliance from multiple commands
@@ -104,7 +104,7 @@ class TestComplianceReport:
                          "show etherchannel summary": {"Po3": {"members": {"Gi0/15": {"mbr_status": "P"}}, "protocol": "LACP", "status": "U"}}}
         actual_state = {"show ip ospf neighbor": {"192.168.255.1": {"state": "FULL"}, "2.2.2.2": {"state": "FULL"}},
                         "show etherchannel summary": {"Po3": {"members": {"Gi0/15": {"mbr_status": "P"}}, "protocol": "LACP", "status": "U"}}}
-        actual_output = compliance_report(desired_state, actual_state, 'TEST_HOST', None)
+        actual_output = report(desired_state, actual_state, 'TEST_HOST', None)
         desired_output = {
                     "failed": True,
                     "result": {

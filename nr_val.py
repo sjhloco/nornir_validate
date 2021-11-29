@@ -1,8 +1,10 @@
 from typing import Any, Dict, List
 import logging
-import yaml
 import argparse
+import yaml
 from collections import defaultdict
+import os
+import sys
 
 from nornir import InitNornir
 from nornir.core.task import Task, Result
@@ -11,8 +13,10 @@ from nornir_utils.plugins.tasks.data import load_yaml
 from nornir_netmiko.tasks import netmiko_send_command
 from nornir_utils.plugins.functions import print_result
 
+# Needed so can find modules when is import into another script
+sys.path.insert(0, "nornir_validate")
 from templates.actual_state import format_actual_state
-from compliance_report import compliance_report
+from compliance_report import report
 
 
 ############################### Manually defined variables and user input ###############################
@@ -37,17 +41,23 @@ def _create_parser() -> Dict[str, Any]:
 #################### 1. Import input vars creating host_var of desired state ####################
 def input_task(task: Task, input_file: str, template_task: str) -> str:
     desired_state: Dict[str, Any] = {}
+    # Needed incase importing the module
+    if "nornir_validate" in os.getcwd():
+        tmpl_path = "templates/"
+    else:
+       tmpl_path =  "nornir_validate/templates/"
+
     #1a. LOAD: Load the the input file
     input_vars = task.run(task=load_yaml, file=input_file)
     #1b. TMPL: Create the desired_state for each feature to be validated (double 'if' to stop error if top level dict not exist)
     if input_vars.result.get('hosts') != None:
         if input_vars.result['hosts'].get(str(task.host)) != None:
-            task.run(task=template_task, tmpl_path="templates/", input_vars=input_vars.result['hosts'][str(task.host)], desired_state=desired_state)
+            task.run(task=template_task, tmpl_path=tmpl_path, input_vars=input_vars.result['hosts'][str(task.host)], desired_state=desired_state)
     if input_vars.result.get('groups') != None:
         if input_vars.result['groups'].get(str(task.host.groups[0])) != None:
-            task.run(task=template_task, tmpl_path="templates/", input_vars=input_vars.result['groups'][str(task.host.groups[0])], desired_state=desired_state)
+            task.run(task=template_task, tmpl_path=tmpl_path, input_vars=input_vars.result['groups'][str(task.host.groups[0])], desired_state=desired_state)
     if input_vars.result.get('all') != None:
-        task.run(task=template_task, tmpl_path="templates/", input_vars=input_vars.result['all'], desired_state=desired_state)
+        task.run(task=template_task, tmpl_path=tmpl_path, input_vars=input_vars.result['all'], desired_state=desired_state)
     #1c. VAR: Create host_var of combined desired states or exits if nothing to be validated
     if len(desired_state) == 0:
         result_text = u"\u26A0\uFE0F  No validations were performed as no desired_state was generated, check input file and template"
@@ -105,7 +115,7 @@ def validate_task(task: Task, input_file: str =input_file, directory: str =repor
     #4b. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
     actual_state = actual_state_engine(task.host, cmd_output)
     #4c. VAL: Uses Napalm_validate validate method to generate a compliance report
-    comp_result = compliance_report(task.host['desired_state'], actual_state, str(task.host), directory)
+    comp_result = report(task.host['desired_state'], actual_state, str(task.host), directory)
     #4d. RSLT: Nornir returns compliance result or if fails the compliance report
     return Result(host=task.host, failed=comp_result['failed'], result=comp_result['result'], report=comp_result['report'])
 

@@ -1,11 +1,10 @@
-from typing import Any, Dict, List
+from typing import Any, Dict
 from napalm.base import validate
 from napalm.base.exceptions import ValidationException
 import json
 import os
 import re
 import datetime
-import ipdb
 
 # FIX: napalm_validate doesn't recognize ~/ for home drive, also used in report method
 def fix_home_path(input_path: str) -> str:
@@ -39,7 +38,7 @@ def report_file(hostname: str, directory: str, report: Dict[str, Any], complies:
 
 
 # VALIDATE: Uses naplam_validate on custom data fed into it (still supports '_mode: strict') to validate and create reports
-def compliance_report(desired_state: Dict[str, Dict], actual_state: Dict[str, Dict], hostname: str, directory: str):
+def report(desired_state: Dict[str, Dict], actual_state: Dict[str, Dict], hostname: str, directory: str):
     report: Dict[str, Any] = {}
     for cmd, desired_results in desired_state.items():
         # Safe guard in case any empty desired_results, stops script failing

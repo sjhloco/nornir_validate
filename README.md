@@ -71,7 +71,7 @@ report_directory = None
 Specifying anything other than *None* for the *report_directory* will cause the compliance report to be saved in that location, the naming format is *hostname_compliance_report_YYYY-MM-DD.json*
 
 ```python
-python nornir_validate.py
+python nr_val.py
 ```
 
 If the overall compliance report passes (all command validations comply) a message is returned to Nornir (can optionally save to file). If it does not comply or a validation was skipped (due to napalm_validate implementation error) the report is returned to Nornir as well as marking the Nornir task as failed.
@@ -85,10 +85,10 @@ Rather than using the inventory in *nornir_validate* the ***validate_task*** fun
 ```python
 from nornir import InitNornir
 from nornir_utils.plugins.functions import print_result
-from nornir_validate import validate_task
+from nornir_validate.nr_val import validate_task
 
 nr = InitNornir(config_file="config.yml")
-result = nr.run(task=validate_task)
+result = nr.run(task=validate_task, input_file="job1_input_data.yml")
 print_result(result)
 ```
 
@@ -257,3 +257,18 @@ move actual_state.py to templates, include OS-type when it is called, dont need 
 9.  Update Orion and write unit tests
 10. run black on Orion
 11. submit to Nornir
+
+
+To run as import had to add followijng
+
+need info about tiemp and need to make proper program later
+
+
+import os
+import sys
+sys.path.insert(0, "nornir_validate")
+from templates.actual_state import format_actual_state
+from compliance_report import compliance_report
+
+
+tmpl_path = os.path.join(os.getcwd(), "nornir_validate/templates/")
