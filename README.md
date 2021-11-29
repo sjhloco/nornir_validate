@@ -76,7 +76,7 @@ python nr_val.py
 
 If the overall compliance report passes (all command validations comply) a message is returned to Nornir (can optionally save to file). If it does not comply or a validation was skipped (due to napalm_validate implementation error) the report is returned to Nornir as well as marking the Nornir task as failed.
 
-![run_example](https://user-images.githubusercontent.com/33333983/143839107-7bce89a5-d0f8-45d3-8553-4040266c69fb.gif)
+![run_example](https://user-images.githubusercontent.com/33333983/143948220-65f6745c-a67b-46ca-8791-39131f82ca32.gif)
 
 ### Imported
 
