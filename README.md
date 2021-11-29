@@ -1,11 +1,11 @@
 # Nornir Validate
 
-Uses Nornir (with ***nornir-netmiko***) to gather and format device output before feeding this into ***napalm-validate*** in the form of *actual_state* and *desired_state* to produce a *compliance report*. The idea behind this is for running pre and post checks on network devices based and an input file of the desired device state.
+Uses Nornir (with ***nornir-netmiko***) to gather and format device output before feeding this into ***napalm-validate*** in the form of ***actual_state*** and ***desired_state*** to produce a ***compliance report***. The idea behind this is for running pre and post checks on network devices based and an input file of the desired device state.
 
-As the name suggests I have not reinvented the wheel here, I have just extended *napalm_validate* to validate on commands rather than getters to allow the flexibility validate any command output. This is done by importing the *napalm_validate compare* method and feeding in the *desire_state* and *actual_state* manually. To understand what I am waffling on about in this README you need to understand the following terms:
+As the name suggests I have not reinvented the wheel here, I have just extended *napalm_validate* to validate on commands rather than getters to allow me the flexibility to validate any command output. This is done by importing the *napalm_validate compare* method and feeding in the *desire_state* and *actual_state* manually. To understand what I am waffling on about in this README you need to understand the following terms:
 
-- **desired_state:** The state you expect the device to be in. For example, you could expect that the device has certain BGP peers or all ports in all port-channels are up
-- **actual_state:** This is real-time state of the device gathered by connecting to it and scraping the output show commands
+- **desired_state:** The state you expect the device to be in. For example, you could expect that the device has certain OSPF neighbors, specific CDP neighbors or that all ports in a port-channel are up
+- **actual_state:** This is real-time state of the device gathered by connecting to it and scraping the output of show commands
 
 ## Installation and Prerequisites
 
@@ -24,39 +24,39 @@ pip install -r requirements.txt
 There a couple of bugs in current releases of nornir and netmiko that effect how this script runs, below describes the workarounds for these.
 
 **netmiko**\
-If using python3.9 will get the error as described in [bug](https://github.com/ktbyers/netmiko/pull/2274)\
-`IsADirectoryError: [Errno 21] Is a directory: '/Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/ntc_templates/templates'`
+If using python3.9 the script will fail with this error as described in [bug](https://github.com/ktbyers/netmiko/pull/2274)\
+`IsADirectoryError: [Errno 21] Is a directory: '/Users/user1/venv/nr_val/lib/python3.9/site-packages/ntc_templates/templates'`
 
-The current Netmiko version of 3.4 doesn't have the fix yet so replace *utilities.py* with the fixed file in you local netmiko package. Dont forget to swap */Users/mucholoco/venv/nr_val* with your own virtual environment.
+The current Netmiko version (3.4) doesn't yet have the fix so replace *utilities.py* from your local netmiko directory with *bug_fixes/utilities.py* that has the bug fix applied. In the commands swap out */Users/user1/venv/nr_val* with your own virtual environment.
 
 ```bash
-mv /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py_ORIG
-cp bug_fixes/utilities.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py
+mv /Users/user1/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py_ORIG
+cp bug_fixes/utilities.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py
 ```
 
 **nornir_utils**\
-This [bug](xxx) is purely cosmetic so doesn't effect the functionality, is upto you if you want to apply the fix.
+This [bug](xxx) is purely cosmetic so doesn't effect the functionality, is upto you if you want to apply or not.
 
 ```bash
-mv /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py_ORIG
-cp bug_fixes/print_result.py /Users/mucholoco/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py
+mv /Users/user1/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py_ORIG
+cp bug_fixes/print_result.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py
 ```
 
 ## Running nornir-validate
 
-Before being able to generate a meaningful compliance report you need to edit the following elements to fit your own environments desired state. These are explained in more detail in the later sections.
+Before being able to generate a meaningful compliance report you will need to edit the following elements, they are explained in more detail in the later sections.
 
-- **input variables**: A yaml file (default *input_data.yml*) that holds the host and group variables that describe the desired state of that device
-- **desired_state template:** A jinja template (default *desired_state.j2*) that is rendered using the input variables to create the desired state of the device
-- **actual_state python logic:** A python method (in *actual_state.py*) that creates a data structure from the devices command output that can be used as a comparison against the desired state
+- **input variables**: A yaml file (default *input_data.yml*) that holds the host and group variables that describe the desired state of the network
+- **desired_state template:** A jinja template (default *desired_state.j2*) that is rendered using the input variables to create the desired state
+- **actual_state python logic:** A python method (in *actual_state.py*) that creates a data structure from command outputs to be used as a comparison against the desired state
 
-*nornir_validate* can be run independently as a standalone script or imported into an existing script to use that scripts existing Nornir inventory.
+***nornir_validate*** can be run independently as a standalone script or imported into a script to use that scripts existing Nornir inventory.
 
 ### Standalone
 
-When run as standalone *nornir_validate* creates its own Nornir inventory using the configuration file (*config.yml*) in the */nornir_validate/* root directory and the *hosts.yml*, *groups.yml* and *defaults.yml* files from */nornir_validate/inventory/*.
+When run as standalone *nornir_validate* creates its own Nornir inventory using the *config.yml* configuration file and the *hosts.yml*, *groups.yml* and *defaults.yml* files located in the *inventory* directory.
 
-By default it uses the input variable file */nornir_validate/input_data.yml* and does not save the compliance report to file. Either of these can be changed in the variable section at the start of *nornir_template.py* or overridden by using flags at runtime.
+By default it uses an input variable file called  *input_data.yml* and the compliance report is not saved to file. Either of these can be changed in the variables section at the start of *nornir_template.py* or overridden using flags at runtime.
 
 ```python
 input_file = "input_data.yml"
@@ -65,7 +65,7 @@ report_directory = None
 
 | flag           | Description |
 | -------------- | ----------- |
-| `-i` or `--filename` | Overrides the value set in the *input_file* variable |
+| `-f` or `--filename` | Overrides the value set in the *input_file* variable |
 | `-d` or `--directory` | Overrides the value set in *directory* variable |
 
 Specifying anything other than *None* for the *report_directory* will cause the compliance report to be saved in that location, the naming format is *hostname_compliance_report_YYYY-MM-DD.json*
@@ -95,7 +95,7 @@ print_result(result)
 To change the input file or directory add either as an argument when calling the function.
 
 ```python
-result = nr.run(task=validate_task, input_file='/Users/mucholoco/nornir_validate/my_input_data.yml', directory='/Users/mucholoco/nornir_validate/')
+result = nr.run(task=validate_task, input_file='/Users/user1/nornir_validate/my_input_data.yml', directory='/Users/user1/nornir_validate/')
 ```
 
 ## Input Variables

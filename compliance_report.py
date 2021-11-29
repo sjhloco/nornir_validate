@@ -56,15 +56,15 @@ def compliance_report(desired_state: Dict[str, Dict], actual_state: Dict[str, Di
     # RESULT: Results of compliance report (complies = validation result, skipped (list of skipped cmds) = validation didn't run)
     complies = all([each_cmpl.get("complies", True) for each_cmpl in report.values()])
     skipped = [cmd for cmd, output in report.items() if output.get("skipped", False)]
+    report_text = ''        # Empty value if report_file not created
     # REPORT_FILE: Save report to file, if not add complies and skipped dictionary to report
     if hostname != None and directory != None:
         report_file(hostname, directory, report, complies, skipped)
-    else:
-        report['complies'] = complies
-        report['skipped'] = skipped
-        report_text = ''        # Empty value if report_file not created
+    # These must be added after the report
+    report['complies'] = complies
+    report['skipped'] = skipped
     # RETURN_RESULT: If compliance fails set state failed (used by Nornir). report dict is used in validation builder
-    if report['complies'] == True:
+    if complies == True:
         return dict(failed=False, result=u"\u2705 Validation report complies, desired_state and actual_state match." + report_text, report=report)
-    if report['complies'] == False or skipped == True:
+    if complies == False or skipped == True:
         return dict(failed=True, result=report, report=report)
