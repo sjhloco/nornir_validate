@@ -80,7 +80,7 @@ If the overall compliance report passes (all command validations comply) a messa
 
 ### Imported
 
-Rather than using the inventory in *nornir_validate* the ***validate_task*** function can be imported into a script to make use of an already existing nornir inventory.
+Rather than using the inventory in *nornir_validate* the ***validate_task*** function can be imported into a script to make use of an already existing nornir inventory. It is mandatory to specify the *input_file* argument, *directory* is only needed if you want to save the report to file.
 
 ```python
 from nornir import InitNornir
@@ -88,14 +88,8 @@ from nornir_utils.plugins.functions import print_result
 from nornir_validate.nr_val import validate_task
 
 nr = InitNornir(config_file="config.yml")
-result = nr.run(task=validate_task, input_file="job1_input_data.yml")
+result = nr.run(task=validate_task, input_file="my_input_data.yml")
 print_result(result)
-```
-
-To change the input file or directory add either as an argument when calling the function.
-
-```python
-result = nr.run(task=validate_task, input_file='/Users/user1/nornir_validate/my_input_data.yml', directory='/Users/user1/nornir_validate/')
 ```
 
 ## Input Variables
