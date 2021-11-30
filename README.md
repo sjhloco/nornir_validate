@@ -167,7 +167,7 @@ The input variable file (***input_data.yml***) is rendered by a jinja template (
 
 Below is an example of the YAML output after rendering the template with the example input variables.
 
-```yaml
+```bash
 - show etherchannel summary:
     Po2:
       status: U
@@ -239,7 +239,7 @@ The desired_state and actual_state are fed into ***compliance_report.py*** which
 
 This example shows a failed compliance report where the ACLs passed but OSPF failed due to a missing OSPF neighbor (2.2.2.2.)
 
-```json
+```python
 { 'complies': False,
   'show ip access-lists TEST_SNMP_ACCESS': { 'complies': True,
                                              'extra': [],
