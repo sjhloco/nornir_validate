@@ -1,6 +1,8 @@
 # These dictionaries are used to test templated desired state (test_input_task) and formatted actual state (test_actual_state_cmds)
 
-################ DESIRED: The desired state after it has been templated and assigned as a host_var ################
+# --------------------------------------------------------------------------------------
+# DESIRED: The desired state after it has been templated and assigned as a host_var
+# --------------------------------------------------------------------------------------
 desired_state = {
     'show ip ospf neighbor': {'_mode': 'strict', '192.168.255.1': {'state': 'FULL'}, '2.2.2.2': {'state': 'FULL'}},
     'show ip access-lists TEST_SSH_ACCESS': {'_mode': 'strict',
@@ -15,8 +17,9 @@ desired_state = {
                                 'Gi0/16': {'mbr_status': 'P'}}}}
                 }
 
-
-################ ACTUAL: The actual state after it has been formated by actual_state.py ################
+# --------------------------------------------------------------------------------------
+# ACTUAL: The actual state after it has been formated by actual_state.py
+# --------------------------------------------------------------------------------------
 actual_state = {
     "show ip ospf neighbor": {"192.168.255.1": {"state": "FULL"}, "2.2.2.2": {"state": "FULL"}},
     "show ip access-lists TEST_SSH_ACCESS": {"10": {"action": "permit", "dst": "any", "protocol": "ip", "src": "10.17.10.0/24"},
@@ -25,8 +28,9 @@ actual_state = {
     "show etherchannel summary": {"Po3": {"members": {"Gi0/15": {"mbr_status": "D"}, "Gi0/16": {"mbr_status": "D"}}, "protocol": "LACP", "status": "SD"}}
 }
 
-
-################ CMD: The command output (textFSM formatted) that is used to format the actual_state ################
+# --------------------------------------------------------------------------------------
+# CMD: The command output (textFSM formatted) that is used to format the actual_state
+# --------------------------------------------------------------------------------------
 cmd_output = {
     "show ip ospf neighbor": [{"address":"192.168.255.1",
                                 "dead_time": "00:00:35",

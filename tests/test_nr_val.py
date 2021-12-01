@@ -14,14 +14,16 @@ from nr_val import actual_state_engine
 from compliance_report import report
 from compliance_report import report_file
 
-
+# ----------------------------------------------------------------------------
 # Directory that holds inventory files and load ACL dict (show, delete, wcard, mask, prefix)
+# ----------------------------------------------------------------------------
 test_inventory = os.path.join(os.path.dirname(__file__), 'test_inventory')
 test_data = os.path.join(os.path.dirname(__file__), 'test_data')
 template_dir = os.path.join(os.getcwd(), "templates/")
 
-
+# ----------------------------------------------------------------------------
 # Fixture to initialise Nornir and load inventory
+# ----------------------------------------------------------------------------
 @pytest.fixture(scope="session", autouse=True)
 def load_inv_and_data():
     global nr, input_vars
@@ -31,8 +33,9 @@ def load_inv_and_data():
     with open(os.path.join(test_data, "input_data.yml"),'r') as file_content:
                 input_vars = yaml.load(file_content, Loader=yaml.FullLoader)
 
-
-#### Tests all the methods within nornir_validate.py
+# ----------------------------------------------------------------------------
+# Tests all the methods within nornir_validate.py
+# ----------------------------------------------------------------------------
 class TestNornirValidate:
 
     #1. TEMPLATE: Checks nornir-template rendered data is converted into a dictionary of commands
@@ -78,8 +81,9 @@ class TestNornirValidate:
     def test_validate_task(self):
         pass
 
-
-#### Tests all the methods within nornir_validate.py
+# ----------------------------------------------------------------------------
+# Tests all the methods within nornir_validate.py
+# ----------------------------------------------------------------------------
 class TestComplianceReport:
 
     #5a. COMPL_REPORT: Tests compliance report pass and ignoring empty outputs

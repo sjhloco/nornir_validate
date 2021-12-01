@@ -1,8 +1,9 @@
 from typing import Dict, List
 import ipaddress
 
-
-##################### Engine to run different formatters #####################
+# ----------------------------------------------------------------------------
+# Engine to run different formatters
+# ----------------------------------------------------------------------------
 def format_actual_state(os_type: str, cmd:str, output:List, tmp_dict:Dict[str, None], actual_state: Dict[str, None]) -> Dict[str, Dict]:
     if 'ios' in os_type:
         iosxe_format(cmd, output, tmp_dict, actual_state)
@@ -12,9 +13,10 @@ def format_actual_state(os_type: str, cmd:str, output:List, tmp_dict:Dict[str, N
         pass
     return actual_state
 
-
-##################### Mini-functions used by all OS types to keep DRY #####################
-## ACL_FORMAT: Removes all the empty dictionaries from ACL list of dicts
+# ----------------------------------------------------------------------------
+# Mini-functions used by all OS types to keep DRY
+# ----------------------------------------------------------------------------
+# ACL_FORMAT: Removes all the empty dictionaries from ACL list of dicts
 def acl_format(input_acl: List) -> List:
     acl: List = []
     for each_acl in input_acl:
@@ -25,7 +27,7 @@ def acl_format(input_acl: List) -> List:
         acl.append(tmp_acl)
     return acl
 
-## ACL_ADDR: Converts addressing into address/prefix
+# ACL_ADDR: Converts addressing into address/prefix
 def acl_scr_dst(each_ace:Dict[str, str], src_dst:str) -> str:
     if each_ace.get(src_dst + '_network') != None:
         addr = each_ace[src_dst + '_network'] + '/' + each_ace[src_dst + '_wildcard']
@@ -35,15 +37,16 @@ def acl_scr_dst(each_ace:Dict[str, str], src_dst:str) -> str:
     else:
         return each_ace[src_dst + '_any']
 
-## REMOVE: Removes the specified character and anything after it
+# REMOVE: Removes the specified character and anything after it
 def remove_char(input_data:str, char: str) -> str:
     if char in input_data:
         return input_data.split(char)[0]
     else:
         return input_data
 
-
-##################### IOS/IOS-XE desired state formatting #####################
+# ----------------------------------------------------------------------------
+# IOS/IOS-XE desired state formatting
+# ----------------------------------------------------------------------------
 def iosxe_format(cmd:str, output:List, tmp_dict:Dict[str, None], actual_state: Dict[str, None]) -> Dict[str, Dict]:
     # ACL: Creates ACL dicts in the format [{acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, pst_port: port}]
     if "show ip access-lists" in cmd:
@@ -74,7 +77,6 @@ def iosxe_format(cmd:str, output:List, tmp_dict:Dict[str, None], actual_state: D
                 # Creates dict of members to add to as value in the PO dictionary
                 po_mbrs[mbr_intf] = {'mbr_status': mbr_status}
             tmp_dict[each_po['po_name']]['members'] = po_mbrs
-
 
     actual_state[cmd] = dict(tmp_dict)
     return actual_state

@@ -6,15 +6,18 @@ import os
 import re
 import datetime
 
-# FIX: napalm_validate doesn't recognize ~/ for home drive, also used in report method
+# ----------------------------------------------------------------------------
+# FIX: napalm_validate doesn't recognize ~/ for home drive
+# ----------------------------------------------------------------------------
 def fix_home_path(input_path: str) -> str:
     if re.match('^~/', input_path):
         return os.path.expanduser(input_path)
     else:
         return input_path
 
-
+# -------------------------------------------------------------------------------------------
 # REPORT_FILE: If a hostname and directory are passed in as function arguments saves report to file
+# --------------------------------------------------------------------------------------------
 def report_file(hostname: str, directory: str, report: Dict[str, Any], complies: bool, skipped: bool):
     filename = os.path.join(fix_home_path(directory),  hostname + '_compliance_report_' + str(datetime.date.today()) + '.json')
     # If report file already exists conditionally updates 'skipped' and 'complies' with report outcome
@@ -36,8 +39,9 @@ def report_file(hostname: str, directory: str, report: Dict[str, Any], complies:
         json.dump(existing_report, file_content)
     return f" The report can be viewed using:  \n \33[3m\033[1;37m\33[30m  cat {filename} | python -m json.tool \033[0;0m"
 
-
-# VALIDATE: Uses naplam_validate on custom data fed into it (still supports '_mode: strict') to validate and create reports
+# ----------------------------------------------------------------------------------------------------------
+# VALIDATE: Uses naplam_validate on custom data fed in (still supports '_mode: strict') to validate and create reports
+# ----------------------------------------------------------------------------------------------------------
 def report(desired_state: Dict[str, Dict], actual_state: Dict[str, Dict], hostname: str, directory: str):
     report: Dict[str, Any] = {}
     for cmd, desired_results in desired_state.items():

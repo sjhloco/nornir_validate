@@ -18,15 +18,17 @@ sys.path.insert(0, "nornir_validate")
 from templates.actual_state import format_actual_state
 from compliance_report import report
 
-
-############################### Manually defined variables and user input ###############################
+# ----------------------------------------------------------------------------
+# Manually defined variables and user input
+# ----------------------------------------------------------------------------
 # Name of the input variable file (needs its full path)
 input_file = "input_data.yml"
 # Enter a directory location to save compliance report to file
 report_directory = None
 
-
-############################### Input Arguments ###############################
+# ----------------------------------------------------------------------------
+# Input Arguments
+# ----------------------------------------------------------------------------
 def _create_parser() -> Dict[str, Any]:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -37,8 +39,9 @@ def _create_parser() -> Dict[str, Any]:
     )
     return vars(parser.parse_args())
 
-
-#################### 1. Import input vars creating host_var of desired state ####################
+# ----------------------------------------------------------------------------
+# 1. Import input vars creating host_var of desired state
+# ----------------------------------------------------------------------------
 def input_task(task: Task, input_file: str, template_task: str) -> str:
     desired_state: Dict[str, Any] = {}
     # Needed incase importing the module
@@ -65,8 +68,9 @@ def input_task(task: Task, input_file: str, template_task: str) -> str:
     else:
        task.host['desired_state'] = desired_state
 
-
-#################### 2. Creates desired state YML from template and serializes it ####################
+# ----------------------------------------------------------------------------
+# 2. Creates desired state YML from template and serializes it
+# ----------------------------------------------------------------------------
 def template_task(task: Task, tmpl_path: str, input_vars: str, desired_state: Dict[str, Any]) -> str:
     for val_feature, feature_vars in input_vars.items():
         tmp_desired_state = task.run(task=template_file,
@@ -78,8 +82,9 @@ def template_task(task: Task, tmpl_path: str, input_vars: str, desired_state: Di
         for each_list in yaml.load(tmp_desired_state, Loader=yaml.SafeLoader):
             desired_state.update(each_list)
 
-
-##################### 3. Creates actual state by formatting cmd outputs #####################
+# ----------------------------------------------------------------------------
+# 3. Creates actual state by formatting cmd outputs
+# ----------------------------------------------------------------------------
 def actual_state_engine(host: "Nornir", cmd_output:Dict[str, List]) -> Dict[str, Dict]:
     actual_state: Dict[str, Any] = {}
     os_type: List = []
@@ -100,8 +105,9 @@ def actual_state_engine(host: "Nornir", cmd_output:Dict[str, List]) -> Dict[str,
 
     return actual_state
 
-
-#################### 4. Formats gathered output as actual state and runs compliance report ####################
+# ----------------------------------------------------------------------------
+# 4. Formats gathered output as actual state and runs compliance report
+# ----------------------------------------------------------------------------
 def validate_task(task: Task, input_file: str =input_file, directory: str =report_directory) -> str:
     task.run(task=input_task, input_file=input_file, template_task=template_task, severity_level=logging.DEBUG)
     cmd_output = {}
@@ -119,8 +125,9 @@ def validate_task(task: Task, input_file: str =input_file, directory: str =repor
     #4d. RSLT: Nornir returns compliance result or if fails the compliance report
     return Result(host=task.host, failed=comp_result['failed'], result=comp_result['result'], report=comp_result['report'])
 
-
-############################### Runs the script ###############################
+# ----------------------------------------------------------------------------
+# Runs the script
+# ----------------------------------------------------------------------------
 if __name__ == '__main__':
     args = _create_parser()
     nr = InitNornir(config_file="config.yml")

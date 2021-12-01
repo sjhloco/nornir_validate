@@ -98,9 +98,9 @@ As arguments within this function it is mandatory to specify the *input_file*, t
 result = nr.run(task=validate_task, input_file="my_input_data.yml", directory='/Users/user1/reports')
 ```
 
-## Input Variables
+## Input Data
 
-The input variable file holds the *host_vars* and *group_vars* which are made up of dictionaries of features and their values. It is made up of three optional dictionaries:
+The input data (variable) file holds the *host_vars* and *group_vars* which are made up of dictionaries of features and their values. It is made up of three optional dictionaries:
 
 - **hosts:** Dictionary of host names each holding dictionaries of host-specific variables for the different features being validated
 - **groups:** Dictionary of group names each holding dictionaries of group-specific variables for the different features being validated
@@ -167,7 +167,7 @@ The input variable file (***input_data.yml***) is rendered by a jinja template (
 
 Below is an example of the YAML output after rendering the template with the example input variables.
 
-```bash
+```yaml
 - show etherchannel summary:
     Po2:
       status: U

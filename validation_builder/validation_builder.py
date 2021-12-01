@@ -22,16 +22,18 @@ from nornir_validate import input_task
 from nornir_validate import template_task
 from compliance_report import compliance_report
 
-
-############################### Manually defined variables ###############################
+# ----------------------------------------------------------------------------
+# Manually defined variables
+# ----------------------------------------------------------------------------
 test_directory = "validation_builder"           # Directory where tests files are stored
 input_file = "input_data.yml"                   # Name of the input variable file
 desired_state = "desired_state.yml"             # Name of the static desired_state file
 desired_state_tmpl = "desired_state.j2"         # Name of the desired_state template
 actual_state = "actual_state.json"              # Name of the static actual_state file
 
-
-############################### Flags to define what is run, none take any values ###############################
+# ----------------------------------------------------------------------------
+# Flags to define what is run, none take any values
+# ----------------------------------------------------------------------------
 def _create_parser() -> Dict[str, Any]:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -51,8 +53,9 @@ def _create_parser() -> Dict[str, Any]:
         )
     return vars(parser.parse_args())
 
-
-############################### Validates existence of test files ###############################
+# ----------------------------------------------------------------------------
+# 1. Validates existence of test files
+# ----------------------------------------------------------------------------
 def _file_validation(test_directory: str, input_file: str, desired_state: str, desired_state_tmpl: str, actual_state: str) -> Dict[str, Any]:
     input_file = os.path.join(test_directory, input_file)
     desired_state = os.path.join(test_directory, desired_state)
@@ -71,8 +74,9 @@ def _file_validation(test_directory: str, input_file: str, desired_state: str, d
     elif len(errors) == 0:
         return dict(input_file=input_file, desired_state=desired_state, desired_state_tmpl=desired_state_tmpl, actual_state=actual_state)
 
-
-############################### Class of all validation builder methods ###############################
+# ----------------------------------------------------------------------------
+# 2. Class of all validation builder methods
+# ----------------------------------------------------------------------------
 class ValidationBuilder:
     def __init__(self, args: Dict[str, bool], files: Dict[str, Any]) -> None:
         self.discovery = args['discovery']
@@ -85,7 +89,7 @@ class ValidationBuilder:
         self.desired_state_tmpl = files['desired_state_tmpl']
         self.actual_state_file = files['actual_state']
 
-    # ENGINE: Runs tasks dependant on flags specified at runtime
+    # 2a. ENGINE: Runs tasks dependant on flags specified at runtime
     def engine(self) -> Result:
         nr = InitNornir(config_file="config.yml")
         if self.discovery == True:
@@ -107,7 +111,7 @@ class ValidationBuilder:
             print_title("Validation Builder - Compliance Report")
             return nr.run(task=self.report_task)
 
-    # TEMPLATE: Renders the template and prints result to screen (used by desired_state_task)
+    # 2b. TEMPLATE: Renders the template and prints result to screen (used by desired_state_task)
     def template_task(self, task: Task, input_vars: str, desired_state: Dict[str, Any]) -> None:
         # Required so doesn't print if running full report
         if self.desired_state == True:
@@ -127,8 +131,7 @@ class ValidationBuilder:
                 desired_state.update(each_list)
             task.run(name="template in JSON", task=echo_data, result=desired_state, severity_level=sev_level)
 
-
-    # DISCOVERY - Runs the desired_state commands on a device and prints the textFSM raw output
+    # 2c. DISCOVERY - Runs the desired_state commands on a device and prints the textFSM raw output
     def discovery_task(self, task: Task) -> Result:
         result: Dict[str, Any] = {}
         all_cmds = task.run(task=load_yaml, file=self.desired_state_file, severity_level=logging.DEBUG).result
@@ -140,18 +143,17 @@ class ValidationBuilder:
                                                         severity_level=logging.DEBUG).result
         return Result(host=task.host, result=result)
 
-    # ACTUAL - Runs the desired_state commands creating the formated actual_state and printing to screen
+    # 2d. ACTUAL - Runs the desired_state commands creating the formated actual_state and printing to screen
     def actual_state_task(self, task: Task) -> Result:
         cmd_output = task.run(task=self.discovery_task, severity_level=logging.DEBUG).result
         actual_state = actual_state_engine(task.host, cmd_output)
         return Result(host=task.host, result=actual_state)
 
-    # DESIRED - Renders the contents of desired_state.j2 and prints to screen
+    # 2e. DESIRED - Renders the contents of desired_state.j2 and prints to screen
     def desired_state_task(self, task: Task) -> Result:
         task.run(task=input_task, input_file=self.input_file, template_task=self.template_task, severity_level=logging.DEBUG)
 
-
-    # REPORT_DESIRED: Report from dynamically built desired_state and static actual_state
+    # 2f. REPORT_DESIRED: Report from dynamically built desired_state and static actual_state
     def report_desired_state_task(self, task: Task) -> Result:
         # Dynamically get the desired state
         task.run(task=input_task, input_file=self.input_file, template_task=template_task, severity_level=logging.DEBUG)
@@ -161,8 +163,7 @@ class ValidationBuilder:
         comp_result = compliance_report(task.host['desired_state'], actual_state, str(task.host), None)
         return Result(host=task.host, failed=comp_result['failed'], result=comp_result['report'])
 
-
-    # REPORT_ACTUAL: Report from dynamically built actual_state and static desired_state
+    # 2g. REPORT_ACTUAL: Report from dynamically built actual_state and static desired_state
     def report_actual_state_task(self, task: Task) -> Result:
         # Dynamically get the actual state
         actual_state = task.run(task=self.actual_state_task, severity_level=logging.DEBUG).result
@@ -175,14 +176,16 @@ class ValidationBuilder:
         comp_result = compliance_report(desired_state, actual_state, str(task.host), None)
         return Result(host=task.host, failed=comp_result['failed'], result=comp_result['report'])
 
-    # REPORT - Builds compliance report
+    # 2h. REPORT - Builds compliance report
     def report_task(self, task: Task) -> Result:
         actual_state = task.run(task=self.actual_state_task, severity_level=logging.DEBUG).result
         task.run(task=input_task, input_file=self.input_file, template_task=template_task, severity_level=logging.DEBUG)
         comp_result = compliance_report(task.host['desired_state'], actual_state, str(task.host), None)
         return Result(host=task.host, failed=comp_result['failed'], result=comp_result['report'])
 
-
+# ----------------------------------------------------------------------------
+# Runs the script
+# ----------------------------------------------------------------------------
 if __name__ == '__main__':
     args = _create_parser()
     files = _file_validation(test_directory, input_file, desired_state, desired_state_tmpl, actual_state)
