@@ -280,7 +280,7 @@ I plan to do the following over the coming months:
 - Drink a few beers 🍺🍺🍺
 - Maybe look at what is involved to add it as a nornir plugin
 
-To allow me to fudge it to be able to import it as a module (due to inheritance) I added the following to *nr_val.py* that I need to remember to remove when it gets packaged up, don't forget.....
+To allow me to fudge it to be able to import it as a module (due to inheritance) I added the following to *nr_val.py* that I need to remember to remove when it gets packaged up and check validation_builder (as effects inheritance), don't forget.....
 
 ```python
 import os
