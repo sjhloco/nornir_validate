@@ -19,28 +19,7 @@ cd nornir_validate/
 pip install -r requirements.txt
 ```
 
-### Caveats
-
-There a couple of bugs in current releases of nornir and netmiko that effect how this script runs, below describes the workarounds for these.
-
-**netmiko**\
-If using python3.9 the script will fail with this error as described in [bug](https://github.com/ktbyers/netmiko/pull/2274)\
-`IsADirectoryError: [Errno 21] Is a directory: '/Users/user1/venv/nr_val/lib/python3.9/site-packages/ntc_templates/templates'`
-
-The current Netmiko version (3.4) doesn't yet have the fix so replace *utilities.py* from your local netmiko directory with *bug_fixes/utilities.py* that has the bug fix applied. Obviously in the commands swap out */Users/user1/venv/nr_val* for your own virtual environment.
-
-```bash
-mv /Users/user1/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py_ORIG
-cp bug_fixes/utilities.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/netmiko/utilities.py
-```
-
-**nornir_utils**\
-This [bug](https://github.com/nornir-automation/nornir_utils/pull/22) is purely cosmetic so doesn't effect the functionality, is upto you if you want to apply the fix or not.
-
-```bash
-mv /Users/user1/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py_ORIG
-cp bug_fixes/print_result.py /Users/user1/venv/nr_val/lib/python3.9/site-packages/nornir_utils/plugins/functions/print_result.py
-```
+It is worth noting that I couldnt use the latest PyPI version of netmiko (3.4.0) or nornir-utils due to bugs for [ntc-templates parsing in netmiko](https://github.com/ktbyers/netmiko/pull/2274) and [nornir-utils print_result tasks](https://github.com/nornir-automation/nornir_utils/pull/22). Therefore *requirements.txt* installs the github repository versions that have the fixes for these issues.
 
 ## Running nornir_validate
 
