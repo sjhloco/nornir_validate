@@ -4,7 +4,7 @@ from napalm.base.exceptions import ValidationException
 import json
 import os
 import re
-import datetime
+from datetime import datetime
 
 # ----------------------------------------------------------------------------
 # FIX: napalm_validate doesn't recognize ~/ for home drive
@@ -24,7 +24,10 @@ def report_file(
 ):
     filename = os.path.join(
         fix_home_path(directory),
-        hostname + "_compliance_report_" + str(datetime.date.today()) + ".json",
+        hostname
+        + "_compliance_report_"
+        + datetime.now().strftime("%Y%m%d-%H:%M")
+        + ".json",
     )
     # If report file already exists conditionally updates 'skipped' and 'complies' with report outcome
     if os.path.exists(filename):
@@ -33,9 +36,7 @@ def report_file(
         if list(report.values())[0].get("skipped"):
             existing_report["skipped"].extend(skipped)
         # Only adds if is no already failing compliance
-        if (
-            existing_report.get("complies") == True
-        ):
+        if existing_report.get("complies") == True:
             existing_report["complies"] = complies
     # If creating a new report file adds 'complies' and 'skipped' with report outcome
     else:
