@@ -11,14 +11,15 @@
 {% elif feature == 'acl' %}
 {% for each_acl in input_vars %}
 - show ip access-lists {{ each_acl.name }}:
-    _mode: strict
+    {{ each_acl.name }}:
+      _mode: strict
 {% set seq = namespace(cnt=10) %}
 {% for each_ace in each_acl.ace %}{% if each_ace.keys() | list | first != 'remark' %}
-    '{{ seq.cnt }}':
-      action: {{ each_ace.keys() | list | first }}
-      protocol: ip
-      src: {{ each_ace.values() | list | first }}
-      dst: any
+      '{{ seq.cnt }}':
+        action: {{ each_ace.keys() | list | first }}
+        protocol: ip
+        src: {{ each_ace.values() | list | first }}
+        dst: any
 {% set seq.cnt = seq.cnt + 10 %}
 {% endif %}{% endfor %}
 {% endfor %}

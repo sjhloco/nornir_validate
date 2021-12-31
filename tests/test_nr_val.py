@@ -1,7 +1,7 @@
 import pytest
 import os
 import yaml
-import datetime
+from datetime import datetime
 import json
 
 from nornir import InitNornir
@@ -65,25 +65,61 @@ class TestNornirValidate:
         assert actual_output == desired_output, err_msg
 
     # 2a. INPUT: Used by input tests to get host_var info
-    def input_task_nr_task(self, task, input_file):
-        task.run(task=input_task, input_file=input_file, template_task=template_task)
+    def input_task_nr_task(self, task, input_data):
+        task.run(task=input_task, input_data=input_data, template_task=template_task)
         return Result(host=task.host, result=task.host["desired_state"])
 
-    # 2b. INPUT: Tests templated input_vars is assigned as a host_var (is testing templates)
-    def test_input_task(self):
-        err_msg = "❌ input_task: Input task to create desired_state host_var failed"
+    # 2b. INPUT_FILE: Tests templated input_vars is assigned as a host_var (is testing templates from file)
+    def test_input_task_file(self):
+        err_msg = (
+            "❌ input_task: Input task to create desired_state host_var from file failed"
+        )
         desired_output = desired_actual_cmd.desired_state
         actual_output = nr.run(
             task=self.input_task_nr_task,
-            input_file=os.path.join(test_data, "input_data.yml"),
+            input_data=os.path.join(test_data, "input_data.yml"),
         )
         assert actual_output["TEST_HOST"][0].result == desired_output, err_msg
-        # 2c. INPUT: Tests empty input_data is caught and an nornir exception raised
+
+    # 2c. INPUT_VAR: Tests templated input_vars is assigned as a group_var (is testing templates from var)
+    def test_input_task_var(self):
+        err_msg = "❌ input_task: Input task to create desired_state group_var from variable failed"
+        desired_output = {
+            "show ip access-lists TEST_SSH_ACCESS": desired_actual_cmd.desired_state[
+                "show ip access-lists TEST_SSH_ACCESS"
+            ]
+        }
+        input_data = {
+            "groups": {
+                "ios": {
+                    "acl": [
+                        {
+                            "name": "TEST_SSH_ACCESS",
+                            "ace": [
+                                {"remark": "MGMT Access - VLAN10"},
+                                {"permit": "10.17.10.0/24"},
+                                {"remark": "Citrix Access"},
+                                {"permit": "10.10.10.10/32"},
+                                {"deny": "any"},
+                            ],
+                        }
+                    ]
+                }
+            }
+        }
+        actual_output = nr.run(
+            task=self.input_task_nr_task,
+            input_data=input_data,
+        )
+        assert actual_output["TEST_HOST"][0].result == desired_output, err_msg
+
+    # 2d. INPUT_FILE: Tests empty input_data is caught and an nornir exception raised
+    def test_input_task_file_err(self):
         err_msg = "❌ input_task: Input task to catch bad input file (no hosts, groups or all) failed"
         desired_output = "⚠️  No validations were performed as no desired_state was generated, check input file and template"
         actual_output = nr.run(
             task=self.input_task_nr_task,
-            input_file=os.path.join(test_data, "bad_input_data.yml"),
+            input_data=os.path.join(test_data, "bad_input_data.yml"),
         )
         assert actual_output.failed == True
         assert actual_output["TEST_HOST"][1].result == desired_output
@@ -226,11 +262,15 @@ class TestComplianceReport:
         report_file("TEST_HOST", test_data, report, True, [])
         filename = os.path.join(
             test_data,
-            "TEST_HOST" + "_compliance_report_" + str(datetime.date.today()) + ".json",
+            "TEST_HOST"
+            + "_compliance_report_"
+            + datetime.now().strftime("%Y%m%d-%H:%M")
+            + ".json",
         )
         assert (
             os.path.exists(filename) == True
         ), "❌ report_file: Creation of saved report failed"
+
         desired_output = {
             "complies": True,
             "skipped": [],

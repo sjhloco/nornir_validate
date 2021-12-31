@@ -78,24 +78,5 @@ def iosxe_format(
                     tmp_dict1[each_ace["line_num"]]["icmp_type"] = each_ace["icmp_type"]
                 tmp_dict[each_ace["acl_name"]] = dict(tmp_dict1)
 
-    # OSPF: Creates OSPF dicts in the format {ospf_nbr_rid: {state: nbr_state}}
-    elif "show ip ospf neighbor" in cmd:
-        for each_nhbr in output:
-            tmp_dict[each_nhbr["neighbor_id"]] = {
-                "state": remove_char(each_nhbr["state"], "/")
-            }
-    # PO: Creates port-channel dicts in the format {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}
-    elif "show etherchannel summary" in cmd:
-        for each_po in output:
-            tmp_dict[each_po["po_name"]]["status"] = each_po["po_status"]
-            tmp_dict[each_po["po_name"]]["protocol"] = each_po["protocol"]
-            po_mbrs = {}
-            for mbr_intf, mbr_status in zip(
-                each_po["interfaces"], each_po["interfaces_status"]
-            ):
-                # Creates dict of members to add to as value in the PO dictionary
-                po_mbrs[mbr_intf] = {"mbr_status": mbr_status}
-            tmp_dict[each_po["po_name"]]["members"] = po_mbrs
-
     actual_state[cmd] = dict(tmp_dict)
     return actual_state

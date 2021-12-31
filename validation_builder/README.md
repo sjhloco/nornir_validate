@@ -5,6 +5,7 @@
 - **input_data.yml:** Dictionaries of the features to be validated stored under *all*, *groups* and *hosts* dictionaries
 - **desired_state.j2:** Template of per-feature Jinja logic used to render the input data to create the desired state
 - **desired_state.yml:** The desired state which is the result of the rendered template
+- **actual_state.py:** Python file of the pre-command python logic used to create actual state from the command output
 - **actual_state.json:** The actual state which is the result of the actual state python logic
 
 *desired_state.yml* and *actual_state.json* are static files of what you are trying to achieve by either rendering the template or formatting the output returned by a device. *input_data.yml* and *desired_state.j2* will hold the code you are trying to create that will eventually be used to dynamically create the first two files.
@@ -12,10 +13,12 @@
 Even if a file is empty or not used all of these files must be present or the script will not run. The file location and file names can be changed in the variables at the start of the script.
 
 ```python
+from actual_state import format_actual_state    # Name of actual_state python logic script
 input_file = "input_data.yml"                   # Name of the input data file
 desired_state = "desired_state.yml"             # Name of the static desired_state file
 desired_state_tmpl = "desired_state.j2"         # Name of the desired_state template
 actual_state = "actual_state.json"              # Name of the static actual_state file
+
 ```
 
 Differing runtime flags are used to assist with the different stages of the validation file build process. If no flag is specified the compliance report is created based on the *input_data.yml* and *desired_state.j2*, so is the equivalent of running *nornir_validate*.
@@ -158,7 +161,4 @@ vvvv report_actual_state_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END report_actual_state_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-Finally once happy with the new validations run the script with no flags which is the equivalent of using nornir_validate.
-
-
- use dynamically created files for both the desired and actual states. These lines of code can then be moved into the nornir_validate *templates* directory to be used for future .
+Finally once happy with the new validations run the script with no flags which is the equivalent of using nornir_validate to dynamically create files for both the desired and actual states. These lines of code can then be moved into the nornir_validate *templates* directory to be used for future.

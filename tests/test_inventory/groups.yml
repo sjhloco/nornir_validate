@@ -1,5 +1,5 @@
 ---
-TEST_GROUP:
+ios:
   connection_options:
     naplam:
       platform: cisco_ios

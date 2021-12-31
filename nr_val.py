@@ -22,7 +22,7 @@ from compliance_report import report
 # Manually defined variables and user input
 # ----------------------------------------------------------------------------
 # Name of the input variable file (needs its full path)
-input_file = "input_data.yml"
+input_data = "input_data.yml"
 # Enter a directory location to save compliance report to file
 report_directory = None
 
@@ -40,7 +40,7 @@ def _create_parser() -> Dict[str, Any]:
     parser.add_argument(
         "-f",
         "--filename",
-        default=input_file,
+        default=input_data,
         help="Name (with full path) of the input Yaml file of validation variables",
     )
     return vars(parser.parse_args())
@@ -49,7 +49,7 @@ def _create_parser() -> Dict[str, Any]:
 # ----------------------------------------------------------------------------
 # 1. Import input vars creating host_var of desired state
 # ----------------------------------------------------------------------------
-def input_task(task: Task, input_file: str, template_task: str) -> str:
+def input_task(task: Task, input_data: str, template_task: str) -> str:
     desired_state: Dict[str, Any] = {}
     # Needed incase importing the module
     if "validation_builder" in os.getcwd():
@@ -59,32 +59,38 @@ def input_task(task: Task, input_file: str, template_task: str) -> str:
     else:
         tmpl_path = "nornir_validate/templates/"
 
-    # 1a. LOAD: Load the the input file
-    input_vars = task.run(task=load_yaml, file=input_file)
+    # 1a. LOAD: Load the the input file or change name of the input data variable
+    if ".yml" in input_data:
+        input_vars = task.run(task=load_yaml, file=input_data).result
+    else:
+        input_vars = input_data
+
     # 1b. TMPL: Create the desired_state for each feature to be validated (double 'if' to stop error if top level dict not exist)
-    if input_vars.result.get("hosts") != None:
-        if input_vars.result["hosts"].get(str(task.host)) != None:
+    if input_vars.get("hosts") != None:
+        if input_vars["hosts"].get(str(task.host)) != None:
             task.run(
                 task=template_task,
                 tmpl_path=tmpl_path,
-                input_vars=input_vars.result["hosts"][str(task.host)],
+                input_vars=input_vars["hosts"][str(task.host)],
                 desired_state=desired_state,
             )
-    if input_vars.result.get("groups") != None:
-        if input_vars.result["groups"].get(str(task.host.groups[0])) != None:
+    if input_vars.get("groups") != None:
+        if input_vars["groups"].get(str(task.host.groups[0])) != None:
             task.run(
                 task=template_task,
                 tmpl_path=tmpl_path,
-                input_vars=input_vars.result["groups"][str(task.host.groups[0])],
+                input_vars=input_vars["groups"][str(task.host.groups[0])],
                 desired_state=desired_state,
             )
-    if input_vars.result.get("all") != None:
+
+    if input_vars.get("all") != None:
         task.run(
             task=template_task,
             tmpl_path=tmpl_path,
-            input_vars=input_vars.result["all"],
+            input_vars=input_vars["all"],
             desired_state=desired_state,
         )
+
     # 1c. VAR: Create host_var of combined desired states or exits if nothing to be validated
     if len(desired_state) == 0:
         result_text = u"\u26A0\uFE0F  No validations were performed as no desired_state was generated, check input file and template"
@@ -140,16 +146,15 @@ def actual_state_engine(host: "Nornir", cmd_output: Dict[str, List]) -> Dict[str
 # 4. Formats gathered output as actual state and runs compliance report
 # ----------------------------------------------------------------------------
 def validate_task(
-    task: Task, input_file: str = input_file, directory: str = report_directory
+    task: Task, input_data: str = input_data, directory: str = report_directory
 ) -> str:
     task.run(
         task=input_task,
-        input_file=input_file,
+        input_data=input_data,
         template_task=template_task,
         severity_level=logging.DEBUG,
     )
     cmd_output = {}
-
     # 4a. CMD: Using commands from the desired output gathers the actual config form the device
     for each_cmd in task.host["desired_state"]:
         cmd_output[each_cmd] = task.run(
@@ -180,7 +185,7 @@ def main():
     args = _create_parser()
     nr = InitNornir(config_file="config.yml")
     result = nr.run(
-        task=validate_task, input_file=args["filename"], directory=args["directory"]
+        task=validate_task, input_data=args["filename"], directory=args["directory"]
     )
     print_result(result)
 

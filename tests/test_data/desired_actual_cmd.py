@@ -1,4 +1,4 @@
-# These dictionaries are used to test templated desired state (test_input_task) and formatted actual state (test_actual_state_cmds)
+# These dictionaries are used to test templated desired state (test_input_task_file) and formatted actual state (test_actual_state_cmds)
 
 # --------------------------------------------------------------------------------------
 # DESIRED: The desired state after it has been templated and assigned as a host_var
@@ -10,20 +10,22 @@ desired_state = {
         "2.2.2.2": {"state": "FULL"},
     },
     "show ip access-lists TEST_SSH_ACCESS": {
-        "_mode": "strict",
-        "10": {
-            "action": "permit",
-            "protocol": "ip",
-            "src": "10.17.10.0/24",
-            "dst": "any",
-        },
-        "20": {
-            "action": "permit",
-            "protocol": "ip",
-            "src": "10.10.10.10/32",
-            "dst": "any",
-        },
-        "30": {"action": "deny", "protocol": "ip", "src": "any", "dst": "any"},
+        "TEST_SSH_ACCESS": {
+            "_mode": "strict",
+            "10": {
+                "action": "permit",
+                "protocol": "ip",
+                "src": "10.17.10.0/24",
+                "dst": "any",
+            },
+            "20": {
+                "action": "permit",
+                "protocol": "ip",
+                "src": "10.10.10.10/32",
+                "dst": "any",
+            },
+            "30": {"action": "deny", "protocol": "ip", "src": "any", "dst": "any"},
+        }
     },
     "show etherchannel summary": {
         "Po3": {
@@ -47,19 +49,21 @@ actual_state = {
         "2.2.2.2": {"state": "FULL"},
     },
     "show ip access-lists TEST_SSH_ACCESS": {
-        "10": {
-            "action": "permit",
-            "dst": "any",
-            "protocol": "ip",
-            "src": "10.17.10.0/24",
-        },
-        "20": {
-            "action": "permit",
-            "dst": "any",
-            "protocol": "ip",
-            "src": "10.10.10.10/32",
-        },
-        "30": {"action": "deny", "dst": "any", "protocol": "ip", "src": "any"},
+        "TEST_SSH_ACCESS": {
+            "10": {
+                "action": "permit",
+                "dst": "any",
+                "protocol": "ip",
+                "src": "10.17.10.0/24",
+            },
+            "20": {
+                "action": "permit",
+                "dst": "any",
+                "protocol": "ip",
+                "src": "10.10.10.10/32",
+            },
+            "30": {"action": "deny", "dst": "any", "protocol": "ip", "src": "any"},
+        }
     },
     "show etherchannel summary": {
         "Po3": {

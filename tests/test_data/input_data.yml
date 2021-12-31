@@ -3,7 +3,7 @@ hosts:
     ospf:
       nbrs: [192.168.255.1, 2.2.2.2]
 groups:
-  TEST_GROUP:
+  ios:
     acl:
       - name: TEST_SSH_ACCESS
         ace:

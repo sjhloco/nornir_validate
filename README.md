@@ -38,13 +38,13 @@ When run as standalone *nornir_validate* creates its own nornir inventory using 
 By default input data is gathered from *input_data.yml* and the compliance report is not saved to file. Either of these can be changed in the variables section at the start of *nornir_template.py* or overridden using flags at runtime.
 
 ```python
-input_file = "input_data.yml"
+input_data = "input_data.yml"
 report_directory = None
 ```
 
 | flag           | Description |
 | -------------- | ----------- |
-| `-f` or `--filename` | Overrides the value set in the *input_file* variable to manually define the input data file |
+| `-f` or `--filename` | Overrides the value set in the *input_data* variable to manually define the input data file |
 | `-d` or `--directory` | Overrides the value set in *directory* variable to save compliance reports to file |
 
 Specifying anything other than *None* for the *report_directory* enables saving the compliance report, the naming format is *hostname_compliance_report_YYYY-MM-DD.json*
@@ -67,14 +67,24 @@ from nornir_utils.plugins.functions import print_result
 from nornir_validate.nr_val import validate_task
 
 nr = InitNornir(config_file="config.yml")
-result = nr.run(task=validate_task, input_file="my_input_data.yml")
+result = nr.run(task=validate_task, input_data="my_input_data.yml")
 print_result(result)
 ```
 
-When calling the function it is mandatory to specify the *input_file*, the *directory* is still optional as is only needed if you want to save the report to file.
+Rather than using a file *input_data* can be a nested dictionary formatted in the same manner with hosts, groups and all child dictionaries.
 
 ```python
-result = nr.run(task=validate_task, input_file="my_input_data.yml", directory='/Users/user1/reports')
+my_input_data = {"groups": {"ios": {"acl": [{"name": "TEST_SSH_ACCESS",
+                                             "ace": [{"remark": "MGMT Access - VLAN10"},
+                                                     {"permit": "10.17.10.0/24"}]}]}}}
+
+result = nr.run(task=validate_task, input_data="my_input_data")
+```
+
+When calling the function it is mandatory to specify the *input_data*, the *directory* is still optional as is only needed if you want to save the report to file.
+
+```python
+result = nr.run(task=validate_task, input_data="my_input_data.yml", directory='/Users/user1/reports')
 ```
 
 ## Input Data
@@ -219,22 +229,11 @@ This example shows a failed compliance report where the ACLs passed but OSPF fai
 
 ```python
 { 'complies': False,
-  'show ip access-lists TEST_SNMP_ACCESS': { 'complies': True,
-                                             'extra': [],
-                                             'missing': [],
-                                             'present': { '10': { 'complies': True,
-                                                                  'nested': True},
-                                                          '20': { 'complies': True,
-                                                                  'nested': True}}},
   'show ip access-lists TEST_SSH_ACCESS': { 'complies': True,
-                                            'extra': [],
+                                            'present': { 'TEST_SSH_ACCESS': { 'complies': True,
+                                                                              'nested': True}},
                                             'missing': [],
-                                            'present': { '10': { 'complies': True,
-                                                                 'nested': True},
-                                                         '20': { 'complies': True,
-                                                                 'nested': True},
-                                                         '30': { 'complies': True,
-                                                                 'nested': True}}},
+                                            'extra': []},
   'show ip ospf neighbor': { 'complies': False,
                              'extra': [],
                              'missing': ['2.2.2.2'],
