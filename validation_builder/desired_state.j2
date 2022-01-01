@@ -1,15 +1,6 @@
-{# {% if feature == 'ospf' %}
-- show ip ospf neighbor:
-    _mode: strict
-{% for each_nbr in input_vars.nbrs %}
-    {{ each_nbr }}:
-      state: FULL
-{% endfor %}
-{% endif %} #}
-
 {% if feature == 'acl' %}
 {% for each_acl in input_vars %}
-- show ip access-lists {{ each_acl.name }}:
+- show access-lists {{ each_acl.name }}:
     {{ each_acl.name }}:
       _mode: strict
 {% set seq = namespace(cnt=10) %}
@@ -19,7 +10,8 @@
         protocol: ip
         src: {{ each_ace.values() | list | first }}
         dst: any
+{% endif %}
 {% set seq.cnt = seq.cnt + 10 %}
-{% endif %}{% endfor %}
+{% endfor %}
 {% endfor %}
 {% endif %}

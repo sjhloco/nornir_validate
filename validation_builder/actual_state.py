@@ -1,6 +1,8 @@
 from typing import Dict, List
 import ipaddress
 from collections import defaultdict
+import re
+import ipdb
 
 # ----------------------------------------------------------------------------
 # Engine to run different formatters
@@ -12,11 +14,12 @@ def format_actual_state(
     tmp_dict: Dict[str, None],
     actual_state: Dict[str, None],
 ) -> Dict[str, Dict]:
-    if "ios" in os_type:
+
+    if bool(re.search("ios", str(os_type))):
         iosxe_format(cmd, output, tmp_dict, actual_state)
-    elif "nxos" in os_type:
-        pass
-    elif "asa" in os_type:
+    elif bool(re.search("nxos", str(os_type))):
+        nxos_format(cmd, output, tmp_dict, actual_state)
+    elif bool(re.search("asa", str(os_type))):
         pass
     return actual_state
 
@@ -61,7 +64,7 @@ def remove_char(input_data: str, char: str) -> str:
 def iosxe_format(
     cmd: str, output: List, tmp_dict: Dict[str, None], actual_state: Dict[str, None]
 ) -> Dict[str, Dict]:
-    # ACL: Creates ACL dicts in the format [{acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, pst_port: port}]
+    # MGMT ACL: Creates ACL dicts in the format [{acl_name: {name: seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}]
     if "show ip access-lists" in cmd:
         acl = acl_format(output)
         tmp_dict1 = defaultdict(dict)
@@ -78,5 +81,37 @@ def iosxe_format(
                     tmp_dict1[each_ace["line_num"]]["icmp_type"] = each_ace["icmp_type"]
                 tmp_dict[each_ace["acl_name"]] = dict(tmp_dict1)
 
+    elif "show ip ospf neighbor" in cmd:
+        for each_nhbr in output:
+            tmp_dict[each_nhbr["neighbor_id"]] = {
+                "state": remove_char(each_nhbr["state"], "/")
+            }
+
+    actual_state[cmd] = dict(tmp_dict)
+    return actual_state
+
+
+# ----------------------------------------------------------------------------
+# NXOS desired state formatting
+# ----------------------------------------------------------------------------
+def nxos_format(
+    cmd: str, output: List, tmp_dict: Dict[str, None], actual_state: Dict[str, None]
+) -> Dict[str, Dict]:
+    # MGMT_ACL: Creates ACL dicts in the format [{acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}]
+    if "show access-lists" in cmd:
+        acl = acl_format(output)
+        tmp_dict1 = defaultdict(dict)
+        for each_ace in acl:
+            # Creates dict for each ACE entry
+            if each_ace.get("action") != "remark":
+                tmp_dict1[each_ace["sn"]]["action"] = each_ace["action"]
+                tmp_dict1[each_ace["sn"]]["protocol"] = each_ace["protocol"]
+                tmp_dict1[each_ace["sn"]]["src"] = each_ace["source"]
+                tmp_dict1[each_ace["sn"]]["dst"] = each_ace["destination"]
+                if each_ace["protocol"] == "icmp" and each_ace.get("modifier") != None:
+                    tmp_dict1[each_ace["sn"]]["icmp_type"] = each_ace["modifier"]
+                elif each_ace.get("modifier") != None:
+                    tmp_dict1[each_ace["sn"]]["dst_port"] = each_ace["modifier"]
+                tmp_dict[each_ace["name"]] = dict(tmp_dict1)
     actual_state[cmd] = dict(tmp_dict)
     return actual_state

@@ -1,21 +1,36 @@
-# - show etherchannel summary: None
-#     # Po2:
-#     #   status: U
-#     #   protocol: LACP
-#     #   members:
-#     #     _mode: strict
-#     #     Gi0/15:
-#     #       mbr_status: P
-#     #     _mode: strict
-#     #     Gi0/16:
-#     #       mbr_status: P
-# - show ip ospf neighbor: {}
-# - show ip ospf neighbor:
-    # _mode: strict
-    # 192.168.255.1:
-    #   state: FULL
-    # 2.2.2.2:
-    #   state: FULL
-
-- show ip access-lists TEST_SSH_ACCESS: {}
-- show ip access-lists TEST_SNMP_ACCESS: {}
+- show access-lists TEST_SNMP_ACCESS:
+    TEST_SNMP_ACCESS:
+      _mode: strict
+      '20':
+        action: permit
+        protocol: ip
+        src: 10.17.10.0/24
+        dst: any
+      '40':
+        action: permit
+        protocol: ip
+        src: 10.10.10.10/32
+        dst: any
+      '50':
+        action: deny
+        protocol: ip
+        src: any
+        dst: any
+- show access-lists TEST_SSH_ACCESS:
+    TEST_SSH_ACCESS:
+      _mode: strict
+      '20':
+        action: permit
+        protocol: ip
+        src: 10.17.10.0/24
+        dst: any
+      '40':
+        action: permit
+        protocol: ip
+        src: 10.10.10.10/32
+        dst: any
+      '50':
+        action: deny
+        protocol: ip
+        src: any
+        dst: any
