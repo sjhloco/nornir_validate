@@ -75,6 +75,18 @@ def _create_parser() -> Dict[str, Any]:
 # ----------------------------------------------------------------------------
 # 1. Validates existence of test files
 # ----------------------------------------------------------------------------
+##### !!!! Still to do !!!!!!
+def _check_feature_exist(input_data, desired_state_tmpl):
+    with open(input_data, "r") as file_:
+        input_data = yaml.load(file_, Loader=yaml.SafeLoader)
+    with open(desired_state_tmpl) as file_:
+        desired_state_tmpl = file_.read()
+
+    # Go through and get contents of all, host and groups
+    # Check if dict name is in the template, if not fail
+    # ipdb.set_trace()
+
+
 def _file_validation(
     input_data: str,
     desired_state: str,
@@ -99,7 +111,9 @@ def _file_validation(
         for each_err in errors:
             print(f"    -{each_err}")
         sys.exit(1)
+
     elif len(errors) == 0:
+        _check_feature_exist(input_data, desired_state_tmpl)
         return dict(
             input_data=input_data,
             desired_state=desired_state,
