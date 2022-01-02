@@ -7,6 +7,27 @@ As the name suggests I have not reinvented the wheel here, I have just extended 
 - **desired_state:** The state you expect the device to be in. For example, you could expect that the device has certain OSPF neighbors, specific CDP neighbors or that all ports in a port-channel are up
 - **actual_state:** This is real-time state of the device gathered by connecting to it and scraping the output of show commands
 
+## Current Validations
+
+This documents what validations are available for the different device types.
+
+Guess should be a table???
+
+ASA
+
+IOS/IOS-XE
+
+
+NXOS
+
+
+
+
+-MGMT ACL - does not take a port number as used fro mangemment and set ot any port
+
+
+
+
 ## Installation and Prerequisites
 
 Clone the repository, create a virtual environment and install the required python packages

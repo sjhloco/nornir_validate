@@ -21,6 +21,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
 from nr_val import input_task
+from nr_val import merge_os_types
 from compliance_report import report
 from actual_state import format_actual_state
 
@@ -174,12 +175,15 @@ class ValidationBuilder:
         else:
             sev_level = logging.DEBUG
         # YAML has to be printed for each task to keep proper formatting
+        os_type = merge_os_types(task.host)
+
         for val_feature, feature_vars in input_vars.items():
             tmp_desired_state = task.run(
                 name="template in YAML",
                 task=template_file,
                 path="",
                 template=desired_state_tmpl,
+                os_type=os_type,
                 feature=val_feature,
                 input_vars=feature_vars,
                 severity_level=sev_level,
@@ -193,15 +197,10 @@ class ValidationBuilder:
     # 2c. ACTUAL_STATE: Creates actual state by formatting cmd outputs
     # ----------------------------------------------------------------------------
     def actual_state_engine(
-        self, host: "Nornir", cmd_output: Dict[str, List]
+        self, os_type: List, cmd_output: Dict[str, List]
     ) -> Dict[str, Dict]:
         actual_state: Dict[str, Any] = {}
-        os_type: List = []
-        # Gets os_type from host_var OS types (platform)
-        os_type.append(host.platform)
-        os_type.append(host.get_connection_parameters("scrapli").platform)
-        os_type.append(host.get_connection_parameters("netmiko").platform)
-        os_type.append(host.get_connection_parameters("napalm").platform)
+
         # Loops through getting command and output from the command
         for cmd, output in cmd_output.items():
             tmp_dict = defaultdict(dict)
@@ -244,7 +243,8 @@ class ValidationBuilder:
         cmd_output = task.run(
             task=self.discovery_task, severity_level=logging.DEBUG
         ).result
-        actual_state = self.actual_state_engine(task.host, cmd_output)
+        os_type = merge_os_types(task.host)
+        actual_state = self.actual_state_engine(os_type, cmd_output)
         return Result(host=task.host, result=actual_state)
 
     # ----------------------------------------------------------------------------

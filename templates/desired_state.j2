@@ -1,4 +1,7 @@
-{# ########### Templating for desired state of OSPF neighbors ########## #}
+{# ################################### IOS/IOS-XE ################################## #}
+{% if 'ios' in os_type |string %}
+
+{# ########### Desired state of OSPF neighbors ########## #}
 {% if feature == 'ospf' %}
 - show ip ospf neighbor:
     _mode: strict
@@ -7,7 +10,7 @@
       state: FULL
 {% endfor %}
 
-{# ########### Templating for desired state of ACLs ########## #}
+{# ########### Desired state of mgmt ACLs ########## #}
 {% elif feature == 'acl' %}
 {% for each_acl in input_vars %}
 - show ip access-lists {{ each_acl.name }}:
@@ -24,7 +27,7 @@
 {% endif %}{% endfor %}
 {% endfor %}
 
-{# ########### Templating for desired state of port-channels ########## #}
+{# ########### Desired state of port-channels ########## #}
 {% elif feature == 'po' %}
 - show etherchannel summary:
 {% for each_po in input_vars %}
@@ -38,4 +41,37 @@
           mbr_status: P
 {% endfor %}{% endfor %}
 
+{# ########### END of validations ########## #}
+{% endif %}
+
+{# #################################### NXOS ################################### #}
+{% elif 'nxos' in os_type |string %}
+
+{# ########### Desired state of ACLs ########## #}
+{% if feature == 'acl' %}
+{% for each_acl in input_vars %}
+- show access-lists {{ each_acl.name }}:
+    {{ each_acl.name }}:
+      _mode: strict
+{% set seq = namespace(cnt=10) %}
+{% for each_ace in each_acl.ace %}{% if each_ace.keys() | list | first != 'remark' %}
+      '{{ seq.cnt }}':
+        action: {{ each_ace.keys() | list | first }}
+        protocol: ip
+        src: {{ each_ace.values() | list | first }}
+        dst: any
+{% endif %}
+{% set seq.cnt = seq.cnt + 10 %}
+{% endfor %}{% endfor %}
+
+{# ########### END of validations ########## #}
+{% endif %}
+
+
+{# #################################### ASA ################################### #}
+{% elif 'asa' in os_type |string %}
+
+
+
+{# ############################ END of devices ################################# #}
 {% endif %}

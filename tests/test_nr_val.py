@@ -8,6 +8,7 @@ from nornir import InitNornir
 from nornir.core.task import Result
 
 from .test_data import desired_actual_cmd
+from nr_val import merge_os_types
 from nr_val import template_task
 from nr_val import input_task
 from nr_val import actual_state_engine
@@ -44,6 +45,13 @@ def load_inv_and_data():
 # Tests all the methods within nornir_validate.py
 # ----------------------------------------------------------------------------
 class TestNornirValidate:
+
+    # OS_TYPE: Checks merging of nornir platforms (device types)
+    def test_merge_os_types(self):
+        err_msg = "❌ merge_os_types: Merging of Nornir platforms failed"
+        desired_output = ["cisco_ios", "cisco_iosxe", "ios"]
+        actual_output = merge_os_types(nr.inventory.hosts["TEST_HOST"])
+        assert actual_output == desired_output, err_msg
 
     # 1. TEMPLATE: Checks nornir-template rendered data is converted into a dictionary of commands
     def test_template_task(self):
@@ -127,21 +135,18 @@ class TestNornirValidate:
     # 3a. ACTUAL_STATE: Tests that empty command outputs are picked up on
     def test_actual_state_engine(self):
         err_msg = "❌ actual_state_engine: Task to catch empty command output failed"
-        actual_output = actual_state_engine(
-            nr.inventory.hosts["TEST_HOST"], {"show ip ospf neighbor": None}
-        )
+        actual_output = actual_state_engine(["ios"], {"show ip ospf neighbor": None})
         assert actual_output == {"show ip ospf neighbor": {}}, err_msg
 
     # 3b. ACTUAL_STATE: Tests actual state is formattign commands properly (command data is in actual_state_data.py)
     def test_actual_state_cmds(self):
         err_msg = "❌ actual_state: Formatting of '{}' by actual_state.py is incorrect"
+        os_type = merge_os_types(nr.inventory.hosts["TEST_HOST"])
         for cmd_output, desired_output in zip(
             desired_actual_cmd.cmd_output.items(),
             desired_actual_cmd.actual_state.items(),
         ):
-            actual_output = actual_state_engine(
-                nr.inventory.hosts["TEST_HOST"], {cmd_output[0]: cmd_output[1]}
-            )
+            actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
             assert actual_output == {
                 desired_output[0]: desired_output[1]
             }, err_msg.format(desired_output[0])

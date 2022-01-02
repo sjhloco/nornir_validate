@@ -1,7 +1,7 @@
 ---
 ios:
   connection_options:
-    naplam:
+    napalm:
       platform: cisco_ios
     netmiko:
       platform: ios

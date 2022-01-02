@@ -1,3 +1,11 @@
+{# ################################### IOS/IOS-XE ################################## #}
+{% if 'ios' in os_type |string %}
+
+{# ########### END of validations ########## #}
+
+{# #################################### NXOS ################################### #}
+{% elif 'nxos' in os_type |string %}
+
 {% if feature == 'acl' %}
 {% for each_acl in input_vars %}
 - show access-lists {{ each_acl.name }}:
@@ -12,6 +20,16 @@
         dst: any
 {% endif %}
 {% set seq.cnt = seq.cnt + 10 %}
-{% endfor %}
-{% endfor %}
+{% endfor %}{% endfor %}
+
+{# ########### END of validations ########## #}
+{% endif %}
+
+
+{# #################################### ASA ################################### #}
+{% elif 'asa' in os_type |string %}
+
+
+
+{# ############################ END of devices ################################# #}
 {% endif %}
