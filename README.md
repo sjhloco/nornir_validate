@@ -1,8 +1,8 @@
 # Nornir Validate
 
-Uses Nornir (with ***nornir-netmiko***) to gather and format device output before feeding this into ***napalm-validate*** in the form of ***actual_state*** and ***desired_state*** to produce a ***compliance report***. The idea behind this is for running pre and post checks on network devices based and an input file of the desired device state.
+Uses Nornir (with ***nornir-netmiko***) to gather and format device output before feeding this into ***napalm-validate*** in the form of ***actual_state*** and ***desired_state*** to produce a ***compliance report***. The idea behind this is for running pre and post checks on network devices based and an input file of the desired *device_state*.
 
-As the name suggests I have not reinvented the wheel here, I have just extended *napalm_validate* to validate on commands rather than getters to allow for the flexibility of validating any command output. This is done by importing the *napalm_validate compare* method and feeding in to it the *desire_state* and *actual_state* manually. To understand what I am waffling on about you need to understand the following terms:
+As the name suggests I have not reinvented the wheel here, I have just extended *napalm_validate* to validate on commands rather than getters to allow for the flexibility of validating any command output. This is done by importing the *napalm_validate compare* method and feeding in to it the *desire_state* and *actual_state* manually. To get what I am waffling on about you need to understand the following terms:
 
 - **desired_state:** The state you expect the device to be in. For example, you could expect that the device has certain OSPF neighbors, specific CDP neighbors or that all ports in a port-channel are up
 - **actual_state:** This is real-time state of the device gathered by connecting to it and scraping the output of show commands
@@ -10,6 +10,7 @@ As the name suggests I have not reinvented the wheel here, I have just extended 
 ## Current Validations
 
 This documents what validations are available for the different device types.
+At the moment there are only *desired_state* templates and *actual_state* python logic for the IOS commands *show ip access-lists*, *show ip ospf neighbor* and *show etherchannel summary*.
 
 Guess should be a table???
 
@@ -23,7 +24,7 @@ NXOS
 
 
 
--MGMT ACL - does not take a port number as used fro mangemment and set ot any port
+-MGMT ACL - does not take a port number as used for management and set dont any port
 
 
 
@@ -65,16 +66,16 @@ report_directory = None
 
 | flag           | Description |
 | -------------- | ----------- |
-| `-f` or `--filename` | Overrides the value set in the *input_data* variable to manually define the input data file |
+| `-f` or `--filename` | Overrides the value set in the *input_data* variable to manually define input data file |
 | `-d` or `--directory` | Overrides the value set in *directory* variable to save compliance reports to file |
 
-Specifying anything other than *None* for the *report_directory* enables saving the compliance report, the naming format is *hostname_compliance_report_YYYY-MM-DD.json*
+Specifying anything other than *None* for the *report_directory* enables saving the compliance report, the naming format is *hostname_compliance_report_YYYYMMDD-HH:MM.json*
 
 ```python
 python nr_val.py
 ```
 
-If the validation check fails the full compliance report will be printed to screen and the nornir task marked as failed.
+If the validation fails a full compliance report will be printed to screen and the nornir task marked as failed.
 
 <img src=https://user-images.githubusercontent.com/33333983/143948220-65f6745c-a67b-46ca-8791-39131f82ca32.gif  width="750" height="500">
 
@@ -92,17 +93,16 @@ result = nr.run(task=validate_task, input_data="my_input_data.yml")
 print_result(result)
 ```
 
-Rather than using a file *input_data* can be a nested dictionary formatted in the same manner with hosts, groups and all child dictionaries.
+Rather than using a file the *input_data* can be a nested dictionary formatted in the same manner (*hosts*, *groups*, *all* dictionaries).
 
 ```python
 my_input_data = {"groups": {"ios": {"acl": [{"name": "TEST_SSH_ACCESS",
                                              "ace": [{"remark": "MGMT Access - VLAN10"},
                                                      {"permit": "10.17.10.0/24"}]}]}}}
-
 result = nr.run(task=validate_task, input_data="my_input_data")
 ```
 
-When calling the function it is mandatory to specify the *input_data*, the *directory* is still optional as is only needed if you want to save the report to file.
+When calling the imported function it is mandatory to specify the *input_data*, the *directory* is still optional as is only needed if you want to save the report to file.
 
 ```python
 result = nr.run(task=validate_task, input_data="my_input_data.yml", directory='/Users/user1/reports')
@@ -110,7 +110,7 @@ result = nr.run(task=validate_task, input_data="my_input_data.yml", directory='/
 
 ## Input Data
 
-The input data (variable) file holds the *host_vars* and *group_vars* which are made up of dictionaries of features and their values. It is structured around these three optional dictionaries:
+The input data (variable) file holds the *host_vars* and *group_vars* which are made up of dictionaries of features and their values. It is structured around these three optional dictionaries, it must have one of them:
 
 - **hosts:** Dictionary of host names each holding dictionaries of host-specific variables for the different features being validated
 - **groups:** Dictionary of group names each holding dictionaries of group-specific variables for the different features being validated
@@ -148,9 +148,13 @@ all:
 
 ## Desired State
 
-The input file (***input_data.yml***) is rendered by a jinja template (***desired_state.j2***) to produce a YAML formatted list of dictionaries with the key being the command and the value the desired output. ***feature*** matches the name of the features within the input file to make the rendering conditional. ***strict*** mode means that it has to be an exact match, no more, no less. This can be omitted if that is not a requirement.
+The input file (***input_data.yml***) is rendered by a jinja template (***desired_state.j2***) to produce a YAML formatted list of dictionaries with the key being the command and the value the desired output. The top level Jinja condition is for the os_type (got from nornir *platform*), each os_type has templating for the features tested.
+
+***feature*** matches the name of the features within the input file to make the rendering conditional. ***strict*** mode means that it has to be an exact match, no more, no less. This can be omitted if that is not a requirement.
 
 ```jinja
+{% if 'ios' in os_type |string %}
+
 {% if feature == 'ospf' %}
 - show ip ospf neighbor:
     _mode: strict
@@ -171,6 +175,8 @@ The input file (***input_data.yml***) is rendered by a jinja template (***desire
         {{ each_memeber }}:
           mbr_status: P
 {% endfor %}{% endfor %}
+{% endif %}
+
 {% endif %}
 ```
 
@@ -211,7 +217,7 @@ The resulting python object is generated by serialising the YAML output and is s
 
 ## Actual State
 
-Netmiko is used to gather the command outputs and create TextFSM formatted data-models using *ntc-templates*. This is fed into ***actual_state.py*** where a dictionary of the *command* (key) and *command output* (value) are passed through an *os_type* (based on nornir *platform*) specific method to create a nested dictionary that matches the structure of the *desired_state*.
+Netmiko is used to gather the command outputs and create TextFSM formatted data-models using *[ntc-templates](https://github.com/networktocode/ntc-templates/tree/master/ntc_templates/templates)*. This is fed into ***actual_state.py*** where a dictionary of the *command* (key) and *command output* (value) are passed through an *os_type* (based on nornir *platform*) specific method to create a nested dictionary that matches the structure of the *desired_state*.
 
 For example, the python logic to format the OSPF and port-channel looks like this.
 
@@ -244,7 +250,7 @@ For each command the formatting will be different as the captured data is differ
 
 ## Compliance Report
 
-The desired_state and actual_state are fed into ***compliance_report.py*** which iterates through them feeding the command outputs into ***napalm_validate*** (its ***validate.compare*** method) which produces a per-command compliance report (complies *true* of *false*). All the commands are grouped into an overall compliance report with the reports compliance status set to *false* if any of the individual commands fail compliance.
+The *desired_state* and *actual_state* are fed into ***compliance_report.py*** which iterates through them feeding the command outputs into ***napalm_validate*** (its ***validate.compare*** method) which produces a per-command compliance report (complies *true* of *false*). All the commands are grouped into an overall compliance report with the reports compliance status set to *false* if any of the individual commands fail compliance.
 
 This example shows a failed compliance report where the ACLs passed but OSPF failed due to a missing OSPF neighbor (*2.2.2.2*).
 
@@ -265,7 +271,7 @@ This example shows a failed compliance report where the ACLs passed but OSPF fai
 
 ## Validation Builder
 
-At the moment there are only *desired_state* templates and *actual_state* python logic for the IOS commands *show ip access-lists*, *show ip ospf neighbor* and *show etherchannel summary*. The *validation_builder* directory has a script to assist with the building of new validations, have a look at the README in this directory for full details on how to use this.
+ The *validation_builder* directory has a script with different runtime flags to assist with the building of new validations, have a look at the README in this directory for full details on how to use this.
 
 ## Future
 
