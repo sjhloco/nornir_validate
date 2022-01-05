@@ -214,11 +214,11 @@ The new lines of code in the jinja template and python file can now be moved int
 
 Test methods have been built for WLC and Checkpoints but are hashed out as there are no actual tests for these device types at the moment.
 
-#### a. Update input data
+### a. Update input data
 
 Add the input data used in val_builder to relevant groups os_type dictionary within the *input_data_validations.yml*.
 
-#### b. TestDesiredState
+### b. TestDesiredState
 
 Add JSON formatted output (not YAML) from the ***desired_state*** (`-ds`) to the relevant os_type dictionary in *desired_state*. Make sure to remove parent the *results* dictionary (leave *_mode* in) and replace all instances of *'* for *"* (if using black it will automatically do this for you).
 
@@ -231,7 +231,7 @@ pytest tests/test_validations.py::TestDesiredState::test_nxos_desired_state_temp
 pytest tests/test_validations.py::TestDesiredState::test_asa_desired_state_templating -vv
 ```
 
-#### c. TestActualState
+### c. TestActualState
 
 Add the output from the output of ***discovery*** (`-di`) to the relevant os_type dictionary in *cmd_output* and ***actual_state*** (`-as`) to the relevant os_type dictionary in *actual_state* (replace *'* for *"* or let black do it) automatically.
 
