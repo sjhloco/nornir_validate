@@ -14,7 +14,7 @@ This documents what validations are available for the different device types.
 | Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Checkpoint
 | ---------- | ------ | ---------- | ---- | --- | --- | ----------
 | Management ACL (SSH/SNMP/HTTP)* | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| Port-channel (status and members) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Port-channel (membership & status) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | OSPF neigbors | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 
 *Management ACL is a very basic ACL validation looking at the source IP and action (non-ASA) or interface (ASs). On ASAs it is the allowed list for SSH and HTTP whilst on all other platforms is the ACL governing SSH and SNMP access.

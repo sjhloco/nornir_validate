@@ -201,3 +201,51 @@ vvvv report_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ```
 
 The new lines of code in the jinja template and python file can now be moved into the relevant files within the nornir_validate *templates* directory to be used for future validations.
+
+## 7. Add to unittests
+
+***test_validations.py*** tests that the desired state templating and actual state command formatting is correct. Once the validations are completed update the relevant dictionaries within ***desired_actual_cmd.py*** with the outputs got from val_builder to add these commands to unittesting. This file contains the following 3 dictionaries with each having a further child dictionary for the different os_types.
+
+- **input_data_validations:** The per-os_type input variables that the desired and actual state will be created from
+- **desired_state:** Should match the templated result of the rendered jinja template
+- **cmd_output:** The raw textFSM formatted device command output (used to create the actual_state)
+- **actual_state:** Should match the formatted result of the actual_state python logic
+- **input_data_validations:** The per-os_type input variables that the desired and actual state will be created from
+
+Test methods have been built for WLC and Checkpoints but are hashed out as there are no actual tests for these device types at the moment.
+
+#### a. Update input data
+
+Add the input data used in val_builder to relevant groups os_type dictionary within the *input_data_validations.yml*.
+
+#### b. TestDesiredState
+
+Add JSON formatted output (not YAML) from the ***desired_state*** (`-ds`) to the relevant os_type dictionary in *desired_state*. Make sure to remove parent the *results* dictionary (leave *_mode* in) and replace all instances of *'* for *"* (if using black it will automatically do this for you).
+
+You can run all desired_state unittests or run any of the individual os_type desired_state unittests.
+
+```python
+pytest tests/test_validations.py::TestDesiredState -vv
+pytest tests/test_validations.py::TestDesiredState::test_ios_desired_state_templating -vv
+pytest tests/test_validations.py::TestDesiredState::test_nxos_desired_state_templating -vv
+pytest tests/test_validations.py::TestDesiredState::test_asa_desired_state_templating -vv
+```
+
+#### c. TestActualState
+
+Add the output from the output of ***discovery*** (`-di`) to the relevant os_type dictionary in *cmd_output* and ***actual_state*** (`-as`) to the relevant os_type dictionary in *actual_state* (replace *'* for *"* or let black do it) automatically.
+
+You can run all actual_state unittests or run any of the individual os_type actual_state unittests.
+
+```python
+pytest tests/test_validations.py::TestActualState -vv
+pytest tests/test_validations.py::TestActualState::test_ios_actual_state_formatting -vv
+pytest tests/test_validations.py::TestActualState::test_nxos_actual_state_formatting -vv
+pytest tests/test_validations.py::TestActualState::test_asa_actual_state_formatting -vv
+```
+
+The unittests can be run for both desired and actual state by omitting the method name.
+
+```python
+pytest tests/test_validations.py -vv
+```

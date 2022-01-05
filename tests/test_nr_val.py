@@ -1,3 +1,8 @@
+"""
+These unittests test the operation of nornir_validate (nr_val.py), they do not test intensively test each validation.
+Use test_validations.py to test the different os_type command validations (desired_state, cmd_output, actual_state)
+"""
+
 import pytest
 import os
 import yaml
@@ -7,7 +12,6 @@ import json
 from nornir import InitNornir
 from nornir.core.task import Result
 
-from .test_data import desired_actual_cmd
 from nr_val import merge_os_types
 from nr_val import template_task
 from nr_val import input_task
@@ -44,6 +48,7 @@ def load_inv_and_data():
 # ----------------------------------------------------------------------------
 # Tests all the methods within nornir_validate.py
 # ----------------------------------------------------------------------------
+@pytest.mark.usefixtures("load_inv_and_data")
 class TestNornirValidate:
 
     # OS_TYPE: Checks merging of nornir platforms (device types)
@@ -77,44 +82,39 @@ class TestNornirValidate:
         task.run(task=input_task, input_data=input_data, template_task=template_task)
         return Result(host=task.host, result=task.host["desired_state"])
 
-    # 2b. INPUT_FILE: Tests templated input_vars is assigned as a host_var (is testing templates from file)
+    # 2b. INPUT_FILE: Tests templated input_vars is assigned as a host_var (is testing templates from input file)
     def test_input_task_file(self):
         err_msg = (
             "❌ input_task: Input task to create desired_state host_var from file failed"
         )
-        desired_output = desired_actual_cmd.desired_state
+        desired_output = {
+            "show ip ospf neighbor": {
+                "_mode": "strict",
+                "192.168.255.1": {"state": "FULL"},
+                "2.2.2.2": {"state": "FULL"},
+            }
+        }
+
         actual_output = nr.run(
             task=self.input_task_nr_task,
             input_data=os.path.join(test_data, "input_data.yml"),
         )
         assert actual_output["TEST_HOST"][0].result == desired_output, err_msg
 
-    # 2c. INPUT_VAR: Tests templated input_vars is assigned as a group_var (is testing templates from var)
+    # 2c. INPUT_VAR: Tests templated input_vars is assigned as a group_var (is testing templates from input var)
     def test_input_task_var(self):
         err_msg = "❌ input_task: Input task to create desired_state group_var from variable failed"
         desired_output = {
-            "show ip access-lists TEST_SSH_ACCESS": desired_actual_cmd.desired_state[
-                "show ip access-lists TEST_SSH_ACCESS"
-            ]
-        }
-        input_data = {
-            "groups": {
-                "ios": {
-                    "acl": [
-                        {
-                            "name": "TEST_SSH_ACCESS",
-                            "ace": [
-                                {"remark": "MGMT Access - VLAN10"},
-                                {"permit": "10.17.10.0/24"},
-                                {"remark": "Citrix Access"},
-                                {"permit": "10.10.10.10/32"},
-                                {"deny": "any"},
-                            ],
-                        }
-                    ]
-                }
+            "show ip ospf neighbor": {
+                "_mode": "strict",
+                "192.168.255.1": {"state": "FULL"},
+                "2.2.2.2": {"state": "FULL"},
             }
         }
+        input_data = {
+            "groups": {"ios": {"ospf": {"nbrs": ["192.168.255.1", "2.2.2.2"]}}}
+        }
+
         actual_output = nr.run(
             task=self.input_task_nr_task,
             input_data=input_data,
@@ -132,24 +132,11 @@ class TestNornirValidate:
         assert actual_output.failed == True
         assert actual_output["TEST_HOST"][1].result == desired_output
 
-    # 3a. ACTUAL_STATE: Tests that empty command outputs are picked up on
+    # 3. ACTUAL_STATE: Tests that empty command outputs are picked up on
     def test_actual_state_engine(self):
         err_msg = "❌ actual_state_engine: Task to catch empty command output failed"
         actual_output = actual_state_engine(["ios"], {"show ip ospf neighbor": None})
         assert actual_output == {"show ip ospf neighbor": {}}, err_msg
-
-    # 3b. ACTUAL_STATE: Tests actual state is formattign commands properly (command data is in actual_state_data.py)
-    def test_actual_state_cmds(self):
-        err_msg = "❌ actual_state: Formatting of '{}' by actual_state.py is incorrect"
-        os_type = merge_os_types(nr.inventory.hosts["TEST_HOST"])
-        for cmd_output, desired_output in zip(
-            desired_actual_cmd.cmd_output.items(),
-            desired_actual_cmd.actual_state.items(),
-        ):
-            actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
-            assert actual_output == {
-                desired_output[0]: desired_output[1]
-            }, err_msg.format(desired_output[0])
 
     # 4. VALIDATE: Decided not worth testing this as out of it is is only sending cmds that is not already tested
     def test_validate_task(self):
