@@ -10,24 +10,14 @@ As the name suggests I have not reinvented the wheel here, I have just extended 
 ## Current Validations
 
 This documents what validations are available for the different device types.
-At the moment there are only *desired_state* templates and *actual_state* python logic for the IOS commands *show ip access-lists*, *show ip ospf neighbor* and *show etherchannel summary*.
 
-Guess should be a table???
+| Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Checkpoint
+| ---------- | ------ | ---------- | ---- | --- | --- | ----------
+| Management ACL (SSH/SNMP/HTTP)* | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| Port-channel (status and members) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| OSPF neigbors | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 
-ASA
-
-IOS/IOS-XE
-
-
-NXOS
-
-
-
-
--MGMT ACL - does not take a port number as used for management and set dont any port
-
-
-
+*Management ACL is a very basic ACL validation looking at the source IP and action (non-ASA) or interface (ASs). On ASAs it is the allowed list for SSH and HTTP whilst on all other platforms is the ACL governing SSH and SNMP access.
 
 ## Installation and Prerequisites
 
@@ -283,6 +273,7 @@ I plan to do the following over the coming months:
 - Once happy with the commands add a layer of abstraction for *actual_state.py* and *desired_state.j2* so these can be fed in by the user when it is imported into another script to merge with the base files
 - Package it up as hopefully with a bigger command base and the ease of extending (abstraction of actual_state.py and desired_state.j2) should not be as much need to make changes to the base code
 - Drink a few beers 🍺🍺🍺
+- Convert JSON to HTML page something in the vain of the [Robot framework](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html)
 - Maybe look at what is involved to add it as a nornir plugin
 
 To allow me to fudge it to be able to import it as a module (due to inheritance) I added the following to *nr_val.py* that I need to remember to remove when it gets packaged up and check validation_builder (as effects inheritance), don't forget.....

@@ -20,7 +20,7 @@ def format_actual_state(
     elif bool(re.search("nxos", str(os_type))):
         nxos_format(cmd, output, tmp_dict, actual_state)
     elif bool(re.search("asa", str(os_type))):
-        pass
+        asa_format(cmd, output, tmp_dict, actual_state)
     return actual_state
 
 
@@ -113,5 +113,34 @@ def nxos_format(
                 elif each_ace.get("modifier") != None:
                     tmp_dict1[each_ace["sn"]]["dst_port"] = each_ace["modifier"]
                 tmp_dict[each_ace["name"]] = dict(tmp_dict1)
+    actual_state[cmd] = dict(tmp_dict)
+    return actual_state
+
+
+# ----------------------------------------------------------------------------
+# ASA desired state formatting
+# ----------------------------------------------------------------------------
+def asa_format(
+    cmd: str, output: List, tmp_dict: Dict[str, None], actual_state: Dict[str, None]
+) -> Dict[str, Dict]:
+    # MGMT_ACL: Creates SSH and HTTP dicts in the format [{ssh_or_http: {seq_num: {src: src_ip, intf: interface}]
+    if "show run ssh" in cmd or "show run http" in cmd:
+        tmp_dict1 = defaultdict(dict)
+        seq = 10
+        for each_ace in output.splitlines():
+            try:
+                ip_mask = each_ace.split()[1] + "/" + each_ace.split()[2]
+                ip_pfxlen = ipaddress.IPv4Interface(ip_mask).with_prefixlen
+                if ip_pfxlen == "0.0.0.0/0":
+                    tmp_dict1[str(seq)]["src"] = "any"
+                else:
+                    tmp_dict1[str(seq)]["src"] = ip_pfxlen
+                tmp_dict1[str(seq)]["intf"] = each_ace.split()[3]
+                seq = seq + 10
+            except:
+                pass
+        if len(tmp_dict1) != 0:
+            tmp_dict[cmd.split()[-1].upper()] = dict(tmp_dict1)
+
     actual_state[cmd] = dict(tmp_dict)
     return actual_state

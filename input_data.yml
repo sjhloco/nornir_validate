@@ -24,7 +24,7 @@
   #     mode: LACP
   #     members: [Gi0/15, Gi0/16]
 groups:
-  nxos:
+  asa:
     acl:
       - name: TEST_SSH_ACCESS
         ace:
@@ -32,7 +32,7 @@ groups:
           - { permit: 10.17.10.0/24 }
           - { remark: Citrix Access }
           - { permit: 10.10.10.10/32 }
-          - { deny: any }
+          - { permit: any }
       - name: TEST_SNMP_ACCESS
         ace:
           - { deny: 10.10.20.11 }
