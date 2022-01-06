@@ -1,8 +1,59 @@
-{% if feature == 'ospf' %}
-- show ip ospf neighbor:
-    _mode: strict
-{% for each_nbr in input_vars.nbrs %}
-    {{ each_nbr }}:
-      state: FULL
-{% endfor %}
+{# ################################### IOS/IOS-XE ################################## #}
+{% if 'ios' in os_type |string %}
+
+{# ########### END of validations ########## #}
+
+{# #################################### NXOS ################################### #}
+{% elif 'nxos' in os_type |string %}
+
+{% if feature == 'acl' %}
+{% for each_acl in input_vars %}
+- show access-lists {{ each_acl.name }}:
+    {{ each_acl.name }}:
+      _mode: strict
+{% set seq = namespace(cnt=10) %}
+{% for each_ace in each_acl.ace %}{% if each_ace.keys() | list | first != 'remark' %}
+      '{{ seq.cnt }}':
+        action: {{ each_ace.keys() | list | first }}
+        protocol: ip
+        src: {{ each_ace.values() | list | first }}
+        dst: any
+{% endif %}
+{% set seq.cnt = seq.cnt + 10 %}
+{% endfor %}{% endfor %}
+
+{# ########### END of validations ########## #}
+{% endif %}
+
+
+{# #################################### ASA ################################### #}
+{% elif 'asa' in os_type |string %}
+
+{% if feature == 'acl' %}
+{% macro build_val_acl(each_acl) -%}
+{% set seq = namespace(cnt=10) %}
+{% for each_ace in each_acl %}{% if each_ace.keys() | list | first != 'remark' %}
+      '{{ seq.cnt }}':
+        src: {{ each_ace.values() | list | first }}
+        intf: mgmt
+{% set seq.cnt = seq.cnt + 10 %}
+{% endif %}{% endfor %}
+{%- endmacro -%}
+
+{% for each_acl in input_vars %}
+{% if 'ssh' in each_acl.name |string |lower %}
+- show run ssh:
+    SSH:
+      _mode: strict
+{{ build_val_acl(each_acl.ace) }}
+- show run http:
+    HTTP:
+      _mode: strict
+{{ build_val_acl(each_acl.ace) }}
+{% endif %}{% endfor %}
+
+{# ########### END of validations ########## #}
+{% endif %}
+
+{# ############################ END of devices ################################# #}
 {% endif %}

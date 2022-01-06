@@ -7,7 +7,10 @@ cffi==1.15.0
 charset-normalizer==2.0.9
 ciscoconfparse==1.6.13
 colorama==0.4.4
+<<<<<<< HEAD
 commonmark==0.9.1
+=======
+>>>>>>> a32014c5eb4374ca02b6afc9721972e46ba39c62
 cryptography==36.0.0
 decorator==5.1.0
 dnspython==2.1.0
@@ -54,7 +57,10 @@ pyserial==3.5
 pytest==6.2.5
 PyYAML==6.0
 requests==2.26.0
+<<<<<<< HEAD
 rich==10.16.2
+=======
+>>>>>>> a32014c5eb4374ca02b6afc9721972e46ba39c62
 ruamel.yaml==0.17.19
 ruamel.yaml.clib==0.2.6
 scp==0.14.1

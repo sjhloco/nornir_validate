@@ -1,13 +1,18 @@
+"""
+These unittests test the operation of nornir_validate (nr_val.py), they do not test intensively test each validation.
+Use test_validations.py to test the different os_type command validations (desired_state, cmd_output, actual_state)
+"""
+
 import pytest
 import os
 import yaml
-import datetime
+from datetime import datetime
 import json
 
 from nornir import InitNornir
 from nornir.core.task import Result
 
-from .test_data import desired_actual_cmd
+from nr_val import merge_os_types
 from nr_val import template_task
 from nr_val import input_task
 from nr_val import actual_state_engine
@@ -43,7 +48,15 @@ def load_inv_and_data():
 # ----------------------------------------------------------------------------
 # Tests all the methods within nornir_validate.py
 # ----------------------------------------------------------------------------
+@pytest.mark.usefixtures("load_inv_and_data")
 class TestNornirValidate:
+
+    # OS_TYPE: Checks merging of nornir platforms (device types)
+    def test_merge_os_types(self):
+        err_msg = "❌ merge_os_types: Merging of Nornir platforms failed"
+        desired_output = ["cisco_ios", "cisco_iosxe", "ios"]
+        actual_output = merge_os_types(nr.inventory.hosts["TEST_HOST"])
+        assert actual_output == desired_output, err_msg
 
     # 1. TEMPLATE: Checks nornir-template rendered data is converted into a dictionary of commands
     def test_template_task(self):
@@ -65,50 +78,65 @@ class TestNornirValidate:
         assert actual_output == desired_output, err_msg
 
     # 2a. INPUT: Used by input tests to get host_var info
-    def input_task_nr_task(self, task, input_file):
-        task.run(task=input_task, input_file=input_file, template_task=template_task)
+    def input_task_nr_task(self, task, input_data):
+        task.run(task=input_task, input_data=input_data, template_task=template_task)
         return Result(host=task.host, result=task.host["desired_state"])
 
-    # 2b. INPUT: Tests templated input_vars is assigned as a host_var (is testing templates)
-    def test_input_task(self):
-        err_msg = "❌ input_task: Input task to create desired_state host_var failed"
-        desired_output = desired_actual_cmd.desired_state
+    # 2b. INPUT_FILE: Tests templated input_vars is assigned as a host_var (is testing templates from input file)
+    def test_input_task_file(self):
+        err_msg = (
+            "❌ input_task: Input task to create desired_state host_var from file failed"
+        )
+        desired_output = {
+            "show ip ospf neighbor": {
+                "_mode": "strict",
+                "192.168.255.1": {"state": "FULL"},
+                "2.2.2.2": {"state": "FULL"},
+            }
+        }
+
         actual_output = nr.run(
             task=self.input_task_nr_task,
-            input_file=os.path.join(test_data, "input_data.yml"),
+            input_data=os.path.join(test_data, "input_data.yml"),
         )
         assert actual_output["TEST_HOST"][0].result == desired_output, err_msg
-        # 2c. INPUT: Tests empty input_data is caught and an nornir exception raised
+
+    # 2c. INPUT_VAR: Tests templated input_vars is assigned as a group_var (is testing templates from input var)
+    def test_input_task_var(self):
+        err_msg = "❌ input_task: Input task to create desired_state group_var from variable failed"
+        desired_output = {
+            "show ip ospf neighbor": {
+                "_mode": "strict",
+                "192.168.255.1": {"state": "FULL"},
+                "2.2.2.2": {"state": "FULL"},
+            }
+        }
+        input_data = {
+            "groups": {"ios": {"ospf": {"nbrs": ["192.168.255.1", "2.2.2.2"]}}}
+        }
+
+        actual_output = nr.run(
+            task=self.input_task_nr_task,
+            input_data=input_data,
+        )
+        assert actual_output["TEST_HOST"][0].result == desired_output, err_msg
+
+    # 2d. INPUT_FILE: Tests empty input_data is caught and an nornir exception raised
+    def test_input_task_file_err(self):
         err_msg = "❌ input_task: Input task to catch bad input file (no hosts, groups or all) failed"
         desired_output = "⚠️  No validations were performed as no desired_state was generated, check input file and template"
         actual_output = nr.run(
             task=self.input_task_nr_task,
-            input_file=os.path.join(test_data, "bad_input_data.yml"),
+            input_data=os.path.join(test_data, "bad_input_data.yml"),
         )
         assert actual_output.failed == True
         assert actual_output["TEST_HOST"][1].result == desired_output
 
-    # 3a. ACTUAL_STATE: Tests that empty command outputs are picked up on
+    # 3. ACTUAL_STATE: Tests that empty command outputs are picked up on
     def test_actual_state_engine(self):
         err_msg = "❌ actual_state_engine: Task to catch empty command output failed"
-        actual_output = actual_state_engine(
-            nr.inventory.hosts["TEST_HOST"], {"show ip ospf neighbor": None}
-        )
+        actual_output = actual_state_engine(["ios"], {"show ip ospf neighbor": None})
         assert actual_output == {"show ip ospf neighbor": {}}, err_msg
-
-    # 3b. ACTUAL_STATE: Tests actual state is formattign commands properly (command data is in actual_state_data.py)
-    def test_actual_state_cmds(self):
-        err_msg = "❌ actual_state: Formatting of '{}' by actual_state.py is incorrect"
-        for cmd_output, desired_output in zip(
-            desired_actual_cmd.cmd_output.items(),
-            desired_actual_cmd.actual_state.items(),
-        ):
-            actual_output = actual_state_engine(
-                nr.inventory.hosts["TEST_HOST"], {cmd_output[0]: cmd_output[1]}
-            )
-            assert actual_output == {
-                desired_output[0]: desired_output[1]
-            }, err_msg.format(desired_output[0])
 
     # 4. VALIDATE: Decided not worth testing this as out of it is is only sending cmds that is not already tested
     def test_validate_task(self):
@@ -226,11 +254,15 @@ class TestComplianceReport:
         report_file("TEST_HOST", test_data, report, True, [])
         filename = os.path.join(
             test_data,
-            "TEST_HOST" + "_compliance_report_" + str(datetime.date.today()) + ".json",
+            "TEST_HOST"
+            + "_compliance_report_"
+            + datetime.now().strftime("%Y%m%d-%H:%M")
+            + ".json",
         )
         assert (
             os.path.exists(filename) == True
         ), "❌ report_file: Creation of saved report failed"
+
         desired_output = {
             "complies": True,
             "skipped": [],
