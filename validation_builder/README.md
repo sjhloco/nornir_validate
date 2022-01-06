@@ -32,6 +32,22 @@ Differing runtime flags are used to assist with the different stages of the vali
 | `-ras` or `--report_actual_state` |  Builds and prints a compliance report using the dynamically created *actual_state* and static *desired_state.yml* file
 | None | Builds and prints a compliance report using dynamically created *desired_state* and *actual_state*
 
+By default the inventory *groups* and *defaults* are used from *nornir_validate/inventory* (*parent_dir*) and the inventory *hosts* got from *nornir_validate/validation_builder/inventory* (*current_dir*). Any of these can be changed by swapping out *parent_dir* and *current_dir* in the *engine* method.
+
+```python
+    def engine(self) -> Result:
+        nr = InitNornir(
+            inventory={
+                "plugin": "SimpleInventory",
+                "options": {
+                    "host_file": os.path.join(currentdir, "inventory/hosts.yml"),
+                    "group_file": os.path.join(parentdir, "inventory/groups.yml"),
+                    "defaults_file": os.path.join(parentdir, "inventory/defaults.yml"),
+                },
+            }
+        )
+```
+
 The following steps walk you through the process of creating a new validation using the validate builder. At a bare minimum to be able to run the script a feature dictionary is required in the input_data and a conditional match of that same feature in the jinja template (see step1.)
 
 ## 1. Create desired_state template
@@ -204,23 +220,21 @@ The new lines of code in the jinja template and python file can now be moved int
 
 ## 7. Add to unittests
 
-***test_validations.py*** tests that the desired state templating and actual state command formatting is correct. Once the validations are completed update the relevant dictionaries within ***desired_actual_cmd.py*** with the outputs got from val_builder to add these commands to unittesting. This file contains the following 3 dictionaries with each having a further child dictionary for the different os_types.
+***test_validations.py*** tests that the desired state templating and actual state command formatting is correct. Once the validations are completed update the relevant dictionaries within ***desired_actual_cmd.py*** with the outputs got from *val_builder* to add these commands to unittesting. This file contains the following 3 dictionaries with each having a further child dictionary for the different os_types.
 
-- **input_data_validations:** The per-os_type input variables that the desired and actual state will be created from
 - **desired_state:** Should match the templated result of the rendered jinja template
 - **cmd_output:** The raw textFSM formatted device command output (used to create the actual_state)
 - **actual_state:** Should match the formatted result of the actual_state python logic
-- **input_data_validations:** The per-os_type input variables that the desired and actual state will be created from
 
 Test methods have been built for WLC and Checkpoints but are hashed out as there are no actual tests for these device types at the moment.
 
 ### a. Update input data
 
-Add the input data used in val_builder to relevant groups os_type dictionary within the *input_data_validations.yml*.
+Add the input data used in val_builder to relevant groups *os_type* dictionary within the ***input_data_validations.yml***. This is the per-os_type input data that the unittests desired_state and actual_state will be created from.
 
 ### b. TestDesiredState
 
-Add JSON formatted output (not YAML) from the ***desired_state*** (`-ds`) to the relevant os_type dictionary in *desired_state*. Make sure to remove parent the *results* dictionary (leave *_mode* in) and replace all instances of *'* for *"* (if using black it will automatically do this for you).
+Add JSON formatted output (not YAML) from ***desired_state*** (`-ds`) to the relevant *os_type* dictionary in *desired_state*. Make sure to remove parent the *results* dictionary (leave *_mode* in) and replace all instances of *'* for *"* (if using black it will automatically do this for you).
 
 You can run all desired_state unittests or run any of the individual os_type desired_state unittests.
 
@@ -233,7 +247,7 @@ pytest tests/test_validations.py::TestDesiredState::test_asa_desired_state_templ
 
 ### c. TestActualState
 
-Add the output from the output of ***discovery*** (`-di`) to the relevant os_type dictionary in *cmd_output* and ***actual_state*** (`-as`) to the relevant os_type dictionary in *actual_state* (replace *'* for *"* or let black do it) automatically.
+Add the output from ***discovery*** (`-di`) to the relevant os_type dictionary in *cmd_output* and the output from ***actual_state*** (`-as`) to the relevant os_type dictionary in *actual_state* (replace *'* for *"* or let black do it) automatically.
 
 You can run all actual_state unittests or run any of the individual os_type actual_state unittests.
 

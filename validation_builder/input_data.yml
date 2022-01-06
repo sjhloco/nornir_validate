@@ -14,3 +14,8 @@ all:
         - { remark: Citrix Access }
         - { permit: 10.10.10.10/32 }
         - { deny: any }
+# hosts:
+#   HME-SWI-VSS01:
+#     ospf:
+#       # nbrs: [192.168.255.1, 2.2.2.2]
+#       nbrs: [192.168.255.1]

@@ -8,6 +8,9 @@ import inspect
 from collections import defaultdict
 import ipdb
 
+from rich.console import Console
+from rich.theme import Theme
+
 from nornir import InitNornir
 from nornir.core.task import Task, Result
 from nornir_utils.plugins.tasks.data import load_yaml, load_json, echo_data
@@ -73,54 +76,159 @@ def _create_parser() -> Dict[str, Any]:
 
 
 # ----------------------------------------------------------------------------
-# 1. Validates existence of test files
+# 1. Validate template file has features all features specified in input_data
 # ----------------------------------------------------------------------------
-##### !!!! Still to do !!!!!!
-def _check_feature_exist(input_data, desired_state_tmpl):
-    with open(input_data, "r") as file_:
-        input_data = yaml.load(file_, Loader=yaml.SafeLoader)
-    with open(desired_state_tmpl) as file_:
-        desired_state_tmpl = file_.read()
+class ValidateFiles:
+    def __init__(self, rc: "Rich") -> None:
+        self.rc = rc
 
-    # Go through and get contents of all, host and groups
-    # Check if dict name is in the template, if not fail
-    # ipdb.set_trace()
+    # ----------------------------------------------------------------------------
+    # 1c. Get all the per-os_type features from template and store in format {os_type: [feature1, feature2, etc]}
+    # ----------------------------------------------------------------------------
+    def _get_feat_from_tmpl(self, desired_state_tmpl: str) -> Dict[str, List]:
+        grp_feature = {}
+        tmp_str = ""
+        # FILTER: Get only the lines with 'ostype' or 'feature' in them
+        for each_line in desired_state_tmpl.splitlines():
+            if each_line.startswith("{#"):
+                pass
+            elif "os_type |string" in each_line:
+                tmp_str = (
+                    tmp_str + "os_type" + " " + each_line.split()[2].replace("'", "")
+                )
+            elif "feature ==" in each_line:
+                tmp_str = (
+                    tmp_str + "feature" + " " + each_line.split()[-2].replace("'", "")
+                )
+        # DICT: Creates dictionary of list of all features per-group
+        for each_os in tmp_str.split("os_type ")[1:]:
+            if "feature" not in each_os:
+                pass
+            elif "feature" in each_os:
+                grp_feature[each_os.split("feature ")[0]] = each_os.split("feature ")[
+                    1:
+                ]
+        return grp_feature
 
+    # ----------------------------------------------------------------------------
+    # 1d. Get all the per-os_type features from input_data and store in format {os_type: [feature1, feature2, etc]}
+    # ----------------------------------------------------------------------------
+    def _get_feat_from_input_data(self, input_vars: Dict[str, List]) -> Dict[str, List]:
+        all_os = []
+        tmp_grp_feature = defaultdict(list)
 
-def _file_validation(
-    input_data: str,
-    desired_state: str,
-    desired_state_tmpl: str,
-    actual_state: str,
-) -> Dict[str, Any]:
-    errors = []
+        for each_inv_type, data in input_vars.items():
+            # GRP: Creates per-grp dict which is a list of the group features
+            if each_inv_type == "groups":
+                for grp_name, grp_data in data.items():
+                    tmp_grp_feature[grp_name].extend(list(grp_data.keys()))
+            # HST: If the host is in inventory gets group and adds features to the group
+            elif each_inv_type == "hosts":
+                val_build = ValidationBuilder({"check_features": True}, {})
+                nr = val_build.engine()
+                for hst_name, hst_data in data.items():
+                    try:
+                        grp_name = nr.inventory.hosts[hst_name].dict()["groups"][0]
+                        tmp_grp_feature[grp_name].extend(list(hst_data.keys()))
+                    except:
+                        pass
+            # ALL: Creates a list of features used by all groups
+            elif each_inv_type == "all":
+                all_os.extend(list(data.keys()))
 
-    for each_file in [
-        input_data,
-        desired_state,
-        desired_state_tmpl,
-        actual_state,
-        actual_state_tmpl,
-    ]:
-        if os.path.exists(each_file) == False:
-            errors.append(each_file)
-    if len(errors) != 0:
-        print(
-            "❌ FileError: The following files are missing, all are required (even if empty) to run the Validation Builder."
-        )
-        for each_err in errors:
-            print(f"    -{each_err}")
-        sys.exit(1)
+        # COMBINE: Add all group features to each group and remove duplicates
+        if len(all_os) != 0:
+            grp_feature = {}
+            for each_grp, data in tmp_grp_feature.items():
+                data.extend(all_os)
+                grp_feature[each_grp] = set(data)
+        else:
+            grp_feature = tmp_grp_feature
+        return grp_feature
 
-    elif len(errors) == 0:
-        _check_feature_exist(input_data, desired_state_tmpl)
-        return dict(
-            input_data=input_data,
-            desired_state=desired_state,
-            desired_state_tmpl=desired_state_tmpl,
-            actual_state=actual_state,
-            actual_state_tmpl=actual_state_tmpl,
-        )
+    # ----------------------------------------------------------------------------
+    # 1b. Check that features in input_data are in jinja2 template (based on group, host ignored if not in nornir inventory)
+    # ----------------------------------------------------------------------------
+    def _check_feature_exist(self, input_data: str, desired_state_tmpl_file: str):
+        #  LOAD: Load template as a file and either the input file or change name of the input data variable
+        if ".yml" in input_data:
+            with open(input_data, "r") as file_:
+                input_vars = yaml.load(file_, Loader=yaml.SafeLoader)
+        else:
+            input_vars = input_data
+            input_data = "input_data variable"  # Used for error messages
+        with open(desired_state_tmpl_file) as file_:
+            desired_state_tmpl = file_.read()
+        # GET: Gets dictionaires of the features in template and input data
+        tmpl_features = self._get_feat_from_tmpl(desired_state_tmpl)
+        input_features = self._get_feat_from_input_data(input_vars)
+
+        # ipdb.set_trace()
+        # print(input_features)
+        # exit()
+        # GRP_ERR: Gets any groups that are in input_data but not in template
+        grp_diffs = set(input_features) - set(tmpl_features)
+        if len(grp_diffs) != 0:
+            self.rc.print(
+                f"❌ TemplateError: The groups [i]'{' '.join(grp_diffs)}'[/i] exist in [i]'{input_data}'[/i] but the template [i]'{desired_state_tmpl_file}'[/i] does not have this group. "
+                "At bare a minimun groups in the input_file must have a conditional match in the template file for that [i]os_type[/i]."
+            )
+            sys.exit(1)
+        else:
+            # FEAT_ERR: On a per-grp basis gets any features that are in input_data but not in template
+            errors = {}
+            for each_grp, data in input_features.items():
+                if len(data - set(tmpl_features[each_grp])) != None:
+                    errors[each_grp] = data - set(tmpl_features[each_grp])
+        if len(errors) != 0:
+            self.rc.print(
+                f"❌ FeatureError: The following features exist in [i]'{input_data}'[/i] but not in the template [i]'{desired_state_tmpl_file}'[/i]. "
+                "All features defined in the input data must have a conditional feature match in the template."
+            )
+            for each_grp, data in errors.items():
+                self.rc.print(
+                    f"-Group: [i]{each_grp}[/i] \t Missing Features: [i]{data}[/i]      "
+                )
+            sys.exit(1)
+
+    # ----------------------------------------------------------------------------
+    # 1a. Validate input files exist
+    # ----------------------------------------------------------------------------
+    def file_validation(
+        self,
+        input_data: str,
+        desired_state: str,
+        desired_state_tmpl: str,
+        actual_state: str,
+    ) -> Dict[str, Any]:
+        errors = []
+
+        for each_file in [
+            input_data,
+            desired_state,
+            desired_state_tmpl,
+            actual_state,
+            actual_state_tmpl,
+        ]:
+            if os.path.exists(each_file) == False:
+                errors.append(each_file)
+        if len(errors) != 0:
+            self.rc.print(
+                "❌ FileError: The following files are missing, all are required (even if empty) to run the Validation Builder."
+            )
+            for each_err in errors:
+                print(f"    -[i]{each_err}[/i]")
+            sys.exit(1)
+
+        elif len(errors) == 0:
+            self._check_feature_exist(input_data, desired_state_tmpl)
+            return dict(
+                input_data=input_data,
+                desired_state=desired_state,
+                desired_state_tmpl=desired_state_tmpl,
+                actual_state=actual_state,
+                actual_state_tmpl=actual_state_tmpl,
+            )
 
 
 # ----------------------------------------------------------------------------
@@ -128,15 +236,16 @@ def _file_validation(
 # ----------------------------------------------------------------------------
 class ValidationBuilder:
     def __init__(self, args: Dict[str, bool], files: Dict[str, Any]) -> None:
-        self.discovery = args["discovery"]
-        self.desired_state = args["desired_state"]
-        self.actual_state = args["actual_state"]
-        self.report_desired_state = args["report_desired_state"]
-        self.report_actual_state = args["report_actual_state"]
-        self.input_data = files["input_data"]
-        self.desired_state_file = files["desired_state"]
-        self.desired_state_tmpl = files["desired_state_tmpl"]
-        self.actual_state_file = files["actual_state"]
+        self.check_features = args.get("check_features")
+        self.discovery = args.get("discovery")
+        self.desired_state = args.get("desired_state")
+        self.actual_state = args.get("actual_state")
+        self.report_desired_state = args.get("report_desired_state")
+        self.report_actual_state = args.get("report_actual_state")
+        self.input_data = files.get("input_data")
+        self.desired_state_file = files.get("desired_state")
+        self.desired_state_tmpl = files.get("desired_state_tmpl")
+        self.actual_state_file = files.get("actual_state")
         self.report_task_desired_state = {}
 
     # ----------------------------------------------------------------------------
@@ -147,14 +256,16 @@ class ValidationBuilder:
             inventory={
                 "plugin": "SimpleInventory",
                 "options": {
-                    "host_file": os.path.join(parentdir, "inventory/hosts.yml"),
+                    "host_file": os.path.join(currentdir, "inventory/hosts.yml"),
                     "group_file": os.path.join(parentdir, "inventory/groups.yml"),
                     "defaults_file": os.path.join(parentdir, "inventory/defaults.yml"),
                 },
             }
         )
 
-        if self.discovery == True:
+        if self.check_features == True:
+            return nr
+        elif self.discovery == True:
             print_title("Validation Builder - Discovery")
             return nr.run(task=self.discovery_task)
         elif self.actual_state == True:
@@ -350,7 +461,11 @@ class ValidationBuilder:
 # ----------------------------------------------------------------------------
 def main():
     args = _create_parser()
-    files = _file_validation(
+    rc = Console(
+        theme=Theme({"repr.ipv4": "none", "repr.number": "none", "repr.call": "none"})
+    )
+    val_files = ValidateFiles(rc)
+    files = val_files.file_validation(
         input_data, desired_state, desired_state_tmpl, actual_state
     )
     val_build = ValidationBuilder(args, files)
