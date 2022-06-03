@@ -177,7 +177,6 @@ The input file (***input_data.yml***) is rendered by a jinja template (***desire
 
 ```jinja
 {% if 'ios' in os_type |string %}
-
 {% if feature == 'ospf' %}
 - show ip ospf neighbor:
     _mode: strict
@@ -198,8 +197,8 @@ The input file (***input_data.yml***) is rendered by a jinja template (***desire
         {{ each_member }}:
           mbr_status: P
 {% endfor %}{% endfor %}
-{% endif %}
 
+{% endif %}
 {% endif %}
 ```
 
