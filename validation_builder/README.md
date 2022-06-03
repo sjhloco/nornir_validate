@@ -209,7 +209,9 @@ The new lines of code in the jinja template and python file can now be moved int
 
 ### 6. Update commands in unit tests
 
-***test_validations.py*** tests that the desired state templating and actual state command formatting is correct. Once the validations are completed update the relevant dictionaries within ***desired_actual_cmd.py*** with the outputs got from *val_builder* to add these commands to unittesting. This file contains the following 3 dictionaries with each having a further child dictionary for the different os_types.
+***test_validations.py*** uses static command outputs to test that the desired state templating and actual state command formatting is correct. Before adding the new commands to the testing it is worth checking that all current tests are passing, use `pytest` to run both *test_nr_val.py* and *test_validations.py*.
+
+The ***desired_actual_cmd.py*** file contains the following 3 dictionaries with each having a further child dictionary for the different os_types.
 
 - **desired_state:** Should match the templated result of the rendered jinja template
 - **cmd_output:** The raw textFSM formatted device command output (used to create the actual_state)
@@ -217,15 +219,26 @@ The new lines of code in the jinja template and python file can now be moved int
 
 Test methods have been built for WLC and Checkpoints but are hashed out as there are no actual tests for these device types at the moment.
 
-### a. Update input data
+#### a. Desired state - Renders template with the input data asserting against static desired state
 
-Add the input data used in val_builder to relevant groups *os_type* dictionary within the ***input_data_validations.yml***. This is the per-os_type input data that the unittests desired_state and actual_state will be created from.
+Add the input data from val_builder *input_data.yml* to the relevant groups *os_type* dictionary within ***input_data_validations.yml***.
 
-### b. TestDesiredState
+```yaml
+    ospf:
+      nbrs: [192.168.255.1, 2.2.2.2]
+```
 
-Add JSON formatted output (not YAML) from ***desired_state*** (`-ds`) to the relevant *os_type* dictionary in *desired_state*. Make sure to remove parent the *results* dictionary (leave *_mode* in) and replace all instances of *'* for *"* (if using black it will automatically do this for you).
+Add the JSON formatted output (not YAML) from ***desired_state*** (`python val_builder.py -ds`) to the end of relevant *os_type* dictionary in the ***desired_state*** section of *desired_actual_cmd.py*. You must remove the parent the *results* dictionary and the 2nd dictionary curly brackets (leave *_mode* in), black will automatically fix formatting and replace all `'` with `"` when the file is saved.
 
-You can run all desired_state unittests or run any of the individual os_type desired_state unittests.
+```python
+        "show ip ospf neighbor": {
+            "_mode": "strict",
+            "192.168.255.1": {"state": "FULL"},
+            "2.2.2.2": {"state": "FULL"},
+        },
+```
+
+The desired_state unit tests can be run for all os_types or for each os_type individually.
 
 ```python
 pytest tests/test_validations.py::TestDesiredState -vv
@@ -234,11 +247,27 @@ pytest tests/test_validations.py::TestDesiredState::test_nxos_desired_state_temp
 pytest tests/test_validations.py::TestDesiredState::test_asa_desired_state_templating -vv
 ```
 
-### c. TestActualState
+#### b. Actual State - Creates DMs from static command output asserting against static actual state
 
-Add the output from ***discovery*** (`-di`) to the relevant os_type dictionary in *cmd_output* and the output from ***actual_state*** (`-as`) to the relevant os_type dictionary in *actual_state* (replace *'* for *"* or let black do it) automatically.
+Add the discovery output `python val_builder.py -di` to the end of relevant *os_type* dictionary in the ***cmd_output*** section of *desired_actual_cmd.py*. You must remove the outer dictionary curly brackets (*{}*), black will automatically fix formatting and replace all `'` with `"` when the file is saved.
 
-You can run all actual_state unittests or run any of the individual os_type actual_state unittests.
+```python
+        "show ip ospf neighbor": [
+            {
+                "address": "192.168.255.1",
+                "dead_time": "00:00:35",
+                "interface": "Vlan98",
+                "neighbor_id": "192.168.255.1",
+                "priority": "1",
+                "state": "FULL/BDR",
+            },
+```
+
+Add the output from ***actual_state*** (`python val_builder.py -as`) to the relevant os_type dictionary in ***actual_state*** section of *desired_actual_cmd.py*. You must remove the outer dictionary curly brackets (*{}*), black will automatically fix formatting and replace all `'` with `"` when the file is saved.
+
+
+
+The actual_state unit tests can be run for all os_types or for each os_type individually.
 
 ```python
 pytest tests/test_validations.py::TestActualState -vv
@@ -247,7 +276,7 @@ pytest tests/test_validations.py::TestActualState::test_nxos_actual_state_format
 pytest tests/test_validations.py::TestActualState::test_asa_actual_state_formatting -vv
 ```
 
-The unittests can be run for both desired and actual state by omitting the method name.
+The unit tests can be run for both desired and actual state by omitting the method name.
 
 ```python
 pytest tests/test_validations.py -vv
