@@ -146,8 +146,10 @@ def actual_state_engine(os_type: List, cmd_output: Dict[str, List]) -> Dict[str,
     # Loops through getting command and output from the command
     for cmd, output in cmd_output.items():
         tmp_dict = defaultdict(dict)
-        # EMPTY: If output is empty just adds an empty dictionary
+        # EMPTY: If output is empty or not formatted (string) just adds an empty dictionary
         if output == None:
+            actual_state[cmd] = tmp_dict
+        elif len(output) == 0:
             actual_state[cmd] = tmp_dict
         else:
             format_actual_state(os_type, cmd, output, tmp_dict, actual_state)

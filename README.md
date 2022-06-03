@@ -13,9 +13,32 @@ This documents what validations are available for the different device types.
 
 | Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Checkpoint
 | ---------- | ------ | ---------- | ---- | --- | --- | ----------
+| Image | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
 | Management ACL (SSH/SNMP/HTTP)* | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 | Port-channel (membership & status) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| OSPF neigbors | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Interface brief (IP and status) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| CDP neighbors | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| LLDP neighbors | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| HSRP (priority and state) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Switch stack (state and priority) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VSS HA state | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Interface status (speed, duplex, status) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Switchport (mode and vlan) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VLANs (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Spanning-Tree (FWD vlan interfaces) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VRF (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Route summary (total subnets) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Route (route and next-hop) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VRF Route summary (total subnets) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VRF Route (route and next-hop) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| OSPF Interface (interfaces, area, cost) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| OSPF neighbors (neighbor, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| EIGRP Interface | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| EIGRP neighbors | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| BGP peers (peer, asn, rcv_pfx) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| NVE VNI (L3VNI, VRF, BDI, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| NVE peer (L3VNI, peer, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VPN (peer, interface, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 
 *Management ACL is a very basic ACL validation looking at the source IP and action (non-ASA) or interface (ASs). On ASAs it is the allowed list for SSH and HTTP whilst on all other platforms is the ACL governing SSH and SNMP access.
 
@@ -272,6 +295,7 @@ I plan to do the following over the coming months:
 - Add a lot more IOS/IOS-XE, NXOS, ASA and Checkpoint commands to the actual_state.py and desired_state.j2. Unit-testing is already setup for the project so should hopefully speed up this process
 - Once happy with the commands add a layer of abstraction for *actual_state.py* and *desired_state.j2* so these can be fed in by the user when it is imported into another script to merge with the base files
 - Package it up as hopefully with a bigger command base and the ease of extending (abstraction of actual_state.py and desired_state.j2) should not be as much need to make changes to the base code
+- Add support for genie, not sure where you put the toggle of wether to use netmiko pr genie for a command
 - Drink a few beers 🍺🍺🍺
 - Convert JSON to HTML page something in the vain of the [Robot framework](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html)
 - Maybe look at what is involved to add it as a nornir plugin
@@ -288,3 +312,8 @@ sys.path.insert(0, "nornir_validate")
     else:
        tmpl_path =  "nornir_validate/templates/"
 ```
+
+
+ADD caveats section and install altests NTC tempaltes as PIP version doenst have fix for show interfaces status
+https://github.com/networktocode/ntc-templates/pull/1023
+

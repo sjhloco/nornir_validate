@@ -315,8 +315,12 @@ class ValidationBuilder:
             ).result
 
             # Converts jinja string into yaml and list of dicts [cmd: {seq: ket:val}] into a dict of cmds {cmd: {seq: key:val}}
-            for each_list in yaml.load(tmp_desired_state, Loader=yaml.SafeLoader):
-                desired_state.update(each_list)
+            try:
+                for each_list in yaml.load(tmp_desired_state, Loader=yaml.BaseLoader):
+                    desired_state.update(each_list)
+            except:
+                desired_state.update([])
+            # breakpoint()
 
     # ----------------------------------------------------------------------------
     # 2c. ACTUAL_STATE: Creates actual state by formatting cmd outputs
@@ -331,8 +335,11 @@ class ValidationBuilder:
             tmp_dict = defaultdict(dict)
             if output == None:
                 actual_state[cmd] = tmp_dict
+            elif len(output) == 0:
+                actual_state[cmd] = tmp_dict
             else:
                 format_actual_state(os_type, cmd, output, tmp_dict, actual_state)
+
         return actual_state
 
     # ----------------------------------------------------------------------------
@@ -370,6 +377,8 @@ class ValidationBuilder:
         ).result
         os_type = merge_os_types(task.host)
         actual_state = self.actual_state_engine(os_type, cmd_output)
+
+        # breakpoint()
         return Result(host=task.host, result=actual_state)
 
     # ----------------------------------------------------------------------------
