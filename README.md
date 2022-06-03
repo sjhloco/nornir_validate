@@ -56,6 +56,16 @@ pip install -r requirements.txt
 
 I have had to use the develop branch of *nornir-netmiko* as it doesn't yet support *netmiko 4.0.0* which I needed as it has a fix for this [ntc-templates parsing in netmiko](https://github.com/ktbyers/netmiko/pull/2274) bug.
 
+### Caveats
+
+If you using the IOS command *show_interfaces_status* and an interface in a port-channel is *suspended* the script will fail as it is missing from the NTC template (*cisco_ios_show_interfaces_status*) as per this closed [bug](https://github.com/networktocode/ntc-templates/issues/1021). I haven't got round to doing a PR yet so as a workaround you can edit the *~/venv/nr_val/lib/python3.9/site-packages/ntc_templates/templates/cisco_ios_show_interfaces_status.textfsm* file (replace your virtual env at start) and add *suspended* to the end of this *Value STATUS* line.
+
+```python
+Value STATUS (err-disabled|disabled|connected|notconnect|inactive|up|down|monitoring)
+```
+
+Due to the way that the *napalm_validate* matching works if can miss some things if there are common values. For example with the number of routes if the desired number is 5 and the actual number is 15 this will pass as it looks if 5 is in 15 rather than an exact match. Not sure if this is by design, at end of the day I am using it for a more expanded purpose so need to look how it performs normally before seeing if I can fix it.
+
 ## Running nornir_validate
 
 Before being able to generate a meaningful compliance report you will need to edit the following elements, they are explained in more detail in the later sections.
@@ -136,8 +146,8 @@ The result of the below example will check the OSPF neighbors on *all* devices, 
 ```yaml
 hosts:
   HME-SWI-VSS01:
-    po:
-      - name: Po2
+    port_channel:
+      Po2:
         mode: LACP
         members: [Gi0/15, Gi0/16]
 groups:
@@ -176,16 +186,16 @@ The input file (***input_data.yml***) is rendered by a jinja template (***desire
       state: FULL
 {% endfor %}
 
-{% elif feature == 'po' %}
+{% elif feature == 'port_channel' %}
 - show etherchannel summary:
-{% for each_po in input_vars %}
-    {{ each_po.name }}:
+{% for each_po_name, each_po_info in input_vars.items() %}
+    {{ each_po_name }}:
       status: U
-      protocol: {{ each_po.mode }}
+      protocol: {{ each_po_info.mode }}
       members:
-{% for each_memeber in each_po.members %}
         _mode: strict
-        {{ each_memeber }}:
+{% for each_member in each_po_info.members %}
+        {{ each_member }}:
           mbr_status: P
 {% endfor %}{% endfor %}
 {% endif %}
@@ -292,13 +302,16 @@ This the first build of this project to get the structure of the base components
 
 I plan to do the following over the coming months:
 
-- Add a lot more IOS/IOS-XE, NXOS, ASA and Checkpoint commands to the actual_state.py and desired_state.j2. Unit-testing is already setup for the project so should hopefully speed up this process
-- Once happy with the commands add a layer of abstraction for *actual_state.py* and *desired_state.j2* so these can be fed in by the user when it is imported into another script to merge with the base files
-- Package it up as hopefully with a bigger command base and the ease of extending (abstraction of actual_state.py and desired_state.j2) should not be as much need to make changes to the base code
-- Add support for genie, not sure where you put the toggle of wether to use netmiko pr genie for a command
-- Drink a few beers 🍺🍺🍺
-- Convert JSON to HTML page something in the vain of the [Robot framework](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html)
+- Test out a lot of the IOS validations in a proper real-world environment (very basic lab test done so far)
+- Look into napalm_validate see if the looseness of the regex search misses matches there, if so try and fix and raise a PR
+- Add NXOS commands to cover the majority of IOS/IOS-XE commands and other NXOS only cmds. Not sure if will use TextFSM or native NXOS JSON cmds, where possible use common python functions (actual state) or jinja macros (desired state)to keep it DRY.
+- Add ASA commands, will be interfaces, routing and VPN
+- Add WLC commands, will be interfaces and APs
+- Add Checkpoint commands, will be interfaces and routing
+- Add support for genie, not sure where you put the toggle of whether to use netmiko pr genie for a command
+- Look into if it is possible to convert JSON report to HTML page something in the vain of the [Robot framework](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html)
 - Maybe look at what is involved to add it as a nornir plugin
+- Package it up, need to make it easy to extend (abstraction of actual_state.py and desired_state.j2) so will not be as much need to make changes to the base code
 
 To allow me to fudge it to be able to import it as a module (due to inheritance) I added the following to *nr_val.py* that I need to remember to remove when it gets packaged up and check validation_builder (as effects inheritance), don't forget.....
 
@@ -312,8 +325,3 @@ sys.path.insert(0, "nornir_validate")
     else:
        tmpl_path =  "nornir_validate/templates/"
 ```
-
-
-ADD caveats section and install altests NTC tempaltes as PIP version doenst have fix for show interfaces status
-https://github.com/networktocode/ntc-templates/pull/1023
-

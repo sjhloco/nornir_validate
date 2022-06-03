@@ -3,8 +3,13 @@
 #     ospf:
 #       # nbrs: [192.168.255.1, 2.2.2.2]
 #       nbrs: [192.168.255.1]
-# groups:
-#   ios:
+groups:
+  ios:
+    image: test
+    port_channel:
+      Po3:
+        mode: LACP
+        members: [Gi0/15, Gi0/16]
 #     acl:
 #       - name: TEST_SSH_ACCESS
 #         ace:
@@ -23,17 +28,17 @@
   #   - name: Po3
   #     mode: LACP
   #     members: [Gi0/15, Gi0/16]
-groups:
-  asa:
-    acl:
-      - name: TEST_SSH_ACCESS
-        ace:
-          - { remark: MGMT Access - VLAN10 }
-          - { permit: 10.17.10.0/24 }
-          - { remark: Citrix Access }
-          - { permit: 10.10.10.10/32 }
-          - { permit: any }
-      - name: TEST_SNMP_ACCESS
-        ace:
-          - { deny: 10.10.20.11 }
-          - { permit: any }
+# groups:
+#   asa:
+#     acl:
+#       - name: TEST_SSH_ACCESS
+#         ace:
+#           - { remark: MGMT Access - VLAN10 }
+#           - { permit: 10.17.10.0/24 }
+#           - { remark: Citrix Access }
+#           - { permit: 10.10.10.10/32 }
+#           - { permit: any }
+#       - name: TEST_SNMP_ACCESS
+#         ace:
+#           - { deny: 10.10.20.11 }
+#           - { permit: any }

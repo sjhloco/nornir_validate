@@ -133,7 +133,7 @@ def template_task(
             input_vars=feature_vars,
         ).result
         # Converts jinja string into yaml and list of dicts [cmd: {seq: ket:val}] into a dict of cmds {cmd: {seq: key:val}}
-        for each_list in yaml.load(tmp_desired_state, Loader=yaml.SafeLoader):
+        for each_list in yaml.load(tmp_desired_state, Loader=yaml.BaseLoader):
             desired_state.update(each_list)
 
 
