@@ -16,7 +16,7 @@ def format_actual_state(
 ) -> Dict[str, Dict]:
 
     # NO_NTC: Catch all if no NTC template. Either return dummy to not error or converts string to a list
-    used_cmds = [
+    non_ntc_tmpl_cmds = [
         "show bgp all summary",
         "show run ssh",
         "show run http",
@@ -28,11 +28,13 @@ def format_actual_state(
         "show nve peers",
         "show crypto session brief",
     ]
-    regex_cmds = "(show ip route .* summary \| in Total)|(show ip  route.*)"
+    non_ntc_tmpl_regex_cmds = (
+        "(show ip route .* summary \| in Total)|(show ip  route.*)"
+    )
     if isinstance(output, str):
-        if cmd in used_cmds:
+        if cmd in non_ntc_tmpl_cmds:
             output = output.lstrip().rstrip().splitlines()
-        elif re.match(regex_cmds, cmd):
+        elif re.match(non_ntc_tmpl_regex_cmds, cmd):
             output = output.lstrip().rstrip().splitlines()
         # All other cmd outputs that are string are ignored to stop errors
         else:
