@@ -36,7 +36,7 @@ nornir-netmiko==0.1.2
 nornir-utils @ git+https://github.com/nornir-automation/nornir_utils.git@ae5086d88b72af2739e25718df34c7843a3bae16
 ntc-templates==3.0.0
 packaging==21.3
-paramiko==2.8.1
+paramiko==2.10.1
 parso==0.8.3
 passlib==1.7.4
 pexpect==4.8.0
