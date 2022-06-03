@@ -27,10 +27,10 @@ This documents what validations are available for the different device types.
 | VLANs (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | Spanning-Tree (FWD vlan interfaces) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
 | VRF (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Route summary (total subnets) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Route (route and next-hop) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VRF Route summary (total subnets) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VRF Route (route and next-hop) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Route summary (total subnets) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Route (route and next-hop) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VRF Route summary (total subnets) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VRF Route (route and next-hop) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
 | OSPF Interface (interfaces, area, cost) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | OSPF neighbors (neighbor, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | EIGRP Interface | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
@@ -54,7 +54,7 @@ cd nornir_validate/
 pip install -r requirements.txt
 ```
 
-It is worth noting that I couldnt use the latest PyPI version of netmiko (3.4.0) or nornir-utils due to bugs for [ntc-templates parsing in netmiko](https://github.com/ktbyers/netmiko/pull/2274) and [nornir-utils print_result tasks](https://github.com/nornir-automation/nornir_utils/pull/22). Therefore *requirements.txt* installs the github repository versions that have the fixes for these issues.
+I have had to use the develop branch of *nornir-netmiko* as it doesn't yet support *netmiko 4.0.0* which I needed as it has a fix for this [ntc-templates parsing in netmiko](https://github.com/ktbyers/netmiko/pull/2274) bug.
 
 ## Running nornir_validate
 

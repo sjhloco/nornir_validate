@@ -1,6 +1,6 @@
 all:
 ### IMAGE: show version: The current running image
-#   image: 16.6.2
+  image: 16.6.2
 
 ### ACL: show ip access-lists <name> - Management type ACLs, the protocol protocol is always 'IP' and the destination 'any'
   # acl:
@@ -140,11 +140,11 @@ all:
   #   0.0.0.0/0: 10.30.20.1
 
 ### OSPF_INTF: show ip ospf interface brief - Strict list of OSPF interfaces with area, cost and state
-  ospf_intf:
-    - intf: Gi3
-      area: 0
-      cost: 1
-      state: P2P
+  # ospf_intf:
+  #   - intf: Gi3
+  #     area: 0
+  #     cost: 1
+  #     state: P2P
 
 ### OSPF_NBR: show ip ospf neighbor - Strict list of OSPF neighbors, state is expected top be FULL
   # ospf_nbr:

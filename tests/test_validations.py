@@ -38,7 +38,8 @@ def load_inv_and_data():
                 "host_file": os.path.join(test_inventory, "hosts_validations.yml"),
                 "group_file": os.path.join(test_inventory, "groups.yml"),
             },
-        }
+        },
+        logging={"enabled": False},
     )
 
     with open(

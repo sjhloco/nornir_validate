@@ -39,7 +39,8 @@ def load_inv_and_data():
                 "host_file": os.path.join(test_inventory, "hosts.yml"),
                 "group_file": os.path.join(test_inventory, "groups.yml"),
             },
-        }
+        },
+        logging={"enabled": False},
     )
     with open(os.path.join(test_data, "input_data.yml"), "r") as file_content:
         input_vars = yaml.load(file_content, Loader=yaml.FullLoader)

@@ -1,5 +1,5 @@
 # Switch and router
-# - show version: {}
+- show version: {}
 # - show ip access-lists TEST_SSH_ACCESS: {}
 # - show etherchannel summary | ex port-channel|Bundled|Suspended: {}
 # - show ip interface brief: {}
@@ -28,7 +28,7 @@
 # - show ip ospf database database-summary | in Total: {}
 # - show ip eigrp interfaces: {}
 # - show ip eigrp neighbors: {}
-- show bgp all summary: {}
+# - show bgp all summary: {}
 # - show nve vni: {}
 # - show nve peers: {}
 # - show crypto session brief: {}

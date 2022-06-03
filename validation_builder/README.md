@@ -51,13 +51,13 @@ The following steps walk you through the process of creating a new validation us
 
 ### 1. Discovery (di): Gather command output from devices
 
-Within the *desired_state.yml* define a list of dictionaries with the key being the command to be run (used to gather output) and the value the desired state. At this stage of the process the desired state is an empty dictionary as the purpose of the file is define the commands that will be against a device.
+Within the *desired_state.yml* define a list of dictionaries with the key being the command and the value the desired state. At this stage of the process the desired state is an empty dictionary as the sole purpose of the file is to define the commands that will be run against a device.
 
 ```yaml
 - show ip ospf neighbor: {}
 ```
 
-`-di` returns the command output as a list formatted into a *ntc-templates* based TextFSM data model. The command must have already have been defined by [NTC](https://github.com/networktocode/ntc-templates/tree/master/ntc_templates/templates) and be an exact match of the full command, no abbreviations such as *show ip int brief*.
+`-di` returns the command output as a list formatted into a *ntc-templates* based TextFSM data model. The command must have already have been defined by [NTC](https://github.com/networktocode/ntc-templates/tree/master/ntc_templates/templates) and be an exact match of the full command, no abbreviations.
 
 ```python
 python val_builder.py -di
@@ -74,11 +74,11 @@ vvvv discovery_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END discovery_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-There are some commands where NTC templates are not used and the actual state is created from screen scrapping. In these situations the command needs adding to the *actual_state.py* function *format_actual_state* variables ***non_ntc_tmpl_cmds*** or ***non_ntc_tmpl_regex_cmds*** to convert the output from a string to a list. By default no strings will generate an *actual state* as this safe guards against the script failing if the command output is an error.
+There are some commands where NTC templates are not used and instead the actual state is created from screen scrapping. In these situations we must convert the output from a string to a list by adding the command to the variable ***non_ntc_tmpl_cmds*** or ***non_ntc_tmpl_regex_cmds*** within *actual_state.py* function *format_actual_state*. By default no strings will generate an *actual state* as this safe guards against the script failing if the command output is an error.
 
 ### 2. Actual state (-as): Format the command output into the actual state
 
-Based on the discovery output build the python logic to perform the data model formatting of the *actual_state* to get the values to be validate. This is defined in the *actual_state.py* on a *per-os_type* basis as each os-type has a separate function.
+Based on the discovery output build the python logic to perform the data model formatting of the *actual_state* to get the values to be validate. This is defined in the *actual_state.py* on a *per-os_type* basis.
 
 By using a breakpoint (*ipdb.set_trace()*) after the command you can look through the discovery data model to workout the python logic for the *actual_state* data model. The [nornir docs](https://nornir.readthedocs.io/en/latest/howto/ipdb_how_to_use_it_with_nornir.html) have a good tutorial on using the [iPython pdb debugger](https://github.com/gotcha/ipdb).
 
@@ -89,7 +89,7 @@ if "show ip ospf neighbor" in cmd:
         tmp_dict[each_nhbr['neighbor_id']] = {'state': remove_char(each_nhbr['state'], '/')}
 ```
 
-`-as` runs the commands from the *desired_state.yml* and passes the returned output (TextFSM data-model) through *actual_state.py* printing the resulting *actual_state* to screen.
+`-as` runs the commands from the *desired_state.yml* file and passes the returned output through *actual_state.py* printing the resulting *actual_state* to screen.
 
 ```python
 python val_builder.py -as
@@ -101,7 +101,7 @@ vvvv actual_state_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END actual_state_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-This can now be added to the *actual_state.json* file to create a static *actual_state* to save having to run the commands against a live device whilst developing the desired state. Although the JSON formatting of the returned actual_state is correct, for this to be used in Python (the static *actual_state.json* file) you must swap out all `'` for `"`.
+Add this to the *actual_state.json* file to create a static *actual_state* to save having to run the commands against a live device whilst developing the desired state. Although the JSON formatting of the returned actual_state is correct, for this to be used in Python (the static *actual_state.json* file) you must swap out all `'` for `"`.
 
 ```python
 { "show ip ospf neighbor": { "192.168.255.1": {"state": "FULL"}}}
@@ -109,7 +109,7 @@ This can now be added to the *actual_state.json* file to create a static *actual
 
 ### 3. Desired state (-ds): Create the input_data and desired state template
 
-In the *input_data.yml* file define a feature name (is matched in the template) and elements of this feature that are to be validated. How this is structured depends on the commands data model format (*actual_state*).
+In the *input_data.yml* file define a feature name (will be matched in the template) and elements of this feature that are to be validated. How this is structured depends on the format of the commands output (*actual_state*).
 
 ```yaml
 all:
@@ -117,7 +117,7 @@ all:
     nbrs: [192.168.255.1]
 ```
 
-The *input_data* has a direct relationship with the *desired_state.j2* Jinja2 template as it renders that data to create the *desired_state* which matches the formatting of the *actual_state*. The template creates a YAML per-device_type list of nested dictionaries with the command being the key and the value the expected feature state.
+The *input_data* has a direct relationship with the *desired_state.j2* template as it renders that data to create the *desired_state*. The template creates a YAML per-device_type list of nested dictionaries with the command being the key and the value the expected feature state.
 
 Under the ***os_type*** (*ios*) and ***feature*** (*ospf*) add the command (*- show ip ospf neighbor:*) followed by the *input_vars* to populate the input_file variables in the rendered template.
 
@@ -154,7 +154,7 @@ vvvv desired_state_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END desired_state_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-If the desired state contains a nested list in the desired state must be specifically called out as a list, for example with *show vlan brief* interfaces:
+If the desired state contains a nested list it must be specifically called out as a list. For example, with *show vlan brief* interfaces:
 
 ```none
 - show vlan brief:
@@ -165,15 +165,9 @@ If the desired state contains a nested list in the desired state must be specifi
         list: ['Gi0/1', 'Gi0/2']
 ```
 
-### 4. Test dynamic desired_state against static actual_state
+### 4. Static Compliance Report (-rds): Test dynamic desired_state against static actual_state
 
-Run a compliance report using the static *actual_state* (*actual_state.json*) from step1 and the dynamic *desired_state* (*input_data.yml* and *desired_state.j2*) from step3.
-
-```python
-{ "show ip ospf neighbor": { "192.168.255.1": {"state": "FULL"}}}
-```
-
-`--rds` or `--report_desired_state` builds and prints the compliance report with the *desire_state* dynamically created (rendering *desired_state.j2*) and the *actual_state* got from a static file (loads *actual_state.json*).
+Use `-rds` to build and print the compliance report using the static *actual_state* (*actual_state.json*) from step2 and the dynamically created *desired_state* (*input_data.yml* and *desired_state.j2*) from step3.
 
 ```python
 python val_builder.py -rds
@@ -189,32 +183,9 @@ vvvv report_desired_state_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END report_desired_state_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-It is also possible test the dynamic *actual_state* against the static *desired_state* adding the Jinja template YAML output to the file *desired_state.yml* (in early steps was an empty dictionary).
+It is also possible to use `-ads` to test the dynamically created *actual_state* against the static *desired_state* by adding the Jinja template YAML output from step3 to the file *desired_state.yml* (in early steps was an empty dictionary). This is not really needed when building a new as everything has already been proven.
 
-```yaml
-- show ip ospf neighbor:
-    _mode: strict
-    192.168.255.1:
-      state: FULL
-```
-
-`--ads` or `--report_actual_state` builds and prints a compliance report with the *actual_state* dynamically created (from python logic in *actual_state.py*) and the *desired_state* got from a static file (loads *desired_state.yml*).
-
-```python
-python val_builder.py -ras
-**** Validation Builder - Compliance Report using dynamic actual_state and static desired_state
-report_actual_state_task********************************************************
-* HME-SWI-VSS01 ** changed : False *********************************************
-vvvv report_actual_state_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv INFO
-{ 'show ip ospf neighbor': { 'complies': True,
-                             'extra': [],
-                             'missing': [],
-                             'present': { '192.168.255.1': { 'complies': True,
-                                                             'nested': True}}}}
-^^^^ END report_actual_state_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-```
-
-## 5. Create Compliance report with dynamic desired_state and actual_state
+### 5. Compliance Report: Create Compliance report with dynamic desired_state and actual_state
 
 Once happy with the new validations run the script with no flags (the equivalent of using *nr_val.py*) to dynamically create files for both the *desired_state* and *actual_state*.
 
@@ -234,14 +205,9 @@ vvvv report_task ** changed : False vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 ^^^^ END report_task ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-
-
-!!!!!!!!!! DONE UP TO HERE, write up when move to nor_val !!!!!!!!!!!!!!
-
-
 The new lines of code in the jinja template and python file can now be moved into the relevant files within the nornir_validate *templates* directory to be used for future validations.
 
-## 7. Add to unittests
+### 6. Update commands in unit tests
 
 ***test_validations.py*** tests that the desired state templating and actual state command formatting is correct. Once the validations are completed update the relevant dictionaries within ***desired_actual_cmd.py*** with the outputs got from *val_builder* to add these commands to unittesting. This file contains the following 3 dictionaries with each having a further child dictionary for the different os_types.
 
