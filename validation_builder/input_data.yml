@@ -13,7 +13,7 @@ all:
   #       - { deny: any }
 
 ### PO: show etherchannel summary - Port-channel, mode, member interfaces and status. Strict, so exact interfaces
-  # po:
+  # port_channel:
   #   Po3:
   #     mode: LACP
   #     members: [Gi0/15, Gi0/16]
@@ -40,6 +40,7 @@ all:
   #     nbr_intf: Gi0/1
 
 ### HSRP: show standby brief - For each HSRP group the priority and state
+  # hsrp:
   #   - id: 0
   #     priority: 50
   #     state: Active

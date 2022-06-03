@@ -9,7 +9,7 @@
 
 # Switch only
 # - show switch: {}
-# # must have double space to miss textFSM format
+# must have double space to miss textFSM format
 # - show  redundancy state | in state: {}
 # - show interface status: {}
 # - show interfaces switchport: {}

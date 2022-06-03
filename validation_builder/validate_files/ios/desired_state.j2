@@ -21,7 +21,7 @@
 {% endif %}{% endfor %}
 {% endfor %}
 {# ########### PO: show etherchannel summary - {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}} ########## #}
-{% elif feature == 'po' %}
+{% elif feature == 'port_channel' %}
 - show etherchannel summary:
 {% for each_po_name, each_po_info in input_vars.items() %}
     {{ each_po_name }}:
