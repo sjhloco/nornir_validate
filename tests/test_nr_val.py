@@ -1,5 +1,5 @@
 """
-These unittests test the operation of nornir_validate (nr_val.py), they do not test intensively test each validation.
+These unittests test the operation of nornir_validate (nr_val.py), they do not intensively test each validation.
 Use test_validations.py to test the different os_type command validations (desired_state, cmd_output, actual_state)
 """
 
@@ -95,7 +95,6 @@ class TestNornirValidate:
                 "2.2.2.2": {"state": "FULL"},
             }
         }
-
         actual_output = nr.run(
             task=self.input_task_nr_task,
             input_data=os.path.join(test_data, "input_data.yml"),
@@ -113,9 +112,8 @@ class TestNornirValidate:
             }
         }
         input_data = {
-            "groups": {"ios": {"ospf": {"nbrs": ["192.168.255.1", "2.2.2.2"]}}}
+            "groups": {"ios": {"ospf_nbr": {"nbrs": ["192.168.255.1", "2.2.2.2"]}}}
         }
-
         actual_output = nr.run(
             task=self.input_task_nr_task,
             input_data=input_data,
@@ -168,13 +166,15 @@ class TestComplianceReport:
                 },
                 "skipped": [],
             },
+            "report_text": "",
         }
         actual_output = report(state, state, "TEST_HOST", None)
         assert (
             actual_output == desired_output
         ), "❌ compliance_report: Report for a compliance of true failed"
 
-        # 5b. COMPL_REPORT: Tests compliance report fail when combining the compliance from multiple commands
+    # 5b. COMPL_REPORT_MULTI_CMD: Tests compliance report fail when combining the compliance from multiple commands
+    def test_report_multi_cmd(self):
         desired_state = {
             "show ip ospf neighbor": {
                 "_mode": "strict",
@@ -237,6 +237,7 @@ class TestComplianceReport:
                 "complies": False,
                 "skipped": [],
             },
+            "report_text": "",
         }
         assert (
             actual_output == desired_output
@@ -257,13 +258,16 @@ class TestComplianceReport:
             test_data,
             "TEST_HOST"
             + "_compliance_report_"
-            + datetime.now().strftime("%Y%m%d-%H:%M")
+            + datetime.now().strftime("%Y%m%d-%H%M")
             + ".json",
         )
         assert (
             os.path.exists(filename) == True
         ), "❌ report_file: Creation of saved report failed"
+        os.remove(filename)
 
+    # 6b. REPORT_FILE_CONTENT: Validate the contents of report file
+    def test_report_file_content(self):
         desired_output = {
             "complies": True,
             "skipped": [],
@@ -274,13 +278,40 @@ class TestComplianceReport:
                 "extra": [],
             },
         }
+        report = {
+            "show ip ospf neighbor": {
+                "complies": True,
+                "present": {"192.168.255.1": {"complies": True, "nested": True}},
+                "missing": [],
+                "extra": [],
+            }
+        }
+        report_file("TEST_HOST", test_data, report, True, [])
+        filename = os.path.join(
+            test_data,
+            "TEST_HOST"
+            + "_compliance_report_"
+            + datetime.now().strftime("%Y%m%d-%H%M")
+            + ".json",
+        )
         with open(filename, "r") as file_content:
             report_from_file = json.load(file_content)
         assert (
             report_from_file == desired_output
         ), "❌ report_file: Saved report contents are incorrect"
+        os.remove(filename)
 
-        # 6b. REPORT_FILE: Updating existing file and compliance state
+    # 6c. REPORT_FILE: Updating existing file and compliance state
+    def test_report_file_update(self):
+        report = {
+            "show ip ospf neighbor": {
+                "complies": True,
+                "present": {"192.168.255.1": {"complies": True, "nested": True}},
+                "missing": [],
+                "extra": [],
+            }
+        }
+        report_file("TEST_HOST", test_data, report, True, [])
         report = {
             "show etherchannel summary": {
                 "complies": False,
@@ -290,6 +321,13 @@ class TestComplianceReport:
             }
         }
         report_file("TEST_HOST", test_data, report, False, [])
+        filename = os.path.join(
+            test_data,
+            "TEST_HOST"
+            + "_compliance_report_"
+            + datetime.now().strftime("%Y%m%d-%H%M")
+            + ".json",
+        )
         desired_output = {
             "complies": False,
             "skipped": [],

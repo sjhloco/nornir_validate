@@ -33,6 +33,7 @@ This documents what validations are available for the different device types.
 | VRF Route (route and next-hop) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
 | OSPF Interface (interfaces, area, cost) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | OSPF neighbors (neighbor, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| OSPF database (Total LSAs) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
 | EIGRP Interface | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | EIGRP neighbors | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | BGP peers (peer, asn, rcv_pfx) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
@@ -40,7 +41,7 @@ This documents what validations are available for the different device types.
 | NVE peer (L3VNI, peer, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | VPN (peer, interface, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 
-*Management ACL is a very basic ACL validation looking at the source IP and action (non-ASA) or interface (ASs). On ASAs it is the allowed list for SSH and HTTP whilst on all other platforms is the ACL governing SSH and SNMP access.
+*Management ACL is a very basic extended ACL (does not work with standard) validation looking at the source IP and action (non-ASA) or interface (ASs). On ASAs it is the allowed list for SSH and HTTP whilst on all other platforms is the ACL governing SSH and SNMP access.
 
 ## Installation and Prerequisites
 

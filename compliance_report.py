@@ -26,7 +26,7 @@ def report_file(
         fix_home_path(directory),
         hostname
         + "_compliance_report_"
-        + datetime.now().strftime("%Y%m%d-%H:%M")
+        + datetime.now().strftime("%Y%m%d-%H%M")
         + ".json",
     )
     # If report file already exists conditionally updates 'skipped' and 'complies' with report outcome
@@ -87,9 +87,9 @@ def report(
     if complies == True:
         return dict(
             failed=False,
-            result="\u2705 Validation report complies, desired_state and actual_state match."
-            + report_text,
+            result="\u2705 Validation report complies, desired_state and actual_state match.",
             report=report,
+            report_text=report_text
         )
     if complies == False or skipped == True:
-        return dict(failed=True, result=report, report=report)
+        return dict(failed=True, result=report, report=report, report_text=report_text)

@@ -26,6 +26,7 @@ from compliance_report import report
 input_data = "input_data.yml"
 # Enter a directory location to save compliance report to file
 report_directory = None
+# report_directory = "C:\\scripts\\nornir_checks\\nornir_validate\\reports"
 
 # ----------------------------------------------------------------------------
 # Input Arguments
@@ -94,7 +95,7 @@ def input_task(task: Task, input_data: str, template_task: str) -> str:
 
     # 1c. VAR: Create host_var of combined desired states or exits if nothing to be validated
     if len(desired_state) == 0:
-        result_text = u"\u26A0\uFE0F  No validations were performed as no desired_state was generated, check input file and template"
+        result_text = "\u26A0\uFE0F  No validations were performed as no desired_state was generated, check input file and template"
         return Result(host=task.host, failed=True, result=result_text)
     else:
         task.host["desired_state"] = desired_state
@@ -123,6 +124,7 @@ def template_task(
     task: Task, tmpl_path: str, input_vars: str, desired_state: Dict[str, Any]
 ) -> str:
     os_type = merge_os_types(task.host)
+
     for val_feature, feature_vars in input_vars.items():
         tmp_desired_state = task.run(
             task=template_file,
@@ -192,6 +194,7 @@ def validate_task(
         failed=comp_result["failed"],
         result=comp_result["result"],
         report=comp_result["report"],
+        report_text=comp_result["report_text"],
     )
 
 
@@ -204,7 +207,7 @@ def main():
     result = nr.run(
         task=validate_task, input_data=args["filename"], directory=args["directory"]
     )
-    print_result(result)
+    print_result(result, vars=["result", "report_text"])
 
 
 if __name__ == "__main__":
