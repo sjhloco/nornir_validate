@@ -224,7 +224,7 @@ Test methods have been built for WLC and Checkpoints but are hashed out as there
 Add the input data from val_builder *input_data.yml* to the relevant groups *os_type* dictionary within ***input_data_validations.yml***.
 
 ```yaml
-    ospf:
+    ospf_nbr:
       nbrs: [192.168.255.1, 2.2.2.2]
 ```
 
@@ -264,8 +264,6 @@ Add the discovery output `python val_builder.py -di` to the end of relevant *os_
 ```
 
 Add the output from ***actual_state*** (`python val_builder.py -as`) to the relevant os_type dictionary in ***actual_state*** section of *desired_actual_cmd.py*. You must remove the outer dictionary curly brackets (*{}*), black will automatically fix formatting and replace all `'` with `"` when the file is saved.
-
-
 
 The actual_state unit tests can be run for all os_types or for each os_type individually.
 

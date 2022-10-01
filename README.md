@@ -11,9 +11,9 @@ As the name suggests I have not reinvented the wheel here, I have just extended 
 
 This documents what validations are available for the different device types.
 
-| Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Checkpoint
+| Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
 | ---------- | ------ | ---------- | ---- | --- | --- | ----------
-| Image | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Image | N/A |  ✅  | ❌ | ❌ | ❌ | ❌
 | Management ACL (SSH/SNMP/HTTP)* | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 | Port-channel (membership & status) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | Interface brief (IP and status) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
@@ -26,14 +26,14 @@ This documents what validations are available for the different device types.
 | Switchport (mode and vlan) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
 | VLANs (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | Spanning-Tree (FWD vlan interfaces) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| MAC address table (count) | N/A |  ✅  | ❌ | ❌ | ❌ | ❌
+| MAB & DOT1X Auth Sessions (count) | N/A |  ✅  | ❌ | ❌ | ❌ | ❌
 | VRF (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Route summary (total subnets) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Route (route and next-hop) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VRF Route summary (total subnets) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VRF Route (route and next-hop) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| Route summary (total subnets) | N/A |  ✅  | ❌ | ❌ | ❌ | ❌
+| Route (route and strict next-hops) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
 | OSPF Interface (interfaces, area, cost) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | OSPF neighbors (neighbor, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| OSPF database (Total LSAs) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
+| OSPF database (Total LSAs) | N/A |  ✅  | ❌ | ❌ | ❌ | ❌
 | EIGRP Interface | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | EIGRP neighbors | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | BGP peers (peer, asn, rcv_pfx) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌

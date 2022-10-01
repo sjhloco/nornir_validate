@@ -27,10 +27,10 @@ def format_actual_state(
         "show nve vni",
         "show nve peers",
         "show crypto session brief",
+        "show authentication sessions | count mab",
+        "show authentication sessions | count dot1x",
     ]
-    non_ntc_tmpl_regex_cmds = (
-        r"(show ip route .* summary \| in Total)|(show ip  route.*)"
-    )
+    non_ntc_tmpl_regex_cmds = r"(show ip route .* summary \| in Total)|(show ip  route.*)|(show mac address-table .*)"
     if isinstance(output, str):
         if cmd in non_ntc_tmpl_cmds:
             output = output.lstrip().rstrip().splitlines()
@@ -170,7 +170,7 @@ def ios_format(
                     1
                 ].rstrip()
     # INTF_L2: show interfaces status - {intf: {duplex: x, speed: x, status: x, vlan:x }}
-    elif "show interface status" in cmd:
+    elif "show interfaces status" in cmd:
         for each_intf in output:
             tmp_dict[each_intf["port"]]["duplex"] = each_intf["duplex"]
             tmp_dict[each_intf["port"]]["speed"] = each_intf["speed"]
@@ -187,7 +187,6 @@ def ios_format(
                 tmp_dict[each_intf["interface"]]["vlan"] = each_intf["trunking_vlans"]
             else:
                 tmp_dict[each_intf["interface"]]["vlan"] = None
-
     # VLAN: show vlan brief - {vlan: {name: x, intf:[x,y]}}
     elif "show vlan brief" in cmd:
         for each_vl in output:
@@ -202,6 +201,19 @@ def ios_format(
         for each_intf in output:
             if each_intf["status"] == "FWD":
                 tmp_dict[each_intf["vlan_id"]].append(each_intf["interface"])
+    # ALL_MAC: show mac address-table count | in Dynamic - {total_mac: x}
+    elif "show mac address-table | count dynamic|DYNAMIC" in cmd:
+        tmp_dict["total_mac"] = output[0].split()[-1]
+    # VLAN_MAC: show mac address-table vlan x | count dynamic|DYNAMIC - {vlxxx_mac: x}
+    elif "show mac address-table vlan" in cmd:
+        vl = cmd.split()[4] + "_total_mac"
+        tmp_dict[vl] = output[0].split()[-1]
+    # AUTH_MAB: show authentication sessions | count mab - {auth_mab: x}
+    elif "show authentication sessions | count mab" in cmd:
+        tmp_dict["auth_mab"] = output[0].split()[-1]
+    # AUTH_DOT1X: show authentication sessions | count dot1x - {auth_dot1x: x}
+    elif "show authentication sessions | count dot1x" in cmd:
+        tmp_dict["auth_dot1x"] = output[0].split()[-1]
 
     # ----------------------------------------------------------------------------
     # RTR: Router-only commands
@@ -213,16 +225,40 @@ def ios_format(
     # NUM_ROUTES: show ip route  summary | in Total - {total_subnets: x}
     elif re.match(r"show ip route .* summary \| in Total", cmd):
         if len(output) != 0:
-            tmp_dict["routes"] = output[0].split()[2]
-    # ROUTES: show ip  route - {route/prefix: next-hop}
+            if cmd.split()[4] == "|":
+                vrf = "global_subnets"
+            else:
+                vrf = cmd.split()[4] + "_subnets"
+            tmp_dict[vrf] = output[0].split()[2]
+    # ROUTES: show ip  route - {route/prefix: next-hop, route/prefix: [next-hop, next-hop]}
     elif re.match("show ip  route.*", cmd):
-        for each_rte in output:
+        tmp_nh = []
+        for each_rte in reversed(output):
             tmp_rte = each_rte.split()
+            # Removes extra route type OSPF (E2, IA) or EIGRP (EX) add to make len of lines same
             if len(tmp_rte) == 8:
                 del tmp_rte[1]
-            if "via" in each_rte:
-                tmp_dict[host_route(tmp_rte[1])] = tmp_rte[4]
-            if "directly" in each_rte:
+            if len(tmp_rte) == 0:
+                pass
+            # Catches multiple next-hops or next-hop on new line adds a list which is then used if it is "via"
+            elif tmp_rte[0][0] == "[":
+                tmp_nh.append(tmp_rte[2].replace(",", ""))
+            # Routes and next-hops on same line
+            elif "via" in each_rte:
+                if len(tmp_nh) == 0:
+                    tmp_dict[host_route(tmp_rte[1])] = tmp_rte[4].replace(",", "")
+                else:
+                    tmp_nh.append(tmp_rte[4].replace(",", ""))
+                    tmp_dict[host_route(tmp_rte[1])] = tmp_nh
+                    tmp_nh = []
+            # Roues on own line with next hops on separate line (NH caught with "[")
+            elif len(tmp_rte) == 2:
+                # In case only 1 next-hop make it a string
+                if len(tmp_nh) == 1:
+                    tmp_nh = tmp_nh[0]
+                tmp_dict[host_route(tmp_rte[1])] = tmp_nh
+                tmp_nh = []
+            elif "directly" in each_rte:
                 tmp_dict[host_route(tmp_rte[1])] = tmp_rte[5]
     # OSPF_INTF: show ip ospf interface brief - {intf: {area: x, cost: y, state: z}}
     elif "show ip ospf interface brief" in cmd:
