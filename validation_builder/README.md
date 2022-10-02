@@ -113,7 +113,7 @@ In the *input_data.yml* file define a feature name (will be matched in the templ
 
 ```yaml
 all:
-  ospf:
+  ospf_nbr:
     nbrs: [192.168.255.1]
 ```
 
@@ -123,7 +123,7 @@ Under the ***os_type*** (*ios*) and ***feature*** (*ospf*) add the command (*- s
 
 ```jinja
 {% if 'ios' in os_type |string %}
-{% if feature == 'ospf' %}
+{% if feature == 'ospf_nbr' %}
 - show ip ospf neighbor:
     _mode: strict
 {% for each_nbr in input_vars.nbrs %}

@@ -26,6 +26,7 @@ from compliance_report import report
 input_data = "input_data.yml"
 # Enter a directory location to save compliance report to file
 report_directory = None
+# report_directory = "/Users/user1/Documents/Coding/Nornir/code/nornir_validate"
 # report_directory = "C:\\scripts\\nornir_checks\\nornir_validate\\reports"
 
 # ----------------------------------------------------------------------------

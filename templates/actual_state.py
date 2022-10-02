@@ -38,7 +38,8 @@ def format_actual_state(
             output = output.lstrip().rstrip().splitlines()
         # All other cmd outputs that are string are ignored to stop errors
         else:
-            return {cmd: defaultdict(dict)}
+            actual_state[cmd] = defaultdict(dict)
+            return actual_state
 
     if bool(re.search("ios", str(os_type))):
         ios_format(cmd, output, tmp_dict, actual_state)
@@ -91,6 +92,37 @@ def host_route(input_data: str) -> str:
         return input_data
 
 
+# EDIT_RTE: Used by "add_prefix" to edit route by adding the prefix
+def edit_rte(output: List, rte_idx: int, pfx: int) -> None:
+    rte = output[rte_idx].split()
+    if len(rte) == 6 or len(rte) == 7 or len(rte) == 2:
+        rte[1] = rte[1] + "/" + pfx
+    elif len(rte) == 3 or len(rte) == 8:
+        rte[2] = rte[2] + "/" + pfx
+    output[rte_idx] = " ".join(rte)
+
+
+# ADD_PFX: Adds prefix to subnetted routes in routing table as these show prefix on another line
+def add_prefix(output: List) -> List:
+    for idx, each_rte in enumerate(output):
+        if "is subnetted" in each_rte:
+            # Gets the prefix and the number of routes that need it adding
+            pfx = each_rte.split()[0].split("/")[1]
+            num_rtes = int(each_rte.split()[-2])
+            skipped = 0
+            # Uses range to call the list index nof route and add prefix to it
+            for x in range(1, num_rtes + 1):
+                # Bypass any lines with next-hop on new line (counts number of skipped)
+                if output[idx + x].split()[0][0] == "[":
+                    skipped = skipped + 1
+                else:
+                    edit_rte(output, idx + x, pfx)
+            # If was any skipped lines, has to run again to account for skipped indexes
+            if skipped != 0:
+                edit_rte(output, idx + x, pfx)
+    return output
+
+
 # ----------------------------------------------------------------------------
 # IOS/IOS-XE desired state formatting
 # ----------------------------------------------------------------------------
@@ -103,7 +135,10 @@ def ios_format(
     # ----------------------------------------------------------------------------
     # IMAGE: show version - {image: code_number}
     if "show version" in cmd:
-        tmp_dict["image"] = output[0]["version"]
+        if len(output[0]["version"]) == 0:
+            tmp_dict["image"] = output[0]["running_image"]
+        else:
+            tmp_dict["image"] = output[0]["version"]
     # MGMT ACL: show ip access-lists <name> - [{acl_name: {name: seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}]
     if "show ip access-lists" in cmd:
         acl = acl_format(output)
@@ -129,6 +164,9 @@ def ios_format(
             for mbr_intf, mbr_status in zip(
                 each_po["interfaces"], each_po["interfaces_status"]
             ):
+                # For routers as use bndl rather than P
+                if mbr_status == "bndl":
+                    mbr_status = "P"
                 # Creates dict of members to add to as value in the PO dictionary
                 po_mbrs[mbr_intf] = {"mbr_status": mbr_status}
             tmp_dict[each_po["po_name"]]["members"] = po_mbrs
@@ -233,12 +271,15 @@ def ios_format(
     # ROUTES: show ip  route - {route/prefix: next-hop, route/prefix: [next-hop, next-hop]}
     elif re.match("show ip  route.*", cmd):
         tmp_nh = []
+        # Function to add prefix to subnetted routes
+        output = add_prefix(output)
+        # Format the route table output
         for each_rte in reversed(output):
             tmp_rte = each_rte.split()
             # Removes extra route type OSPF (E2, IA) or EIGRP (EX) add to make len of lines same
             if len(tmp_rte) == 8:
                 del tmp_rte[1]
-            if len(tmp_rte) == 0:
+            if len(tmp_rte) == 0 or tmp_rte[0] == "Routing":
                 pass
             # Catches multiple next-hops or next-hop on new line adds a list which is then used if it is "via"
             elif tmp_rte[0][0] == "[":
@@ -246,20 +287,21 @@ def ios_format(
             # Routes and next-hops on same line
             elif "via" in each_rte:
                 if len(tmp_nh) == 0:
-                    tmp_dict[host_route(tmp_rte[1])] = tmp_rte[4].replace(",", "")
+                    tmp_dict[tmp_rte[1]] = tmp_rte[4].replace(",", "")
                 else:
                     tmp_nh.append(tmp_rte[4].replace(",", ""))
-                    tmp_dict[host_route(tmp_rte[1])] = tmp_nh
+                    tmp_dict[tmp_rte[1]] = tmp_nh
                     tmp_nh = []
-            # Roues on own line with next hops on separate line (NH caught with "[")
-            elif len(tmp_rte) == 2:
+            # Routes on own line with next hops on separate line (NH caught with "[")
+            elif len(tmp_rte) == 2 or len(tmp_rte) == 3:
                 # In case only 1 next-hop make it a string
                 if len(tmp_nh) == 1:
                     tmp_nh = tmp_nh[0]
-                tmp_dict[host_route(tmp_rte[1])] = tmp_nh
+                tmp_dict[tmp_rte[1]] = tmp_nh
                 tmp_nh = []
             elif "directly" in each_rte:
-                tmp_dict[host_route(tmp_rte[1])] = tmp_rte[5]
+                tmp_dict[tmp_rte[1]] = tmp_rte[5]
+
     # OSPF_INTF: show ip ospf interface brief - {intf: {area: x, cost: y, state: z}}
     elif "show ip ospf interface brief" in cmd:
         for each_intf in output:
