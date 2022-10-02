@@ -2,10 +2,7 @@
 
 Uses Nornir (with ***nornir-netmiko***) to gather and format device output before feeding this into ***napalm-validate*** in the form of ***actual_state*** and ***desired_state*** to produce a ***compliance report***. The idea behind this project is to run pre and post checks on network devices based on an input file of the desired *device_state*.
 
-As the name suggests I have not reinvented the wheel here, I just extended [*napalm_validate*](https://github.com/napalm-automation/napalm/blob/develop/napalm/base/validate.py) to validate on commands rather than getters to allow for the flexibility of validating any command output. This is done by importing the *napalm_validate compare* method and feeding into it the *desire_state* and *actual_state* manually. To get what I am waffling on about you need to understand the following terms:
-
-- **desired_state:** The state you expect the device to be in. For example, you could expect that the device has certain OSPF neighbors, specific CDP neighbors or that all ports in a port-channel are up
-- **actual_state:** This is real-time state of the device gathered by connecting to it and scraping the output of show commands
+As the name suggests I have not reinvented the wheel here, I just extended [*napalm_validate*](https://github.com/napalm-automation/napalm/blob/develop/napalm/base/validate.py) (importing the *napalm_validate compare* method) to validate on commands rather than getters to allow for the flexibility of validating any command output.
 
 ## Current Validations
 
@@ -39,9 +36,13 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 | NVE peer (L3VNI, peer, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | VPN (peer, interface, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 
-- *Management ACL: Is a very basic extended ACL (does not work with standard) validation looking at the source IP and action (non-ASA) or interface (ASs). On ASAs it is the allowed list for SSH and HTTP whilst on all other platforms is the ACL governing SSH and SNMP access.
+- Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA or an extended ACL (IP and any port) on other platforms
 - Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
-- BGP peers: If peers have same the IP displays those from upper address family (i.e. for MPLS VPN will ignore IPv4 and only show VPNv4 peer)
+- BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
+
+### Caveats
+
+Due to the way that the *napalm_validate* matching works if can miss some similar numeric values. For example, with the number of routes if the desired number is 5 and the actual number is 15 this validation will pass as it 5 is in both. Not sure if this is by design, at end of the day I am using it for a more expanded purpose so need to look how it performs normally before seeing if I can fix it.
 
 ## Installation and Prerequisites
 
@@ -55,25 +56,23 @@ cd nornir_validate/
 pip install -r requirements.txt
 ```
 
-### Caveats
 
-Due to the way that the *napalm_validate* matching works if can miss some things if there are common values. For example with the number of routes if the desired number is 5 and the actual number is 15 this will pass as it looks if 5 is in 15 rather than an exact match. Not sure if this is by design, at end of the day I am using it for a more expanded purpose so need to look how it performs normally before seeing if I can fix it.
 
 ## Running nornir_validate
 
-Before being able to generate a meaningful compliance report the following elements are needed:
+To generate a meaningful compliance report the following elements are needed:
 
-- **input data (variables)**: Yaml file (default *input_data.yml*) that holds the *host*, *group* and *all* (all devices) variables that describe the desired state of the network
-- **desired_state template:** Jinja template (*desired_state.j2*) that is rendered with the input variables to create the desired state
-- **actual_state python logic:** Python method (in *actual_state.py*) that creates a data structure from the command outputs to be used as a comparison against the desired state
+- **input data (variables)**: Yaml file (default is *input_data.yml*) that holds the *host*, *group* and *all* data that describe the desired state of the network
+- **desired_state template:** Jinja template (*desired_state.j2*) that is rendered with the input data to create the desired state
+- **actual_state python logic:** Python method (*actual_state.py*) that creates a data structure from the command outputs to be used as a comparison against the desired state
 
-***nornir_validate*** can be run independently as a standalone script or imported into a script to use that scripts existing nornir inventory.
+*nornir_validate* can be run independently as a standalone script or imported to use a scripts existing nornir inventory.
 
 ### Standalone
 
 When run as standalone *nornir_validate* creates its own nornir inventory (*config.yml*) looking in the *inventory* directory for *hosts.yml*, *groups.yml* and *defaults.yml*.
 
-By default input data is gathered from *input_data.yml* and the compliance report is not saved to file. Either of these can be changed in the variables section at the start of *nornir_template.py* or overridden using flags at runtime.
+By default input data is gathered from *input_data.yml* and the compliance report not saved to file. Either of these can be changed in the variables section at the start of *nr_val.py* or overridden using runtime flags.
 
 ```python
 input_data = "input_data.yml"
@@ -85,7 +84,7 @@ report_directory = None
 | `-f` or `--filename` | Override value set in *input_data* variable to manually define input data file |
 | `-d` or `--directory` | Override value set in *directory* variable to save compliance reports to file |
 
-Specifying anything other than *None* for the *report_directory* enables saving the compliance report with a naming format of *hostname_compliance_report_YYYYMMDD-HHMM.json*
+Specifying anything other than *None* for the *report_directory* enables saving the compliance report in the format *hostname_compliance_report_YYYYMMDD-HHMM.json*
 
 ```python
 python nr_val.py
@@ -97,7 +96,7 @@ If the validation fails a full compliance report will be printed to screen and t
 
 ### Imported
 
-The ***validate_task*** function can be imported directly into a script to make use of an existing nornir inventory. When calling the imported function it is mandatory to specify the *input_data*, the *directory* is optional as is only needed if you want to save the report to file.
+The ***validate_task*** function can be imported directly into a script to make use of an existing nornir inventory. When calling the imported function it is mandatory to specify the *input_data*, the *directory* is optional and only needed if you want to save the report to file.
 
 ```python
 from nornir import InitNornir
@@ -109,7 +108,7 @@ result = nr.run(task=validate_task, input_data="my_input_data.yml", directory='/
 print_result(result)
 ```
 
-Rather than using a file the *input_data* can be a nested dictionary formatted in the same manner (*hosts*, *groups*, *all* dictionaries).
+Rather than using a file the *input_data* can be a nested dictionary formatted in the same manner using *hosts*, *groups* and *all*.
 
 ```python
 my_input_data = {"groups": {"ios": {"acl": [{"name": "TEST_SSH_ACCESS",
@@ -120,7 +119,7 @@ result = nr.run(task=validate_task, input_data="my_input_data")
 
 ## Input Data
 
-The input data structured around optional dictionaries made up of features and the their desired state
+The input data structured around three dictionaries made up of features and the their desired state
 
 - **hosts:** Dictionary of host names each holding dictionaries of host-specific features being validated
 - **groups:** Dictionary of group names each holding dictionaries of group-specific features being validated
@@ -128,7 +127,7 @@ The input data structured around optional dictionaries made up of features and t
 
 The host or group name must be an exact match of the host or group name within the nornir inventory. If there is a confliction between the features, *groups* take precedence over *all* and *hosts* over *groups*.
 
-The result of the below example will check the port-channel state and port membership *all* devices, the image version for the *iosxe* group and the OSPF neighbors on host *HME-RTR01*.
+The result of the below example will check the port-channel state and port membership of *all* devices, the image version for the *iosxe* group and the OSPF neighbors on host *HME-RTR01*.
 
 ```yaml
 hosts:
@@ -147,7 +146,7 @@ all:
 
 ## Desired State
 
-The input file (***input_data.yml***) is rendered by a jinja template (***desired_state.j2***) to produce a YAML formatted list of dictionaries with the key being the command and the value the desired output. The top level Jinja condition is for the ***os_type*** got from nornir *platform* (uses *in* as *ios* and *iosxe* are the same) with ***feature*** matching the feature name within the input file to make the rendering conditional. Optionally, ***strict*** mode means that it has to be an exact match, no more, no less.
+The input file (***input_data.yml***) is rendered by a jinja template (***desired_state.j2***) to produce a YAML formatted list of dictionaries with the key being the command and the value the desired output. The top level Jinja condition is for the ***os_type*** got from nornir *platform* (*ios* and *iosxe* are the same) with ***feature*** matching the feature name within the input file to make the rendering conditional. Optionally, ***strict*** mode can be used to ensure of an exact match, no more, no less.
 
 ```jinja
 {% if 'ios' in os_type |string %}
@@ -199,7 +198,7 @@ Below is an example of the YAML output after rendering the template with the exa
       state: FULL
 ```
 
-The resulting python object is generated by serialising the YAML output and is stored as a host_var (nornir *data* dictionary) called *desired_state* for that host. This is the same structure that the *actual_state* will be in.
+The resulting python object is generated by serialising the YAML output and is stored as a host_var (nornir *data* dictionary) called *desired_state*.
 
 ```python
 {
@@ -225,7 +224,7 @@ The resulting python object is generated by serialising the YAML output and is s
 
 ## Actual State
 
-Netmiko gathers the command outputs creating TextFSM formatted data-models (using *[ntc-templates](https://github.com/networktocode/ntc-templates/tree/master/ntc_templates/templates)*) that are fed into ***actual_state.py*** where *os_type* specific methods match on commands to create a nested dictionary that matches the structure of the *desired_state*.
+Netmiko gathers command outputs creating TextFSM formatted data-models (using *[ntc-templates](https://github.com/networktocode/ntc-templates/tree/master/ntc_templates/templates)*) that are fed into ***actual_state.py*** and matched on *os_type* specific methods and commands to create a nested dictionary that matches the structure of the *desired_state*.
 
 ```python
 def ios_format(
@@ -252,7 +251,7 @@ def ios_format(
     return actual_state
 ```
 
-The resulting *actual_state* is the same as the *desired_state* except for the absence of the *'_mode': 'strict'* dictionary.
+The resulting *actual_state* is the same as the *desired_state* except for the absence of *'_mode': 'strict'*.
 
 ```python
 {
@@ -278,9 +277,9 @@ For each command the formatting will be different as the captured data is differ
 
 ## Compliance Report
 
-The *desired_state* and *actual_state* are fed into ***compliance_report.py*** which iterates through them feeding the command outputs into ***napalm_validate*** (***validate.compare*** method) to produces a per-command compliance report (complies *true* of *false*). All the commands are grouped into an overall compliance report with the reports compliance status set to *false* if any of the individual commands fail compliance.
+The *desired_state* and *actual_state* are fed into ***compliance_report.py*** and iterated through ***napalm_validate*** (***validate.compare*** method) to produces a per-command compliance report. The commands are grouped into an overall compliance report with the reports compliance status set to *false* if any of the individual commands failed compliance.
 
-This example shows a failed compliance report where the ACLs passed but OSPF failed due to a missing OSPF neighbor (*2.2.2.2*).
+In this example compliance report the image and port-channel passed but the report failed due to a missing OSPF neighbor (*1.1.1.1*).
 
 ```python
 { 'complies': False,
@@ -303,24 +302,24 @@ This example shows a failed compliance report where the ACLs passed but OSPF fai
 
 ## Validation Builder
 
- The *validation_builder* directory has a script with different runtime flags to assist with the building of new validations, have a look at the README in this directory for full details on how to use this.
+ The *validation_builder* directory contains *val_builder.py* to assist with the building of new validations. The README within in this directory has more details on how to use this.
 
-## Future
+## TBC in the Future
 
-Am still trialing this out, is a lot of work still to be done on adding more commands to validate and putting it through its paces in a real world environment. Like many of my other projects what seems like a great idea in my head could turn out in reality to not be much use in the real world. Only time will tell..........
+Am still trialing this out, is a lot of work still to be done on adding differing platform commands and putting it through its paces in a real world environment. Like many of my other projects what seems like a great idea in my head could turn out in reality to not be much use in the real world. Only time will tell..........
 
 I plan to do the following over the coming months:
 
-- Add NXOS commands to cover the majority of IOS/IOS-XE commands and other NXOS-only commands. Not sure if will use TextFSM or native NXOS JSON cmds, where possible use common python functions (actual state) or jinja macros (desired state) to keep it DRY.
+- Add NXOS commands to cover the majority of what is done by IOS/IOS-XE with the addition of NXOS specific features. Not sure whether to use TextFSM or native NXOS JSON cmds, the idea will be to where possible use common python functions (*actual_state.py*) or jinja macros (*desired_state.py*) to keep it DRY
 - Add ASA commands, will be interfaces, routing and VPN
-- Add WLC commands, will be pretty limited with interfaces and APs
+- Add WLC commands, will be pretty limited with interfaces and APs as am guessing will soon be EO
 - Add Palo commands, will be interfaces and routing rather than security policy based
-- Add support for genie, not sure where you put the toggle of whether to use netmiko or genie for a command
+- Possibly add support for genie, not sure where to put the toggle of whether to use netmiko or genie for a command
 - Package it up, need to make it easy to extend (abstraction of actual_state.py and desired_state.j2) so will not be as much need to make changes to the base code
 
-I may look into replacing or extending napalm-validate as would be good to add support for in the future:
+I may look into replacing or extending napalm-validate as would be good to add support for:
 
-- Tolerances for the numeric values rather than the exact match. Also need to address the caveat due to way napalm-validate matches
+- Tolerances for the numeric values rather than the exact matches (also fix the mathcing caveat)
 - Convert JSON report to HTML page something in the vain of the [Robot framework](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html)
 
 To allow me to fudge it to be able to import it as a module (due to inheritance) I added the following to *nr_val.py* that I need to remember to remove when it gets packaged up and check the validation_builder (as effects inheritance), don't forget.....
