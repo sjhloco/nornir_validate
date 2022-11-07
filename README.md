@@ -56,8 +56,6 @@ cd nornir_validate/
 pip install -r requirements.txt
 ```
 
-
-
 ## Running nornir_validate
 
 To generate a meaningful compliance report the following elements are needed:
@@ -140,7 +138,7 @@ groups:
 all:
   port_channel:
     Po2:
-      mode: LACP
+      protocol: LACP
       members: [Gi0/15, Gi0/16]
 ```
 
@@ -158,7 +156,7 @@ The input file (***input_data.yml***) is rendered by a jinja template (***desire
 {% for each_po_name, each_po_info in input_vars.items() %}
     {{ each_po_name }}:
       status: U
-      protocol: {{ each_po_info.mode }}
+      protocol: {{ each_po_info.protocol }}
       members:
         _mode: strict
 {% for each_member in each_po_info.members %}
@@ -235,6 +233,8 @@ def ios_format(
     elif "show etherchannel summary" in cmd:
         for each_po in output:
             tmp_dict[each_po["po_name"]]["status"] = each_po["po_status"]
+            if each_po["protocol"] == "-":
+                each_po["protocol"] = "NONE"
             tmp_dict[each_po["po_name"]]["protocol"] = each_po["protocol"]
             po_mbrs = {}
             for mbr_intf, mbr_status in zip(

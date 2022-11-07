@@ -18,10 +18,10 @@ groups:
   ### PO (strict): show etherchannel summary - Port-channel, mode, member interfaces and status. STRICT, so exact interfaces
     port_channel:
       Po1:
-        mode: LACP
+        protocol: LACP
         members: [Te1/1/1]
       Po101:
-        mode: LACP
+        protocol: LACP
         members: [Te1/1/8, Te2/1/8]
   ### INTF_BR: show ip interface brief - L3 interface and IP address, status is expected to be up (only checks for these interfaces)
     intf_brief:

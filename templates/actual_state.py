@@ -159,6 +159,8 @@ def ios_format(
     elif "show etherchannel summary" in cmd:
         for each_po in output:
             tmp_dict[each_po["po_name"]]["status"] = each_po["po_status"]
+            if each_po["protocol"] == "-":
+                each_po["protocol"] = "NONE"
             tmp_dict[each_po["po_name"]]["protocol"] = each_po["protocol"]
             po_mbrs = {}
             for mbr_intf, mbr_status in zip(

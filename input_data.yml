@@ -12,10 +12,10 @@ hosts:
       Gig 1:
         nbr_name: HME-SWI01.stesworld.com
         nbr_intf: 0/1
-    # PO (strict): show etherchannel summary - Port-channel, mode, member interfaces and status. STRICT, so exact interfaces
+    # PO (strict): show etherchannel summary - Port-channel, protocol (use NONE for on), member interfaces and status. STRICT, so exact interfaces
     port_channel:
       Po1:
-        mode: LACP
+        protocol: LACP
         members: [Gi2]
   ### VRF (strict): show vrf - List of member interfaces for each VRF (/ in names can effect strictness)
     vrf:

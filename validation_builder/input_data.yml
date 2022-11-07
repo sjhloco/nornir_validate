@@ -15,7 +15,7 @@ all:
 ### PO: show etherchannel summary - Port-channel, mode, member interfaces and status. Strict, so exact interfaces
   # port_channel:
   #   Po3:
-  #     mode: LACP
+  #     protocol: LACP
   #     members: [Gi0/15, Gi0/16]
 
 ### INTF_BR: show ip interface brief - L3 interface and IP address, status is expected to be up
