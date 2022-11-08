@@ -335,7 +335,7 @@ def ios_format(
     # BGP_PEER: show bgp all summary - {peer: {asn:x, rcv_pfx:x}}
     elif "show bgp all summary" in cmd:
         for each_line in output:
-            if re.match(r"^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}", each_line):
+            if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", each_line):
                 bgp_peer = each_line.split()
                 tmp_dict[bgp_peer[0]]["asn"] = bgp_peer[2]
                 tmp_dict[bgp_peer[0]]["rcv_pfx"] = bgp_peer[-1]
