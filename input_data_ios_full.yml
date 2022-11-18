@@ -113,6 +113,16 @@ all:
   #   - vlan: 20
   #     intf: [Gi0/3]
 
+### MAC_TABLE: show mac address-table count [vlan x] | count dynamic|DYNAMIC - Total number of MACs (all vlans) and/or total for specific VLANs
+  # mac_table:
+  #   total_mac: 1100
+  #   52_total_mac: 21
+    
+### AUTH_SESSION: show authentication sessions | count [mab or dot1x ] - {auth_mab: x or auth_dot1z: x} - Total mab and/or dot1x auth sessions
+  # auth_session:
+  #   total_mab: 21
+  #   total_dot1x: 22
+
 ### VRF: show vrf - Strict list of member interfaces for each VRF (/ in names can effect strictness)
   # vrf:
   #   BLU: [Lo2]
