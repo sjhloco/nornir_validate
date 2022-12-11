@@ -54,7 +54,7 @@ def format_actual_state(
 # Mini-functions used by all OS types to keep DRY
 # ----------------------------------------------------------------------------
 # ACL_FORMAT: Removes all the empty dictionaries from ACL list of dicts
-def acl_format(input_acl: List) -> List:
+def _acl_format(input_acl: List) -> List:
     acl: List = []
     for each_acl in input_acl:
         tmp_acl = {}
@@ -66,7 +66,7 @@ def acl_format(input_acl: List) -> List:
 
 
 # ACL_ADDR: Converts addressing into address/prefix
-def acl_scr_dst(each_ace: Dict[str, str], src_dst: str) -> str:
+def _acl_scr_dst(each_ace: Dict[str, str], src_dst: str) -> str:
     if each_ace.get(src_dst + "_network") != None:
         addr = each_ace[src_dst + "_network"] + "/" + each_ace[src_dst + "_wildcard"]
         return ipaddress.IPv4Interface(addr).with_prefixlen
@@ -77,7 +77,7 @@ def acl_scr_dst(each_ace: Dict[str, str], src_dst: str) -> str:
 
 
 # REMOVE: Removes the specified character and anything after it
-def remove_char(input_data: str, char: str) -> str:
+def _remove_char(input_data: str, char: str) -> str:
     if char in input_data:
         return input_data.split(char)[0]
     else:
@@ -85,15 +85,15 @@ def remove_char(input_data: str, char: str) -> str:
 
 
 # HOST_RTE: Add /32 to any host routes
-def host_route(input_data: str) -> str:
+def _host_route(input_data: str) -> str:
     if "/" not in input_data:
         return input_data + "/32"
     else:
         return input_data
 
 
-# EDIT_RTE: Used by "add_prefix" to edit route by adding the prefix
-def edit_rte(output: List, rte_idx: int, pfx: int) -> None:
+# EDIT_RTE: Used by "_add_prefix" to edit route by adding the prefix
+def _edit_rte(output: List, rte_idx: int, pfx: int) -> None:
     rte = output[rte_idx].split()
     if len(rte) == 6 or len(rte) == 7 or len(rte) == 2:
         rte[1] = rte[1] + "/" + pfx
@@ -103,7 +103,7 @@ def edit_rte(output: List, rte_idx: int, pfx: int) -> None:
 
 
 # ADD_PFX: Adds prefix to subnetted routes in routing table as these show prefix on another line
-def add_prefix(output: List) -> List:
+def _add_prefix(output: List) -> List:
     for idx, each_rte in enumerate(output):
         if "is subnetted" in each_rte:
             # Gets the prefix and the number of routes that need it adding
@@ -116,11 +116,19 @@ def add_prefix(output: List) -> List:
                 if output[idx + x].split()[0][0] == "[":
                     skipped = skipped + 1
                 else:
-                    edit_rte(output, idx + x, pfx)
+                    _edit_rte(output, idx + x, pfx)
             # If was any skipped lines, has to run again to account for skipped indexes
             if skipped != 0:
-                edit_rte(output, idx + x, pfx)
+                _edit_rte(output, idx + x, pfx)
     return output
+
+
+# INTEGER: Changes string to integer
+def _make_int(input_data: str) -> int:
+    try:
+        return int(input_data)
+    except:
+        return input_data
 
 
 # ----------------------------------------------------------------------------
@@ -141,15 +149,15 @@ def ios_format(
             tmp_dict["image"] = output[0]["version"]
     # MGMT ACL: show ip access-lists <name> - [{acl_name: {name: seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}]
     if "show ip access-lists" in cmd:
-        acl = acl_format(output)
+        acl = _acl_format(output)
         tmp_dict1 = defaultdict(dict)
         for each_ace in acl:
             # Creates dict for each ACE entry
             if each_ace.get("line_num") != None:
                 tmp_dict1[each_ace["line_num"]]["action"] = each_ace["action"]
                 tmp_dict1[each_ace["line_num"]]["protocol"] = each_ace["protocol"]
-                tmp_dict1[each_ace["line_num"]]["src"] = acl_scr_dst(each_ace, "src")
-                tmp_dict1[each_ace["line_num"]]["dst"] = acl_scr_dst(each_ace, "dst")
+                tmp_dict1[each_ace["line_num"]]["src"] = _acl_scr_dst(each_ace, "src")
+                tmp_dict1[each_ace["line_num"]]["dst"] = _acl_scr_dst(each_ace, "dst")
                 if each_ace.get("dst_port") != None:
                     tmp_dict1[each_ace["line_num"]]["dst_port"] = each_ace["dst_port"]
                 elif each_ace.get("icmp_type") != None:
@@ -186,8 +194,9 @@ def ios_format(
     # HSRP: show standby brief - {group: {state:x, priority: x}}
     elif "show standby brief" in cmd:
         for each_nbr in output:
-            tmp_dict[each_nbr["group"]]["state"] = each_nbr["state"]
-            tmp_dict[each_nbr["group"]]["priority"] = each_nbr["priority"]
+            grp = _make_int(each_nbr["group"])
+            tmp_dict[grp]["state"] = each_nbr["state"]
+            tmp_dict[grp]["priority"] = _make_int(each_nbr["priority"])
 
     # ----------------------------------------------------------------------------
     # SWI: Switch-only commands
@@ -198,9 +207,11 @@ def ios_format(
             for each_swi in output[5:]:
                 if len(each_swi) != 0:
                     tmp_swi = each_swi.split()
-                    tmp_dict[tmp_swi[0].replace("*", "")]["role"] = tmp_swi[1]
-                    tmp_dict[tmp_swi[0].replace("*", "")]["priority"] = tmp_swi[3]
-                    tmp_dict[tmp_swi[0].replace("*", "")]["state"] = tmp_swi[5]
+                    swi = _make_int(tmp_swi[0].replace("*", ""))
+
+                    tmp_dict[swi]["role"] = tmp_swi[1]
+                    tmp_dict[swi]["priority"] = _make_int(tmp_swi[3])
+                    tmp_dict[swi]["state"] = tmp_swi[5]
     # VSS_HA: show  redundancy state | in state - {my_state: ACTIVE, peer_state: STANDBY HOT}
     elif "show  redundancy state | in state" in cmd:
         for each_swi in output:
@@ -215,14 +226,16 @@ def ios_format(
             tmp_dict[each_intf["port"]]["duplex"] = each_intf["duplex"]
             tmp_dict[each_intf["port"]]["speed"] = each_intf["speed"]
             tmp_dict[each_intf["port"]]["status"] = each_intf["status"]
-            tmp_dict[each_intf["port"]]["vlan"] = each_intf["vlan"]
+            tmp_dict[each_intf["port"]]["vlan"] = _make_int(each_intf["vlan"])
     # SWITCHPORT: show interfaces switchport - {intf: {mode: access or trunk, vlan: x or [x,y]}}
     elif "show interfaces switchport" in cmd:
         for each_intf in output:
             mode = each_intf["mode"].replace("static ", "")
             tmp_dict[each_intf["interface"]]["mode"] = mode
             if each_intf["mode"] == "static access":
-                tmp_dict[each_intf["interface"]]["vlan"] = each_intf["access_vlan"]
+                tmp_dict[each_intf["interface"]]["vlan"] = _make_int(
+                    each_intf["access_vlan"]
+                )
             elif each_intf["mode"] == "trunk":
                 tmp_dict[each_intf["interface"]]["vlan"] = each_intf["trunking_vlans"]
             else:
@@ -230,8 +243,9 @@ def ios_format(
     # VLAN: show vlan brief - {vlan: {name: x, intf:[x,y]}}
     elif "show vlan brief" in cmd:
         for each_vl in output:
-            tmp_dict[each_vl["vlan_id"]]["name"] = each_vl["name"]
-            tmp_dict[each_vl["vlan_id"]]["intf"] = each_vl["interfaces"]
+            vl_id = _make_int(each_vl["vlan_id"])
+            tmp_dict[vl_id]["name"] = each_vl["name"]
+            tmp_dict[vl_id]["intf"] = each_vl["interfaces"]
         for each_vl in [1, 1002, 1003, 1004, 1005]:
             if tmp_dict.get(each_vl) != None:
                 del tmp_dict[each_vl]
@@ -240,20 +254,20 @@ def ios_format(
         tmp_dict = defaultdict(list)
         for each_intf in output:
             if each_intf["status"] == "FWD":
-                tmp_dict[each_intf["vlan_id"]].append(each_intf["interface"])
+                tmp_dict[_make_int(each_intf["vlan_id"])].append(each_intf["interface"])
     # ALL_MAC: show mac address-table count | in Dynamic - {total_mac: x}
     elif "show mac address-table | count dynamic|DYNAMIC" in cmd:
-        tmp_dict["total_mac"] = output[0].split()[-1]
+        tmp_dict["total_mac"] = _make_int(output[0].split()[-1])
     # VLAN_MAC: show mac address-table vlan x | count dynamic|DYNAMIC - {vlxxx_mac: x}
     elif "show mac address-table vlan" in cmd:
         vl = cmd.split()[4] + "_total_mac"
-        tmp_dict[vl] = output[0].split()[-1]
+        tmp_dict[vl] = _make_int(output[0].split()[-1])
     # AUTH_MAB: show authentication sessions | count mab - {auth_mab: x}
     elif "show authentication sessions | count mab" in cmd:
-        tmp_dict["auth_mab"] = output[0].split()[-1]
+        tmp_dict["auth_mab"] = _make_int(output[0].split()[-1])
     # AUTH_DOT1X: show authentication sessions | count dot1x - {auth_dot1x: x}
     elif "show authentication sessions | count dot1x" in cmd:
-        tmp_dict["auth_dot1x"] = output[0].split()[-1]
+        tmp_dict["auth_dot1x"] = _make_int(output[0].split()[-1])
 
     # ----------------------------------------------------------------------------
     # RTR: Router-only commands
@@ -269,12 +283,12 @@ def ios_format(
                 vrf = "global_subnets"
             else:
                 vrf = cmd.split()[4] + "_subnets"
-            tmp_dict[vrf] = output[0].split()[2]
+            tmp_dict[vrf] = _make_int(output[0].split()[2])
     # ROUTES: show ip  route - {route/prefix: next-hop, route/prefix: [next-hop, next-hop]}
     elif re.match("show ip  route.*", cmd):
         tmp_nh = []
         # Function to add prefix to subnetted routes
-        output = add_prefix(output)
+        output = _add_prefix(output)
         # Format the route table output
         for each_rte in reversed(output):
             tmp_rte = each_rte.split()
@@ -307,19 +321,19 @@ def ios_format(
     # OSPF_INTF: show ip ospf interface brief - {intf: {area: x, cost: y, state: z}}
     elif "show ip ospf interface brief" in cmd:
         for each_intf in output:
-            tmp_dict[each_intf["interface"]]["area"] = each_intf["area"]
+            tmp_dict[each_intf["interface"]]["area"] = _make_int(each_intf["area"])
             tmp_dict[each_intf["interface"]]["state"] = each_intf["state"]
-            tmp_dict[each_intf["interface"]]["cost"] = each_intf["cost"]
+            tmp_dict[each_intf["interface"]]["cost"] = _make_int(each_intf["cost"])
     # OSPF_NBR: show ip ospf neighbor - {nbr_ip: {state: x}}
     elif "show ip ospf neighbor" in cmd:
         for each_nhbr in output:
             tmp_dict[each_nhbr["neighbor_id"]] = {
-                "state": remove_char(each_nhbr["state"], "/")
+                "state": _remove_char(each_nhbr["state"], "/")
             }
     # OSPF_LSDB: show ip ospf database database-summary | in Total - {total_lsa: x }
     elif "show ip ospf database database-summary | in Total" in cmd:
         if len(output) != None:
-            tmp_dict["total_lsa"] = output[0].split()[1]
+            tmp_dict["total_lsa"] = _make_int(output[0].split()[1])
     # EIGRP_INTF: show ip eigrp interfaces - {intf: [x, y]}
     elif "show ip eigrp interfaces" in cmd:
         tmp_dict = defaultdict(list)
@@ -337,23 +351,23 @@ def ios_format(
         for each_line in output:
             if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", each_line):
                 bgp_peer = each_line.split()
-                tmp_dict[bgp_peer[0]]["asn"] = bgp_peer[2]
-                tmp_dict[bgp_peer[0]]["rcv_pfx"] = bgp_peer[-1]
+                tmp_dict[bgp_peer[0]]["asn"] = _make_int(bgp_peer[2])
+                tmp_dict[bgp_peer[0]]["rcv_pfx"] = _make_int(bgp_peer[-1])
     # NVE_INTF: show nve vni - {l3vni: {bdi: x, vrf: z, state: UP}}
     elif "show nve vni" in cmd:
         for each_vni in output[1:]:
             if len(each_vni) != 0:
                 tmp_vni = each_vni.split()
-                tmp_dict[tmp_vni[1]]["bdi"] = tmp_vni[5]
-                tmp_dict[tmp_vni[1]]["vrf"] = tmp_vni[7]
-                tmp_dict[tmp_vni[1]]["state"] = tmp_vni[3]
+                tmp_dict[_make_int(tmp_vni[1])]["bdi"] = _make_int(tmp_vni[5])
+                tmp_dict[_make_int(tmp_vni[1])]["vrf"] = tmp_vni[7]
+                tmp_dict[_make_int(tmp_vni[1])]["state"] = tmp_vni[3]
     # NVE_PEERS: show nve peers - {ls_vni: {peer: ip, state: Up}}
     elif "show nve peers" in cmd:
         for each_vni in output[1:]:
             if len(each_vni) != 0:
                 tmp_vni = each_vni.split()
-                tmp_dict[tmp_vni[1]]["peer"] = tmp_vni[3]
-                tmp_dict[tmp_vni[1]]["state"] = tmp_vni[6]
+                tmp_dict[_make_int(tmp_vni[1])]["peer"] = tmp_vni[3]
+                tmp_dict[_make_int(tmp_vni[1])]["state"] = tmp_vni[6]
     # VPN: show crypto session brief - {vpn_peer: {intf: x, status: UA}}
     elif "show crypto session brief" in cmd:
         for each_vpn in output[4:]:
@@ -374,7 +388,7 @@ def nxos_format(
 ) -> Dict[str, Dict]:
     # MGMT_ACL: Creates ACL dicts in the format [{acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}]
     if "show access-lists" in cmd:
-        acl = acl_format(output)
+        acl = _acl_format(output)
         tmp_dict1 = defaultdict(dict)
         for each_ace in acl:
             # Creates dict for each ACE entry

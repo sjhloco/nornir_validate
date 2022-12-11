@@ -48,10 +48,10 @@ desired_state = {
             "Gi0/2": {"Switch02": "Gi0/3"},
         },
         "show lldp neighbors": {"Gi2": {"Router01": "Gi0/1"}},
-        "show standby brief": {"0": {"priority": "50", "state": "Active"}},
+        "show standby brief": {0: {"priority": 50, "state": "Active"}},
         "show switch": {
-            "1": {"priority": "15", "role": "Active", "state": "Ready"},
-            "2": {"priority": "14", "role": "Standby", "state": "Ready"},
+            1: {"priority": 15, "role": "Active", "state": "Ready"},
+            2: {"priority": 14, "role": "Standby", "state": "Ready"},
             "_mode": "strict",
         },
         "show  redundancy state | in state": {
@@ -69,7 +69,7 @@ desired_state = {
                 "duplex": "a-full",
                 "speed": "auto",
                 "status": "suspended",
-                "vlan": "20",
+                "vlan": 20,
             },
             "Gi0/2": {
                 "duplex": "a-full",
@@ -81,37 +81,35 @@ desired_state = {
                 "duplex": "auto",
                 "speed": "auto",
                 "status": "notconnect",
-                "vlan": "20",
+                "vlan": 20,
             },
         },
         "show interfaces switchport": {
-            "Gi0/1": {"mode": "access", "vlan": "10"},
+            "Gi0/1": {"mode": "access", "vlan": 10},
             "Gi0/3": {"mode": "trunk", "vlan": "10,20,30"},
         },
         "show vlan brief": {
-            "10": {
+            10: {
                 "intf": {"_mode": "strict", "list": ["Gi0/1", "Gi0/2"]},
                 "name": "vl10",
             },
-            "20": {"intf": {"_mode": "strict", "list": ["Lo3"]}, "name": "vl2"},
+            20: {"intf": {"_mode": "strict", "list": ["Lo3"]}, "name": "vl2"},
         },
         "show spanning-tree": {
-            "10": {"list": ["Gi0/1", "Gi0/2"]},
-            "20": {"list": ["Gi0/3"]},
+            10: {"list": ["Gi0/1", "Gi0/2"]},
+            20: {"list": ["Gi0/3"]},
         },
-        "show mac address-table | count dynamic|DYNAMIC": {"total_mac": "1100"},
-        "show mac address-table vlan 52 | count dynamic|DYNAMIC": {
-            "52_total_mac": "21"
-        },
-        "show authentication sessions | count mab": {"auth_mab": "21"},
-        "show authentication sessions | count dot1x": {"auth_dot1x": "22"},
+        "show mac address-table | count dynamic|DYNAMIC": {"total_mac": 1100},
+        "show mac address-table vlan 52 | count dynamic|DYNAMIC": {"52_total_mac": 21},
+        "show authentication sessions | count mab": {"auth_mab": 21},
+        "show authentication sessions | count dot1x": {"auth_dot1x": 22},
         "show vrf": {
             "AMB": {"_mode": "strict", "list": ["Gi0/1", "Gi0/2"]},
             "BLU": {"_mode": "strict", "list": ["Lo2"]},
             "GRY": {"_mode": "strict", "list": ["Vl20"]},
         },
-        "show ip route  summary | in Total": {"global_subnets": "20"},
-        "show ip route vrf BLU summary | in Total": {"BLU_subnets": "113"},
+        "show ip route  summary | in Total": {"global_subnets": 20},
+        "show ip route vrf BLU summary | in Total": {"BLU_subnets": 113},
         "show ip  route": {
             "0.0.0.0/0": "10.30.20.1",
             "1.1.1.1/32": "Loopback1",
@@ -122,7 +120,7 @@ desired_state = {
         },
         "show ip  route vrf BLU": {"0.0.0.0/0": "10.30.20.1"},
         "show ip ospf interface brief": {
-            "Gi3": {"area": "0", "cost": "1", "state": "P2P"},
+            "Gi3": {"area": 0, "cost": 1, "state": "P2P"},
             "_mode": "strict",
         },
         "show ip ospf neighbor": {
@@ -130,7 +128,7 @@ desired_state = {
             "2.2.2.2": {"state": "FULL"},
             "_mode": "strict",
         },
-        "show ip ospf database database-summary | in Total": {"total_lsa": "8"},
+        "show ip ospf database database-summary | in Total": {"total_lsa": 8},
         "show ip eigrp interfaces": {
             "intf": {"_mode": "strict", "list": ["Gi3", "Lo1"]}
         },
@@ -138,18 +136,18 @@ desired_state = {
             "nbrs": {"_mode": "strict", "list": ["10.10.10.2", "2.2.2.2"]}
         },
         "show bgp all summary": {
-            "10.10.10.2": {"asn": "888", "rcv_pfx": "2"},
-            "10.10.20.2": {"asn": "889", "rcv_pfx": "3"},
+            "10.10.10.2": {"asn": 888, "rcv_pfx": 2},
+            "10.10.20.2": {"asn": 889, "rcv_pfx": 3},
             "_mode": "strict",
         },
         "show nve vni": {
-            "10301": {"bdi": "301", "state": "Up", "vrf": "BLU"},
-            "10302": {"bdi": "302", "state": "Up", "vrf": "GRN"},
+            10301: {"bdi": 301, "state": "Up", "vrf": "BLU"},
+            10302: {"bdi": 302, "state": "Up", "vrf": "GRN"},
             "_mode": "strict",
         },
         "show nve peers": {
-            "10301": {"peer": "192.168.10.10", "state": "UP"},
-            "10302": {"peer": "192.168.10.10", "state": "UP"},
+            10301: {"peer": "192.168.10.10", "state": "UP"},
+            10302: {"peer": "192.168.10.10", "state": "UP"},
             "_mode": "strict",
         },
         "show crypto session brief": {
@@ -717,11 +715,11 @@ actual_state = {
         },
         "show cdp neighbors": {"Gig 0/3": {"Switch": "0/3"}},
         "show lldp neighbors": {"Gi3": {"Router": "Gi0/3"}},
-        "show standby brief": {"0": {"priority": "50", "state": "Active"}},
+        "show standby brief": {0: {"priority": 50, "state": "Active"}},
         "show switch": {
-            "1": {"priority": "15", "role": "Active", "state": "Ready"},
-            "2": {"priority": "14", "role": "Standby", "state": "Ready"},
-            "3": {"priority": "13", "role": "Member", "state": "Ready"},
+            1: {"priority": 15, "role": "Active", "state": "Ready"},
+            2: {"priority": 14, "role": "Standby", "state": "Ready"},
+            3: {"priority": 13, "role": "Member", "state": "Ready"},
         },
         "show  redundancy state | in state": {
             "my_state": "ACTIVE",
@@ -738,7 +736,7 @@ actual_state = {
                 "duplex": "a-full",
                 "speed": "auto",
                 "status": "suspended",
-                "vlan": "20",
+                "vlan": 20,
             },
             "Gi0/2": {
                 "duplex": "a-full",
@@ -753,20 +751,17 @@ actual_state = {
             "Po3": {"mode": "down", "vlan": None},
         },
         "show vlan brief": {
-            "1": {"intf": [], "name": "default"},
-            "10": {"intf": [], "name": "test"},
-            "20": {"intf": ["Gi0/1"], "name": "test20"},
+            10: {"intf": [], "name": "test"},
+            20: {"intf": ["Gi0/1"], "name": "test20"},
         },
-        "show spanning-tree": {"10": ["Gi0/3"], "20": ["Gi0/3"]},
-        "show mac address-table | count dynamic|DYNAMIC": {"total_mac": "1103"},
-        "show mac address-table vlan 852 | count dynamic|DYNAMIC": {
-            "852_total_mac": "6"
-        },
-        "show authentication sessions | count mab": {"auth_mab": "13"},
-        "show authentication sessions | count dot1x": {"auth_dot1x": "21"},
+        "show spanning-tree": {10: ["Gi0/3"], 20: ["Gi0/3"]},
+        "show mac address-table | count dynamic|DYNAMIC": {"total_mac": 1103},
+        "show mac address-table vlan 852 | count dynamic|DYNAMIC": {"852_total_mac": 6},
+        "show authentication sessions | count mab": {"auth_mab": 13},
+        "show authentication sessions | count dot1x": {"auth_dot1x": 21},
         "show vrf": {"BLU": ["Lo50"]},
-        "show ip route  summary | in Total": {"global_subnets": "20"},
-        "show ip route vrf BLU summary | in Total": {"BLU_subnets": "113"},
+        "show ip route  summary | in Total": {"global_subnets": 20},
+        "show ip route vrf BLU summary | in Total": {"BLU_subnets": 113},
         "show ip  route": {
             "0.0.0.0/0": "10.30.20.1",
             "1.1.1.1/32": "Loopback1",
@@ -795,25 +790,25 @@ actual_state = {
             "172.16.20.0/24": "10.80.10.2",
         },
         "show ip ospf interface brief": {
-            "Gi3": {"area": "0", "cost": "1", "state": "P2P"},
-            "Lo7": {"area": "0", "cost": "1", "state": "LOOP"},
-            "Lo8": {"area": "2", "cost": "1", "state": "LOOP"},
+            "Gi3": {"area": 0, "cost": 1, "state": "P2P"},
+            "Lo7": {"area": 0, "cost": 1, "state": "LOOP"},
+            "Lo8": {"area": 2, "cost": 1, "state": "LOOP"},
         },
         "show ip ospf neighbor": {
             "192.168.255.1": {"state": "FULL"},
             "2.2.2.2": {"state": "FULL"},
         },
-        "show ip ospf database database-summary | in Total": {"total_lsa": "11"},
+        "show ip ospf database database-summary | in Total": {"total_lsa": 11},
         "show ip eigrp interfaces": {"intf": ["Gi3", "Lo20"]},
         "show ip eigrp neighbors": {"nbrs": ["10.10.10.2"]},
-        "show bgp all summary": {"10.10.10.2": {"asn": "888", "rcv_pfx": "1"}},
+        "show bgp all summary": {"10.10.10.2": {"asn": 888, "rcv_pfx": 1}},
         "show nve vni": {
-            "10301": {"bdi": "301", "vrf": "BLU", "state": "Up"},
-            "10302": {"bdi": "302", "vrf": "GRN", "state": "Up"},
+            10301: {"bdi": 301, "vrf": "BLU", "state": "Up"},
+            10302: {"bdi": 302, "vrf": "GRN", "state": "Up"},
         },
         "show nve peers": {
-            "10301": {"peer": "192.168.1.2", "state": "UP"},
-            "10302": {"peer": "192.168.1.2", "state": "UP"},
+            10301: {"peer": "192.168.1.2", "state": "UP"},
+            10302: {"peer": "192.168.1.2", "state": "UP"},
         },
         "show crypto session brief": {"21.16.9.23": {"intf": "Tu11", "status": "UA"}},
     },

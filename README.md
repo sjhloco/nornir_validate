@@ -39,10 +39,7 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 - Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA or an extended ACL (IP and any port) on other platforms
 - Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
 - BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
-
-### Caveats
-
-Due to the way that the *napalm_validate* matching works if can miss some similar numeric values. For example, with the number of routes if the desired number is 5 and the actual number is 15 this validation will pass as it 5 is in both. Not sure if this is by design, at end of the day I am using it for a more expanded purpose so need to look how it performs normally before seeing if I can fix it.
+- Integers (count): Any output that is a numerical value (like route table summary, MAC count, BGP received prefixes, etc) can use an exact value (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
 
 ## Installation and Prerequisites
 
@@ -319,7 +316,7 @@ I plan to do the following over the coming months:
 
 I may look into replacing or extending napalm-validate as would be good to add support for:
 
-- Tolerances for the numeric values rather than the exact matches (also fix the mathcing caveat)
+- Make it web-based
 - Convert JSON report to HTML page something in the vain of the [Robot framework](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html)
 
 To allow me to fudge it to be able to import it as a module (due to inheritance) I added the following to *nr_val.py* that I need to remember to remove when it gets packaged up and check the validation_builder (as effects inheritance), don't forget.....

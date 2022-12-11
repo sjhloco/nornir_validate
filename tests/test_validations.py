@@ -134,6 +134,7 @@ class TestActualState:
             desired_actual_cmd.actual_state["ios"].items(),
         ):
             actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
+
             assert actual_output == {
                 desired_output[0]: desired_output[1]
             }, err_msg.format(desired_output[0])
