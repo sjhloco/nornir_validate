@@ -24,7 +24,7 @@ my_input_data = {
 
 
 nr = InitNornir(config_file="config.yml")
-# result = nr.run(task=validate_task, input_data="my_input_data.yml")
+# result = nr.run(task=validate_task, input_data="input_data_test.yml")
 result = nr.run(task=validate_task, input_data=my_input_data)
 print_result(result)
 

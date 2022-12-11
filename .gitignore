@@ -4,3 +4,5 @@
 **/nornir.log
 **/TODO
 **/.vscode
+test.py
+input_data_test.yml

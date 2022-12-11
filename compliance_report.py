@@ -89,7 +89,7 @@ def report(
             failed=False,
             result="\u2705 Validation report complies, desired_state and actual_state match.",
             report=report,
-            report_text=report_text
+            report_text=report_text,
         )
     if complies == False or skipped == True:
         return dict(failed=True, result=report, report=report, report_text=report_text)
