@@ -6,6 +6,8 @@ from collections import defaultdict
 import os
 import sys
 import ipdb
+import re
+import ast
 
 from nornir import InitNornir
 from nornir.core.task import Task, Result
@@ -127,7 +129,7 @@ def template_task(
     os_type = merge_os_types(task.host)
 
     for val_feature, feature_vars in input_vars.items():
-        tmp_desired_state = task.run(
+        str_desired_state = task.run(
             task=template_file,
             template="desired_state.j2",
             path=tmpl_path,
@@ -135,9 +137,15 @@ def template_task(
             feature=val_feature,
             input_vars=feature_vars,
         ).result
-        # Converts jinja string into yaml and list of dicts [cmd: {seq: ket:val}] into a dict of cmds {cmd: {seq: key:val}}
-        for each_list in yaml.load(tmp_desired_state, Loader=yaml.Loader):
-            desired_state.update(each_list)
+
+        # Convert jinja string into yaml and list of dicts [cmd: {seq: ket:val}] into a dict of cmds {cmd: {seq: key:val}}
+        # Conditional fix as yaml.Loader causes error for ">dd" as swaps a digit for a space
+        if re.search(r":\ >\d+", str_desired_state):
+            x = yaml.load(str_desired_state.replace(">", "->"), Loader=yaml.Loader)
+            tmp_desired_state = ast.literal_eval(str(x[0]).replace("->", ">"))
+        else:
+            tmp_desired_state = yaml.load(str_desired_state, Loader=yaml.Loader)[0]
+        desired_state.update(tmp_desired_state)
 
 
 # ----------------------------------------------------------------------------

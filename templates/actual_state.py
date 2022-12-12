@@ -224,7 +224,7 @@ def ios_format(
     elif "show interfaces status" in cmd:
         for each_intf in output:
             tmp_dict[each_intf["port"]]["duplex"] = each_intf["duplex"]
-            tmp_dict[each_intf["port"]]["speed"] = each_intf["speed"]
+            tmp_dict[each_intf["port"]]["speed"] = _make_int(each_intf["speed"])
             tmp_dict[each_intf["port"]]["status"] = each_intf["status"]
             tmp_dict[each_intf["port"]]["vlan"] = _make_int(each_intf["vlan"])
     # SWITCHPORT: show interfaces switchport - {intf: {mode: access or trunk, vlan: x or [x,y]}}
