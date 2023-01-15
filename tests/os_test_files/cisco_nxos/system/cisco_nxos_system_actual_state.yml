@@ -1,0 +1,33 @@
+system:
+  image:
+    version: 9.3(5)
+  mgmt_acl:
+    TEST_SSH_ACCESS:
+      10:
+        action: permit
+        dst: any
+        protocol: ip
+        src: 10.17.10.0/24
+      20:
+        action: permit
+        dst: any
+        protocol: ip
+        src: 10.10.10.10/32
+      30:
+        action: deny
+        dst: any
+        protocol: ip
+        src: any
+    TEST_SNMP_ACCESS:
+      10:
+        action: permit
+        dst: any
+        protocol: ip
+        src: 10.17.10.0/24
+  module:
+    1:
+      model: N7K-SUP1
+      status: active *
+    3:
+      model: N7K-F248XP-25
+      status: ok

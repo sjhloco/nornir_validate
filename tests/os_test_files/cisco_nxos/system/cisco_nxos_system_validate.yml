@@ -1,0 +1,18 @@
+all:
+  system:
+    image: 
+      version: 9.3(5)
+    mgmt_acl:
+      - name: TEST_SSH_ACCESS
+        ace:
+          - { remark: MGMT Access - VLAN10 }
+          - { permit: 10.17.10.0/24 }
+          - { remark: Citrix Access }
+          - { permit: 10.10.10.10/32 }
+          - { deny: any }
+    module:
+      - module_num: 1
+        model: N7K-SUP1
+        status: active *
+      - module_num: 3
+        model: N7K-F248XP-25

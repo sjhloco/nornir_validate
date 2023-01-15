@@ -1,0 +1,55 @@
+{# ####### Set commands on a per-OS basis ####### #}
+{% if 'ios' in os_type |string %}
+{% elif 'nxos' in os_type |string %}
+{% elif 'asa' in os_type |string %}
+{% elif 'wlc' in os_type |string %}
+{% set wlan_cmd = "show wlan summary" %}
+{% set ap_cmd = "show ap summary" %}
+{% set flexconn_cmd = "show flexconnect group summary" %}
+{% set intf_grp_cmd = "show interface group summary" %}
+{% endif %}
+
+
+{# ##### Build feature template ##### #}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### WLAN:  {cmd: {wlan_id: {intf: x, ssid: xy, status: Enabled}}} #}
+{% if sub_feat == 'wlan' %}
+    wlan: 
+      {{ wlan_cmd }}:  
+{% for each_wlan in input_vars %}
+        {{ each_wlan.wlan_id }}:
+          intf: {{ each_wlan.interface }}
+          ssid: {{ each_wlan.ssid }}
+          status: Enabled
+{% endfor %}
+{# ### AP:  {cmd: {ap_name: {model: x, ip: x, clients: x}}} #}
+{% elif sub_feat == 'ap' %}
+    ap: 
+      {{ ap_cmd }}:  
+{% for each_ap in input_vars %}
+        {{ each_ap.ap_name }}:
+          model: {{ each_ap.ap_model }}
+          ip: {{ each_ap.ip }}
+          client_count: {{ each_ap.client_count }}
+{% endfor %}
+{# ### FLEXCONN:  {cmd: {grp_name: {ap_count: x}}} #}
+{% elif sub_feat == 'flexconnect' %}
+    flexconnect: 
+      {{ flexconn_cmd }}:  
+{% for each_grp in input_vars %}
+        {{ each_grp.grp_name }}:
+          ap_count: {{ each_grp.ap_count }}
+{% endfor %}
+{# ### INTF_GRP:  {cmd: {grp_name: {ap_count: x, intf_count: x, wlan_count: x}}} #}
+{% elif sub_feat == 'intf_grp' %}
+    intf_grp: 
+      {{ intf_grp_cmd }}:  
+{% for each_grp in input_vars %}
+        {{ each_grp.grp_name }}:
+          ap_count: {{ each_grp.ap_count }}
+          intf_count: {{ each_grp.intf_count }}
+          wlan_count: {{ each_grp.wlan_count }}
+{% endfor %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}

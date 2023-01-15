@@ -1,0 +1,22 @@
+{
+    "intf_bonded": {
+        "port_channel": [
+            {
+                "group": "1",
+                "interfaces": ["Gi0/0", "Gi0/1"],
+                "interfaces_status": ["P", "P"],
+                "po_name": "Po1",
+                "po_status": "U",
+                "protocol": "LACP"
+            },
+            {
+                "group": "11",
+                "interfaces": ["Gi0/5", "Gi0/6"],
+                "interfaces_status": ["P", "P"],
+                "po_name": "Po11",
+                "po_status": "U",
+                "protocol": "LACP"
+            }
+        ]
+    }
+}

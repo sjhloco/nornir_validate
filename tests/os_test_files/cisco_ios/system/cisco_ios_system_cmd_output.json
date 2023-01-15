@@ -1,0 +1,102 @@
+{
+    "system": {
+        "image": [
+            {
+                "config_register": "0xF",
+                "hardware": ["WS-C3560CX-12PC-S"],
+                "hostname": "HME-C3560-SWI01",
+                "mac": ["CC:7F:75:81:98:00"],
+                "reload_reason": "power-on",
+                "restarted": "21:53:18 UTC Tue May 17 2022",
+                "rommon": "Bootstrap",
+                "running_image": "/c3560cx-universalk9-mz.152-7.E2.bin",
+                "serial": ["FOC2414L6TJ"],
+                "uptime": "2 weeks, 2 days, 18 hours, 28 minutes",
+                "uptime_days": "2",
+                "uptime_hours": "18",
+                "uptime_minutes": "28",
+                "uptime_weeks": "2",
+                "uptime_years": "",
+                "version": "15.2(7)E2"
+            }
+        ],
+        "mgmt_acl": [
+            {"acl_name": "TEST_SSH_ACCESS", "line_num": ""},
+            {
+                "acl_name": "TEST_SSH_ACCESS",
+                "line_num": "10",
+                "action": "permit",
+                "protocol": "ip",
+                "src_any": "",
+                "src_network": "10.17.10.0",
+                "src_wildcard": "0.0.0.255",
+                "dst_any": "any"
+            },
+            {
+                "acl_name": "TEST_SSH_ACCESS",
+                "line_num": "20",
+                "action": "permit",
+                "protocol": "ip",
+                "src_host": "10.10.10.10",
+                "dst_any": "any"
+            },
+            {
+                "acl_name": "TEST_SSH_ACCESS",
+                "line_num": "30",
+                "action": "deny",
+                "protocol": "ip",
+                "src_any": "any",
+                "dst_any": "any"
+            },
+            {"acl_name": "TEST_SNMP_ACCESS", "line_num": ""},
+            {
+                "acl_name": "TEST_SNMP_ACCESS",
+                "line_num": "10",
+                "action": "permit",
+                "protocol": "ip",
+                "src_any": "",
+                "src_network": "10.17.10.0",
+                "src_wildcard": "0.0.0.255",
+                "dst_any": "any"
+            }
+        ],
+        "module": [
+            {
+                "module": "1",
+                "port": "16",
+                "cardtype": "CEF720 16 port 10GE",
+                "model": "WS-X6816-10GE",
+                "serial": "SAL11111111",
+                "mac_addr": "aaaa.aaaa.0000 to aaaa.aaaa.ffff",
+                "mod_hw": "2.1",
+                "mod_fw": "12.2(18r)S1",
+                "mod_sw": "15.2(1)SY5",
+                "status": "Ok",
+                "submodule": "Distributed Forwarding Card",
+                "submodule_model": "WS-F6K-DFC4-E",
+                "submodule_serial": "SMD11111111",
+                "submodule_hw": "1.2",
+                "submodule_status": "Ok",
+                "online_diag": "Pass"
+            },
+            {
+                "module": "5",
+                "port": "5",
+                "cardtype": "Supervisor Engine 2T 10GE w/ CTS (Acti",
+                "model": "VS-SUP2T-10G",
+                "serial": "SAL55555555",
+                "mac_addr": "eeee.eeee.0000 to eeee.eeee.ffff",
+                "mod_hw": "1.5",
+                "mod_fw": "12.2(50r)SYS",
+                "mod_sw": "15.2(1)SY5",
+                "status": "Ok",
+                "submodule": "Policy Feature Card 4",
+                "submodule_model": "VS-F6K-PFC4",
+                "submodule_serial": "SMD55555555",
+                "submodule_hw": "2.1",
+                "submodule_status": "Ok",
+                "online_diag": "Pass"
+            }
+        ]
+    }
+}

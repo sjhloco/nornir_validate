@@ -6,3 +6,5 @@
 **/.vscode
 test.py
 input_data_test.yml
+**/tmp_outputs_nxos_asa_wlc
+

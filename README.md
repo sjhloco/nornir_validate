@@ -1,4 +1,4 @@
-# Nornir Validate
+# Nornir Validate - v1
 
 Uses Nornir (with ***nornir-netmiko***) to gather and format device output before feeding this into ***napalm-validate*** in the form of ***actual_state*** and ***desired_state*** to produce a ***compliance report***. The idea behind this project is to run pre and post checks on network devices based on an input file of the desired *device_state*.
 
@@ -6,7 +6,57 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 
 ## Current Validations
 
-| Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
+| Feature | Sub-feature Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
+| ------- | ---------------------- | ------ | ---------- | ---- | --- | --- | ----
+| system | Image | ❌ | ✅ | ✅ | ✅ | ✅  | ❌
+| system | Management ACL (SSH/SNMP/HTTP) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| system | module status | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| redundancy | HA state | ❌ | ✅ | ❌ | ✅ | ✅ | ❌
+| redundancy | Switch stack (state and priority) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| neighbors | CDP neighbors | ❌ | ✅ | ✅ | ❌ | ✅ | ❌
+| neighbors | LLDP neighbors | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| intf_bonded | Port-channel (membership & status) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| intf_bonded | vpc (membership & status) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌
+
+
+
+| interfaces | Interface status (speed, duplex, status) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| interfaces | Switchport (mode and vlan) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| interfaces | Interface brief (IP and status) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| interfaces | Interface groups (Interfaces and wlans) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| layer2 | VLANs (member interfaces) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| layer2 | Spanning-Tree (FWD vlan interfaces) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌
+| layer2 | MAC address table (count) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| fhr | HSRP (priority and state) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| route_table | VRF (member interfaces) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| route_table | Route summary (total subnets) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
+| route_table | Routing table (route and strict next-hops) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
+| ospf | OSPF Interface (interfaces, area, cost) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| ospf | OSPF neighbors (neighbor, state) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| opsf | OSPF database (Total LSAs) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| eigrp | EIGRP Interface | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| eigrp | EIGRP neighbors | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| bgp | BGP peers (peer, asn, rcv_pfx) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| evpn | NVE VNI (L3VNI, VRF, BDI, state) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| evpn | NVE peer (L3VNI, peer, state) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| evpn | EVPN type2 MAC/IP table | ✅ | ✅ | ✅ | ❌ | ❌ | ❌              <<<<< think can have cmd output on ios-xe, must check
+| vpn | VPN count of s-t-s, and ac | ❌ | ✅ | ❌ | ✅ | ❌ | ❌            <<<< need to add count of vpns up on ios-xe >>>>
+| vpn | site-to-site tunnels (peer, interface, state) | ✅ | ✅ | ❌ | ✅
+| vpn | AnyConnect tunnels (user and group) | ❌ | ❌ | ❌ | ✅ | ❌ | ❌
+| sessions | MAB & DOT1X Auth Sessions (count) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| sessions | number of fw connectiosn | ❌ | ❌ | ❌ | ✅ | ❌ | ❌
+| sessions | number wifi clients | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | WLANs (associated intf and SSID) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | APs (image, model, ip and clients) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | flexconnect groups (group and ap count) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+
+- Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA (including in source interface) or an extended ACL (IP and any port) on other platforms (assumes seq is 10, 20, etc)
+- Module assumes it a status of 'ok', can overide this by defining a statsu (such as active or standby for nxos sup)
+- Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
+- BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
+- Integers (count): Any output that is a numerical value (like route table summary, MAC count, BGP received prefixes, etc) can use an exact value (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+
+<!-- | Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
 | ---------- | ------ | ---------- | ---- | --- | --- | ----------
 | Image | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | Management ACL (SSH/SNMP/HTTP) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
@@ -34,12 +84,8 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 | BGP peers (peer, asn, rcv_pfx) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | NVE VNI (L3VNI, VRF, BDI, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
 | NVE peer (L3VNI, peer, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VPN (peer, interface, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
+| VPN (peer, interface, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌ -->
 
-- Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA or an extended ACL (IP and any port) on other platforms
-- Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
-- BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
-- Integers (count): Any output that is a numerical value (like route table summary, MAC count, BGP received prefixes, etc) can use an exact value (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
 
 ## Installation and Prerequisites
 
@@ -297,22 +343,20 @@ In this example compliance report the image and port-channel passed but the repo
   'skipped': []}
   ```
 
-## Validation Builder
-
- The *validation_builder* directory contains *val_builder.py* to assist with the building of new validations. The README within in this directory has more details on how to use this.
-
 ## TBC in the Future
 
 Am still trialing this out, is a lot of work still to be done on adding differing platform commands and putting it through its paces in a real world environment. Like many of my other projects what seems like a great idea in my head could turn out in reality to not be much use in the real world. Only time will tell..........
 
 I plan to do the following over the coming months:
 
-- Add NXOS commands to cover the majority of what is done by IOS/IOS-XE with the addition of NXOS specific features. Not sure whether to use TextFSM or native NXOS JSON cmds, the idea will be to where possible use common python functions (*actual_state.py*) or jinja macros (*desired_state.py*) to keep it DRY
-- Add ASA commands, will be interfaces, routing and VPN
-- Add WLC commands, will be pretty limited with interfaces and APs as am guessing will soon be EO
+- Finish adding each feature from the current validations table, already have majority of the information for them
+- Redo unit tests fro the script as it has been changed a fair bit (also now more modular)
+- Create new examples using rich for print result
+- Rewrite readme and add new example video
 - Add Palo commands, will be interfaces and routing rather than security policy based
-- Possibly add support for genie, not sure where to put the toggle of whether to use netmiko or genie for a command
-- Package it up, need to make it easy to extend (abstraction of actual_state.py and desired_state.j2) so will not be as much need to make changes to the base code
+- Add some Cisco SD-WAN comands to check tunnel status
+- Possibly add support for genie, not sure where to put the toggle of whether to use netmiko or genie for a command - may not bother
+- Package it up, use poetry and add unit testing
 
 I may look into replacing or extending napalm-validate as would be good to add support for:
 
@@ -322,12 +366,183 @@ I may look into replacing or extending napalm-validate as would be good to add s
 To allow me to fudge it to be able to import it as a module (due to inheritance) I added the following to *nr_val.py* that I need to remember to remove when it gets packaged up and check the validation_builder (as effects inheritance), don't forget.....
 
 ```python
-import os
-import sys
 sys.path.insert(0, "nornir_validate")
 
-    if "nornir_validate" in os.getcwd():
-        tmpl_path = "templates/"
+def return_template_path() -> str:
+    if "validation_builder" in os.getcwd():
+        tmpl_path = os.path.join(os.path.dirname(os.getcwd()), "feature_templates/")
+    elif "nornir_validate" in os.getcwd():
+        tmpl_path = "feature_templates/"
     else:
-       tmpl_path =  "nornir_validate/templates/"
+        tmpl_path = "nornir_validate/feature_templates/"
+    return tmpl_path
 ```
+
+
+## Adding a new Feature for Validation
+
+The *feature_builder.py* script assists with the creation of new features for validation as well as relevant test files also required. 
+
+Every feature has a folder within *feature_templates* that holds a jinja2 template file (`<feature>_desired_state.j2`) for creating the desired state (from the input validation data) and a python module (`<feature>_actual_state.py`) used for creating the actual state from the command output. Features can contain one or more sub-features that are validated, the logic for all of these sub-features for all os types are within these files.
+
+```bash
+├── feature_templates
+│   ├── intf_bonded
+│   │   ├── intf_bonded_actual_state.py
+│   │   └── intf_bonded_desired_state.j2
+│   ├── neighbors
+│   │   ├── neighbors_actual_state.py
+│   │   └── neighbors_desired_state.j2
+```
+
+Every feature must also have a per os_type test folder (within *tests/os_test_files*) that contains 4 files to test the actual state and desired state creation. All test files are needed and must pass unit testing for a new feature to be added.
+
+
+```bash
+├── tests
+│   ├── os_test_files
+│   │   ├── cisco_asa
+│   │   │   ├── intf_bonded
+│   │   │   │   ├── cisco_asa_intf_bonded_actual_state.yml
+│   │   │   │   ├── cisco_asa_intf_bonded_cmd_output.json
+│   │   │   │   ├── cisco_asa_intf_bonded_desired_state.yml
+│   │   │   │   └── cisco_asa_intf_bonded_validate.yml
+│   │   │   ├── redundancy
+│   │   │   │   ├── cisco_asa_redundancy_actual_state.yml
+│   │   │   │   ├── cisco_asa_redundancy_cmd_output.json
+│   │   │   │   ├── cisco_asa_redundancy_desired_state.yml
+│   │   │   │   └── cisco_asa_redundancy_validate.yml
+│   │   ├── cisco_ios
+│   │   │   ├── intf_bonded
+│   │   │   │   ├── cisco_ios_intf_bonded_actual_state.yml
+│   │   │   │   ├── cisco_ios_intf_bonded_cmd_output.json
+│   │   │   │   ├── cisco_ios_intf_bonded_desired_state.yml
+│   │   │   │   └── cisco_ios_intf_bonded_validate.yml
+```
+
+### 1. Create the feature and feature test directories
+
+Use the following command to create the folder directories as well as all the needed files except for the test *_desired_state.yml* and *_actual_state.yml* files (as these will be created by subsequent runs of the script). If you are just adding another OS to an existing feature it will obviously on created the test directories and files for that os_type of te feature. All the files created have the skelton structure already set as well as the formatting for comments that should be followed.
+
+```none
+python feature_builder.py -cf <os_type>_<feature_name>
+```
+
+This will create the following:
+
+```bash
+├── feature_templates
+│   ├── feature_name
+│   │   ├── featurename_actual_state.py
+│   │   └── featurename_desired_state.j2
+├── tests
+│   ├── os_test_files
+│   │   ├── os_type
+│   │   │   ├── intf_bonded
+│   │   │   │   ├── ostype_featurename_cmd_output.json
+│   │   │   │   └── ostype_featurename_validate.yml
+```
+
+### 2. Edit the JSON formatted command output test file *(os_type_feature_name_cmd_output.json)*
+
+EThis the output that teh actul stae will be gleaned from. Each sub-feature will have a seperate command, this could be a dictionary of a few commands with each under a sub-feature name dictionary. If the command has an NTC template the command output will be a list of dictioanries, if it is jsut screen scrapped output it will be a list with each element being a line of the output.
+
+{
+    "new_feature": {
+        "sub_feature1": [
+            {
+                cmd output
+            }
+        ]
+    }
+}
+
+The script can be used to generate the json output from a live device or a copy of the devices output (saved to file).
+
+```none
+python feature_builder.py -di ????????????????
+```
+
+### 3. Create the validated state test *(os_type_feature_name_validate.yml)*
+
+From the command output you can now desfine the valdaitions that are wanted to prove this sub-feature is compliant. For things such as interfaces that you would exploctly to always be in a certain state is no need to include that actual status in the validation, it will be explict.
+
+```yaml
+all:
+  new_feature:
+    new_subfeat1: 
+      a: b
+    new_subfeat2:
+      - c: d
+        x: y
+      - e: f
+        a: z
+```
+
+### 4. Create the desired state template *(feature_desired_state.j2)* and desired state test file *(ostype_feature_desired_state.j2)*
+
+The desired state contains the commands to be run by each subfeature and the validation for each information got from the rendered file. To keep it DRY the different os type commands are set as conditional variables so that the rest of the template can be where ever possible the same for all os type. It is preferable to use macros whereever possible for repeatable code.
+
+```jinja
+{% if 'ios' in os_type |string %}
+{% set new_subfeat1_cmd = "show x" %}
+{% elif 'nxos' in os_type |string %}
+{% set new_subfeat1_cmd = "show y" %}
+{% endif %}
+
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{% if sub_feat == 'new_subfeat1' %}
+    new_subfeat1:
+      {{ new_subfeat1_cmd }}: 
+{% for each_item in input_vars %}
+        {{ each_item.x }}:
+          y: {{ each_item.y }}
+          status: Up
+{% endfor %}
+{% endif %}{% endfor %}
+```
+
+Once the template has been built the `-ds` flag can be used to test it by trying to render the desired state test file *(ostype_feature_desired_state.j2)*) using the template and the validate test file. Once it has been created also run the desired state unit testing for this one feature.
+
+```
+python new_val_builder.py -ds cisco_wlc wifi
+pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[ostype_newfeature]' -vv
+```
+
+### 5. Create the actual state module *(feature_actual_state.py)* and actual state test file *(ostype_feature_actual_state.py)*
+
+The actual state contains the python logic to fomrulate the returned device data into a data structure format that matches that of the desired state. To keep it DRY for different os types commands conditional variables are set for dictioanry keys as these can vary between the different os type structred data returned by NTC templates. It is preferable to use functions whereever possible for repeatable code. All dictionary values that are numeric should be made an integerer (if not validations wont be 100% accurate.)
+
+```python
+def format_output(os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]) -> Dict[str, Dict]:
+
+    if bool(re.search("ios", os_type)):
+        new_subfeat1 = "x"
+    elif bool(re.search("nxos", os_type)):
+        new_subfeat1 = "y"
+
+    if sub_feature == "new_subfeat1":
+        for each_item in output:
+            tmp_dict[each_item]["y"] = each_item[new_subfeat1]
+            tmp_dict[each_item]["z"] = _make_int(each_item[new_subfeat2])
+
+    return dict(tmp_dict)
+```
+
+Once the template has been built the `-as` flag can be used to test it by trying to create the actual state test file *(ostype_feature_actual_state.j2)*) by feeding the test command output through the actual state module.  Once it has been created also run the actual state unit testing for this one feature.
+
+```
+python new_val_builder.py -as cisco_wlc wifi
+pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[ostype_newfeature]' -vv
+```
+
+### 6. Run all unit tests and add to documentation
+
+Run the unit tests for all validations desired and actual state.
+
+```
+pytest tests/test_validations.py -vv
+```
+
+If all tests pass add the inforation reagrds to the feature to the *current validations* table of the README and add an example of the new validation to the *full_example_input_data.yml* file.

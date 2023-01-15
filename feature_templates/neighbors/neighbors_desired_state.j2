@@ -1,0 +1,33 @@
+{# ####### Set commands on a per-OS basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set cdp_cmd = "show cdp neighbors" %}
+{% set lldp_cmd = "show lldp neighbors" %}
+{% elif 'nxos' in os_type |string %}
+{% set cdp_cmd = "show cdp neighbors" %}
+{% set lldp_cmd = "show lldp neighbors" %}
+{% elif 'asa' in os_type |string %}
+{% elif 'wlc' in os_type |string %}
+{% set cdp_cmd = "show cdp neighbors detail" %}
+{% endif %}
+
+{# ##### Build feature template ##### #}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### CDP: {intf: {neighbor: neighbor_interface}} ### #}
+{% if sub_feat == 'cdp' %}
+    cdp:
+      {{ cdp_cmd }}:
+{% for each_intf, each_nbr in input_vars.items() %}
+        {{ each_intf }}:
+          {{ each_nbr.nbr_name }}: {{ each_nbr.nbr_intf }}
+{% endfor %}
+{# ### LLDP: {intf: {neighbor: neighbor_interface}} ### #}
+{% elif sub_feat == 'lldp' %}
+    lldp:
+      {{ lldp_cmd }}:
+{% for each_intf, each_nbr in input_vars.items() %}
+        {{ each_intf }}:
+          {{ each_nbr.nbr_name }}: {{ each_nbr.nbr_intf }}
+{% endfor %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}

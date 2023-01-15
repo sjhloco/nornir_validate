@@ -1,0 +1,91 @@
+{
+    "wifi": {
+        "wlan": [
+            {
+                "interface": "intgrp_gst_guest_hotspot",
+                "pmip_mobility": "",
+                "profile": "WiFi Guest",
+                "ssid": "wifi-guest",
+                "status": "Enabled",
+                "wlanid": "11"
+            },
+            {
+                "interface": "intgrp_blu",
+                "pmip_mobility": "none",
+                "profile": "WiFi Corp",
+                "ssid": "corp",
+                "status": "Enabled",
+                "wlanid": "12"
+            },
+            {
+                "interface": "intgrp_gst_grn",
+                "pmip_mobility": "",
+                "profile": "WiFi grn",
+                "ssid": "grn",
+                "status": "Enabled",
+                "wlanid": "13"
+            }
+        ],
+        "ap": [
+            {
+                "ap_model": "AIR-AP2802I-E-K9",
+                "ap_name": "DC-AP-01",
+                "clients": "4",
+                "country": "GB",
+                "dse_location": "[0 ,0 ,0 ]",
+                "ip": "10.20.10.12",
+                "location": "DC - R129",
+                "mac": "b0:8b:cf:aa:cc:bb",
+                "slot": "3"
+            },
+            {
+                "ap_model": "AIR-AP2802I-E-K9",
+                "ap_name": "DC-AP-02",
+                "clients": "14",
+                "country": "GB",
+                "dse_location": "[0 ,0 ,0 ]",
+                "ip": "10.20.10.14",
+                "location": "DC - R18",
+                "mac": "b0:8b:cf:cc:ee:ff",
+                "slot": "3"
+            }
+        ],
+        "flexconnect": [
+            {
+                "ap_count": "44",
+                "flexconnect_group_count": "4",
+                "flexconnect_group_name": "FlexCon Group - Grp1"
+            },
+            {
+                "ap_count": "0",
+                "flexconnect_group_count": "4",
+                "flexconnect_group_name": "default-flex-group"
+            },
+            {
+                "ap_count": "0",
+                "flexconnect_group_count": "4",
+                "flexconnect_group_name": "default-flex-group-1826280552"
+            }
+        ],
+        "intf_grp": [
+            {
+                "interface_group_name": "intgrp_guest",
+                "total_ap_groups": "2",
+                "total_interfaces": "1",
+                "total_wlans": "1"
+            },
+            {
+                "interface_group_name": "intgrp_prod",
+                "total_ap_groups": "6",
+                "total_interfaces": "1",
+                "total_wlans": "1"
+            },
+            {
+                "interface_group_name": "intgrp_byod",
+                "total_ap_groups": "11",
+                "total_interfaces": "1",
+                "total_wlans": "2"
+            }
+        ]
+    }
+}

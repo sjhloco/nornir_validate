@@ -10,14 +10,6 @@ from datetime import datetime
 # FIX: napalm_validate doesn't recognize ~/ for home drive
 # ----------------------------------------------------------------------------
 def fix_home_path(input_path: str) -> str:
-    """
-    It takes a string as input, and if the string starts with `~/`, it replaces the `~` with the user's
-    home directory
-
-    :param input_path: The path to the input file
-    :type input_path: str
-    :return: The input path with the home directory expanded.
-    """
     if re.match("^~/", input_path):
         return os.path.expanduser(input_path)
     else:
@@ -27,29 +19,9 @@ def fix_home_path(input_path: str) -> str:
 # -------------------------------------------------------------------------------------------
 # REPORT_FILE: If a hostname and directory are passed in as function arguments saves report to file
 # --------------------------------------------------------------------------------------------
-def save_report_to_file(
+def report_file(
     hostname: str, directory: str, report: Dict[str, Any], complies: bool, skipped: bool
-) -> str:
-    """
-    If the report file already exists, it will update the 'skipped' and 'complies' keys with the report
-    outcome. If the report file does not exist, it will create a new report file and add the 'skipped'
-    and 'complies' keys with the report outcome
-
-    :param hostname: The hostname of the device you're running the validation against
-    :type hostname: str
-    :param directory: The directory where the report will be saved
-    :type directory: str
-    :param report: The report dictionary that is returned by napalm_validate
-    :type report: Dict[str, Any]
-    :param complies: True if the device complies with the validation rules, False otherwise
-    :type complies: bool
-    :param skipped: A list of skipped tests
-    :type skipped: bool
-    :return: The report can be viewed using:
-    cat /home/vagrant/napalm_validate_reports/nxos1_compliance_report_20200708-1456.json | python -m
-    json.tool
-    """
-
+):
     filename = os.path.join(
         fix_home_path(directory),
         hostname
@@ -81,50 +53,33 @@ def save_report_to_file(
 # ----------------------------------------------------------------------------------------------------------
 # VALIDATE: Uses naplam_validate on custom data fed in (still supports '_mode: strict') to validate and create reports
 # ----------------------------------------------------------------------------------------------------------
-def generate_validate_report(
-    d_state: Dict[str, Dict], a_state: Dict[str, Dict], hostname: str, directory: str
-) -> Dict[str, Any]:
-    """
-    The function takes the desired and actual state dictionaries, hostname and directory as arguments.
-    It then runs the compare method from the napalm-validate library on each feature in the desired
-    state dictionary. If the compare method can't be run on a feature, it adds a skipped key to the
-    feature dictionary. The function then checks if the report complies and if any features were
-    skipped. If the report complies, it returns a dictionary with the result, report and report_text. If
-    the report doesn't comply or features were skipped, it returns a dictionary with the report and
-    report_text
-
-    :param d_state: Desired state dictionary
-    :type d_state: Dict[str, Dict]
-    :param a_state: Actual state of the device
-    :type a_state: Dict[str, Dict]
-    :param hostname: The hostname of the device being validated
-    :type hostname: str
-    :param directory: Directory where the report will be saved
-    :type directory: str
-    :return: a dictionary with the following keys:
-    """
-
+def report(
+    desired_state: Dict[str, Dict],
+    actual_state: Dict[str, Dict],
+    hostname: str,
+    directory: str,
+):
     report: Dict[str, Any] = {}
-    for feature in d_state.keys():
-        # napalm_validate compare method produces report based on desired and actual state
-        try:
-            report[feature] = validate.compare(d_state[feature], a_state[feature])
-        # If validation couldn't be run on a command adds skipped key to the cmd dictionary
-        except NotImplementedError:
-            report[feature] = {"skipped": True, "reason": "NotImplemented"}
-
+    for cmd, desired_results in desired_state.items():
+        # Safe guard in case any empty desired_results, stops script failing
+        if desired_results == None:
+            pass
+        else:
+            # napalm_validate compare method produces report based on desired and actual state
+            try:
+                report[cmd] = validate.compare(desired_results, actual_state[cmd])
+            # If validation couldn't be run on a command adds skipped key to the cmd dictionary
+            except NotImplementedError:
+                report[cmd] = {"skipped": True, "reason": "NotImplemented"}
     # RESULT: Results of compliance report (complies = validation result, skipped (list of skipped cmds) = validation didn't run)
     complies = all([each_cmpl.get("complies", True) for each_cmpl in report.values()])
-    skipped = [feat for feat, output in report.items() if output.get("skipped", False)]
+    skipped = [cmd for cmd, output in report.items() if output.get("skipped", False)]
 
     # REPORT_FILE: Save report to file, if not add complies and skipped dictionary to report
     if hostname != None and directory != None:
-        report_text = save_report_to_file(
-            hostname, directory, report, complies, skipped
-        )
+        report_text = report_file(hostname, directory, report, complies, skipped)
     else:
-        # Empty value if report_file not created
-        report_text = ""
+        report_text = ""  # Empty value if report_file not created
     # These must be added after the report
     report["complies"] = complies
     report["skipped"] = skipped

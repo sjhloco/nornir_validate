@@ -1,0 +1,12 @@
+intf_bonded:
+  port_channel:
+    show etherchannel summary:
+      Po3:
+        status: U
+        protocol: LACP
+        members:
+          _mode: strict
+          Gi0/15:
+            mbr_status: P
+          Gi0/16:
+            mbr_status: P

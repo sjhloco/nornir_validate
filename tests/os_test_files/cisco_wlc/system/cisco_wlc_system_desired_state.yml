@@ -1,0 +1,4 @@
+system:
+  image:
+    show sysinfo:
+      version: 8.10.171.0

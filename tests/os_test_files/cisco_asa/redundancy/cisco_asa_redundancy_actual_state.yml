@@ -1,0 +1,4 @@
+redundancy:
+  ha_state:
+    local_state: Active
+    peer_state: Standby Ready

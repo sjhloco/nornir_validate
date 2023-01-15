@@ -1,0 +1,39 @@
+all:
+  wifi:
+    wlan: 
+      - wlan_id: 11
+        interface: intgrp_gst_guest_hotspot
+        ssid: wifi-guest
+      - wlan_id: 12
+        interface: intgrp_blu
+        ssid: corp
+      - wlan_id: 13
+        interface: intgrp_gst_grn
+        ssid: grn
+    ap:
+      - ap_name: DC-AP-01
+        ap_model: AIR-AP2802I-E-K9
+        ip: 10.20.10.12
+        client_count: 4
+      - ap_name: DC-AP-02
+        ap_model: AIR-AP2802I-E-K9
+        ip: 10.20.10.12
+        client_count: 14
+    flexconnect:
+      - grp_name: FlexCon Group - Grp1
+        ap_count: 44
+      - grp_name: default-flex-group-1826280552
+        ap_count: 4
+    intf_grp:
+      - grp_name: intgrp_guest
+        ap_count: 2
+        intf_count: 1
+        wlan_count: 1
+      - grp_name: intgrp_prod
+        ap_count: 6
+        intf_count: 1
+        wlan_count: 1
+      - grp_name: intgrp_byod
+        ap_count: 11
+        intf_count: 1
+        wlan_count: 2

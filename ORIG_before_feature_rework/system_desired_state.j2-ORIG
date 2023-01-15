@@ -1,0 +1,86 @@
+- {{ feature }}:
+{# ################################### IOS/IOS-XE ################################## #}
+{% if 'ios' in os_type |string %}
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### IMAGE: {cmd: version: code_number}} #### #}
+{% if sub_feat == 'image' %}
+    image: 
+      show version: 
+        {{ input_vars }}
+{# #### MGMT ACL: {cmd: {acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}}} #### #}
+{% elif sub_feat == 'mgmt_acl' %}
+    mgmt_acl:
+{% for each_acl in input_vars %}
+      show ip access-lists {{ each_acl.name }}:
+        {{ each_acl.name }}:
+          _mode: strict
+{% set seq = namespace(cnt=10) %}
+{% for each_ace in each_acl.ace %}{% if each_ace.keys() | list | first != 'remark' %}
+          '{{ seq.cnt }}':
+            action: {{ each_ace.keys() | list | first }}
+            protocol: ip
+            src: {{ each_ace.values() | list | first }}
+            dst: any
+{% set seq.cnt = seq.cnt + 10 %}
+{% endif %}{% endfor %}{% endfor %}{% endif %}
+{% endfor %}
+
+
+{# #################################### NXOS ################################### #}
+{% elif 'nxos' in os_type |string %}
+
+{# ########### Desired state of ACLs ########## #}
+{# {% if sub_feat == 'acl' %}
+{% for each_acl in input_vars %}
+- show access-lists {{ each_acl.name }}:
+    {{ each_acl.name }}:
+      _mode: strict
+{% set seq = namespace(cnt=10) %}
+{% for each_ace in each_acl.ace %}{% if each_ace.keys() | list | first != 'remark' %}
+      '{{ seq.cnt }}':
+        action: {{ each_ace.keys() | list | first }}
+        protocol: ip
+        src: {{ each_ace.values() | list | first }}
+        dst: any
+{% endif %}
+{% set seq.cnt = seq.cnt + 10 %}
+{% endfor %}{% endfor %} #}
+
+{# ########### END of validations ########## #}
+{# {% endif %} #}
+
+
+{# #################################### ASA ################################### #}
+{% elif 'asa' in os_type |string %}
+
+{# {% if sub_feat == 'acl' %}
+{% macro build_val_acl(each_acl) -%}
+{% set seq = namespace(cnt=10) %}
+{% for each_ace in each_acl %}{% if each_ace.keys() | list | first != 'remark' %}
+      '{{ seq.cnt }}':
+        src: {{ each_ace.values() | list | first }}
+        intf: mgmt
+{% set seq.cnt = seq.cnt + 10 %}
+{% endif %}{% endfor %}
+{%- endmacro -%}
+
+{% for each_acl in input_vars %}
+{% if 'ssh' in each_acl.name |string |lower %}
+- show run ssh:
+    SSH:
+      _mode: strict
+{{ build_val_acl(each_acl.ace) }}
+- show run http:
+    HTTP:
+      _mode: strict
+{{ build_val_acl(each_acl.ace) }}
+{% endif %}{% endfor %} #}
+
+{# ########### END of validations ########## #}
+{# {% endif %} #}
+
+
+{# #################################### WLC ################################### #}
+{% elif 'wlc' in os_type |string %}
+
+{% endif %}

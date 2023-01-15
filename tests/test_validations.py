@@ -6,194 +6,199 @@ which holds the desired_state, cmd_output and actual_state which have per-os_typ
 import pytest
 import os
 import yaml
+from glob import glob
+import json
 
 from nornir import InitNornir
 from nornir.core.task import Result
 from nornir.core.filter import F
 
-from .test_data import desired_actual_cmd
+from .ORIG_before_feature_rework import desired_actual_cmd
 from nr_val import merge_os_types
-from nr_val import template_task
-from nr_val import input_task
+from nr_val import task_template
+from nr_val import task_desired_state
 from nr_val import actual_state_engine
+
+from nr_val import import_actual_state_modules
 
 # ----------------------------------------------------------------------------
 # Directory that holds inventory files and load ACL dict (show, delete, wcard, mask, prefix)
 # ----------------------------------------------------------------------------
-test_inventory = os.path.join(os.path.dirname(__file__), "test_inventory")
-test_data = os.path.join(os.path.dirname(__file__), "test_data")
-template_dir = os.path.join(os.getcwd(), "templates/")
+TEST_INVENTORY = os.path.join(os.path.dirname(__file__), "test_inventory")
+# WHERE TEST FILES ARE
+OS_TEST_FILES = os.path.join(os.path.dirname(__file__), "os_test_files")
+# ACTUAL VALIDATE TEMPLATES
+TEMPLATE_DIR = os.path.join(os.getcwd(), "templates/")
+
 
 # ----------------------------------------------------------------------------
-# Fixture to initialise Nornir and load inventory
+# TESTED_DATA: Functions used to get all the feature file names used by the tests
 # ----------------------------------------------------------------------------
-# Used for unittest of the core of nornir_validate (general operation)
+def form_file_names(dvc_os, feature):
+    """Returns all file names and variables needed for assertions"""
+    input_data = {}
+    try:
+        input_data["os_type"] = dvc_os.name.split("_")[1]
+    except:
+        input_data["os_type"] = dvc_os.name
+    os_feat_name = os.path.join(feature.path, f"{dvc_os.name}_{feature.name}")
+    input_data["val_file"] = f"{os_feat_name}_validate.yml"
+    input_data["ds_file"] = f"{os_feat_name}_desired_state.yml"
+    input_data["as_file"] = f"{os_feat_name}_actual_state.yml"
+    input_data["cmd_file"] = f"{os_feat_name}_cmd_output.json"
+    input_data["vendor_os"] = dvc_os.name.upper()
+    input_data["feature"] = feature.name.upper()
+    return input_data
+
+
+def get_test_file_info(return_os_feature_name):
+    """Dynamically gets and returns all feature unit-tests and subsequent file names (form_file_names)"""
+    all_features = {}
+    for each_os in os.scandir(OS_TEST_FILES):
+        if each_os.is_dir():
+            for each_feature in os.scandir(each_os.path):
+                if each_feature.is_dir():
+                    name = f"{each_os.name}_{each_feature.name}"
+                    all_features[name] = form_file_names(each_os, each_feature)
+    return all_features
+
+
+def get_os_feat_name():
+    """Dynamically gets and returns a list of all os_feature name used by loop_os_feature_names"""
+    all_os_feat_names = []
+    for each_os in os.scandir(OS_TEST_FILES):
+        if each_os.is_dir():
+            for each_feature in os.scandir(each_os.path):
+                if each_feature.is_dir():
+                    name = f"{each_os.name}_{each_feature.name}"
+                    all_os_feat_names.append(name)
+    return all_os_feat_names
+
+
+def loop_os_feature_names():
+    """Loops through all_os_feature_names returning each one which is eventually called desired or actual state test method"""
+    all_os_feat_names = get_os_feat_name()
+    return (each_os_feat_name for each_os_feat_name in all_os_feat_names)
+
+
+# ----------------------------------------------------------------------------
+# FIXTURES: Initialises Nornir, loads inventory and gest all input data (features and files)
+# ----------------------------------------------------------------------------
 @pytest.fixture(scope="session", autouse=True)
-def load_inv_and_data():
-    global nr, input_vars
+def load_inv():
+    """Loads nornir inventory used for unittest desired_state template building (is a host_var)"""
+    global nr
     nr = InitNornir(
         inventory={
             "plugin": "SimpleInventory",
             "options": {
-                "host_file": os.path.join(test_inventory, "hosts_validations.yml"),
-                "group_file": os.path.join(test_inventory, "groups.yml"),
+                "host_file": os.path.join(TEST_INVENTORY, "hosts_validations.yml"),
+                "group_file": os.path.join(TEST_INVENTORY, "groups.yml"),
             },
         },
         logging={"enabled": False},
     )
 
-    with open(
-        os.path.join(test_data, "input_data_validations.yml"), "r"
-    ) as file_content:
-        input_vars = yaml.load(file_content, Loader=yaml.FullLoader)
+
+@pytest.fixture(scope="function", params=loop_os_feature_names())
+def return_os_feature_name(request):
+    """Returns the looped os_feature_name to be used by the desired or actual state test method"""
+    return request.param
+
+
+@pytest.fixture(scope="class")
+def import_modules():
+    """Import actual state modules for any feature that has a validation file"""
+    all_features = []
+    validation_files = glob("tests/os_test_files/*/*/*.yml")
+    for each_val_file in validation_files:
+        all_features.append(each_val_file.split("/")[3])
+    import_actual_state_modules(set(all_features))
+
+
+# ----------------------------------------------------------------------------
+# SHARED_FUNCTIONS: Functions used by both the desired and actual state classes
+# ----------------------------------------------------------------------------
+def load_yaml_file(input_yml_file):
+    """Return the YAML file structured data"""
+    with open(input_yml_file) as input_data:
+        output_yml_data = yaml.load(input_data, Loader=yaml.FullLoader)
+    return output_yml_data
+
+
+def load_json_file(input_json_file):
+    """Return the JSON file structured data"""
+    with open(input_json_file) as input_data:
+        output_json_data = json.load(input_data)
+    return output_json_data
 
 
 # ----------------------------------------------------------------------------
 # 1. DESIRED_STATE: Tests the templated input_vars (desired_state) are formatted correctly
 # ----------------------------------------------------------------------------
 class TestDesiredState:
-    # GET: Used by input tests to get 'desired_state' host_var from the nornir host
-    def get_desired_state_task(self, task, input_data):
-        task.run(task=input_task, input_data=input_data, template_task=template_task)
+
+    # ----------------------------------------------------------------------------
+    # PRE_TASKS: Methods to get all the elements required to test desired state
+    # ----------------------------------------------------------------------------
+    def task_get_desired_state(self, task, validations):
+        """Return the actual desired state structured data by rendering the template with nornir and assigning as a host_var"""
+        task.run(
+            task=task_desired_state,
+            validations=validations,
+            task_template=task_template,
+        )
+
         return Result(host=task.host, result=task.host["desired_state"])
 
-    # 1a. IOS_DESIRED_STATE
-    def test_ios_desired_state_templating(self):
-        err_msg = (
-            "❌ input_task: IOS templating of desired_state (host_var) is incorrect"
-        )
-        desired_output = desired_actual_cmd.desired_state["ios"]
-        task_nr = nr.filter(F(has_parent_group="ios"))
-        actual_output = task_nr.run(
-            task=self.get_desired_state_task,
-            input_data=input_vars,
-        )
-        assert actual_output["TEST_IOS"][0].result == desired_output, err_msg
+    # ----------------------------------------------------------------------------
+    # ASSERT: Calls other class methods and then runs the assertion
+    # ----------------------------------------------------------------------------
+    def test_desired_state_templating(self, return_os_feature_name):
+        """Uses other methods to load all the files and then per-feature desired state assertion"""
+        all_features = get_test_file_info(return_os_feature_name)
+        feature = all_features[return_os_feature_name]
 
-    # 1b. NXOS_DESIRED_STATE
-    def test_nxos_desired_state_templating(self):
-        err_msg = (
-            "❌ input_task: NXOS templating of desired_state (host_var) is incorrect"
-        )
-        desired_output = desired_actual_cmd.desired_state["nxos"]
-        task_nr = nr.filter(F(has_parent_group="nxos"))
-        actual_output = task_nr.run(
-            task=self.get_desired_state_task,
-            input_data=input_vars,
-        )
-        assert actual_output["TEST_NXOS"][0].result == desired_output, err_msg
+        validate_file = feature["val_file"]
+        desired_state_file = feature["ds_file"]
+        os_type = feature["os_type"]
 
-    # 1c. ASA_DESIRED_STATE
-    def test_asa_desired_state_templating(self):
-        err_msg = (
-            "❌ input_task: ASA templating of desired_state (host_var) is incorrect"
-        )
-        desired_output = desired_actual_cmd.desired_state["asa"]
-        task_nr = nr.filter(F(has_parent_group="asa"))
-        actual_output = task_nr.run(
-            task=self.get_desired_state_task,
-            input_data=input_vars,
-        )
-        assert actual_output["TEST_ASA"][0].result == desired_output, err_msg
+        # Load all the files needed for the validation
+        validations = load_yaml_file(validate_file)
+        expected_desired_state = load_yaml_file(desired_state_file)
 
-    # # 1d. WLC_DESIRED_STATE
-    # def test_wlc_desired_state_templating(self):
-    #     err_msg = (
-    #         "❌ input_task: WLC templating of desired_state (host_var) is incorrect"
-    #     )
-    #     desired_output = desired_actual_cmd.desired_state["wlc"]
-    #     task_nr = nr.filter(F(has_parent_group="wlc"))
-    #     actual_output = task_nr.run(
-    #         task=self.get_desired_state_task,
-    #         input_data=input_vars,
-    #     )
-    #     assert actual_output["TEST_WLC"][0].result == desired_output, err_msg
+        # Filter inventory on OS type amd then get true desired state
+        task_nr = nr.filter(F(has_parent_group=os_type))
+        output = task_nr.run(task=self.task_get_desired_state, validations=validations)
 
-    # # 1e. CKP_DESIRED_STATE
-    # def test_asa_desired_state_templating(self):
-    #     err_msg = "❌ input_task: Checkpoint templating of desired_state (host_var) is incorrect"
-    #     desired_output = desired_actual_cmd.desired_state["ckp"]
-    #     task_nr = nr.filter(F(has_parent_group="checkpoint"))
-    #     actual_output = task_nr.run(
-    #         task=self.get_desired_state_task,
-    #         input_data=input_vars,
-    #     )
-    #     assert actual_output["TEST_CKP"][0].result == desired_output, err_msg
+        # breakpoint()
+        true_desired_state = output[f"{os_type}_host"][0].result
+
+        err_msg = f"❌ Desired State: {feature['vendor_os']} {feature['feature']} templating is incorrect"
+        assert true_desired_state == expected_desired_state, err_msg
 
 
 # ----------------------------------------------------------------------------
 # 2. ACTUAL_STATE: Per-os_type testing that actual state is formatting commands properly
 # ----------------------------------------------------------------------------
+@pytest.mark.usefixtures("import_modules")
 class TestActualState:
-    # 2a. IOS_ACTUAL_STATE
-    def test_ios_actual_state_formatting(self):
-        err_msg = "❌ actual_state: IOS/IOS-XE formatting of '{}' by actual_state.py is incorrect"
-        os_type = merge_os_types(nr.inventory.hosts["TEST_IOS"])
-        for cmd_output, desired_output in zip(
-            desired_actual_cmd.cmd_output["ios"].items(),
-            desired_actual_cmd.actual_state["ios"].items(),
-        ):
-            actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
+    def test_actual_state_formatting(self, return_os_feature_name):
+        """Uses other methods to load all the files and then run per-feature actual state assertion"""
+        all_features = get_test_file_info(return_os_feature_name)
+        feature = all_features[return_os_feature_name]
 
-            assert actual_output == {
-                desired_output[0]: desired_output[1]
-            }, err_msg.format(desired_output[0])
+        cmd_output = feature["cmd_file"]
+        actual_state_file = feature["as_file"]
+        os_type = feature["os_type"]
 
-    # 2b. NXOS_ACTUAL_STATE
-    def test_nxos_actual_state_formatting(self):
-        err_msg = (
-            "❌ actual_state: NXOS formatting of '{}' by actual_state.py is incorrect"
-        )
-        os_type = merge_os_types(nr.inventory.hosts["TEST_NXOS"])
-        for cmd_output, desired_output in zip(
-            desired_actual_cmd.cmd_output["nxos"].items(),
-            desired_actual_cmd.actual_state["nxos"].items(),
-        ):
-            actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
-            assert actual_output == {
-                desired_output[0]: desired_output[1]
-            }, err_msg.format(desired_output[0])
+        # Load all the files needed for the validation
+        expected_actual_state = load_yaml_file(actual_state_file)
+        cmd_output = load_json_file(cmd_output)
 
-    # 2c. ASA_ACTUAL_STATE
-    def test_asa_actual_state_formatting(self):
-        err_msg = (
-            "❌ actual_state: ASA formatting of '{}' by actual_state.py is incorrect"
-        )
-        os_type = merge_os_types(nr.inventory.hosts["TEST_ASA"])
+        # Merge all OS types and then get the true actual state
+        os_type = merge_os_types(nr.inventory.hosts[f"{os_type}_host"])
+        true_actual_state = actual_state_engine(os_type, cmd_output)
 
-        for cmd_output, desired_output in zip(
-            desired_actual_cmd.cmd_output["asa"].items(),
-            desired_actual_cmd.actual_state["asa"].items(),
-        ):
-            actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
-            assert actual_output == {
-                desired_output[0]: desired_output[1]
-            }, err_msg.format(desired_output[0])
-
-    # # 2d. WLC_ACTUAL_STATE
-    # def test_wlc_actual_state_formatting(self):
-    #     err_msg = (
-    #         "❌ actual_state: WLC formatting of '{}' by actual_state.py is incorrect"
-    #     )
-    #     os_type = merge_os_types(nr.inventory.hosts["TEST_WLC"])
-    #     for cmd_output, desired_output in zip(
-    #         desired_actual_cmd.cmd_output["wlc"].items(),
-    #         desired_actual_cmd.actual_state["wlc"].items(),
-    #     ):
-    #         actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
-    #         assert actual_output == {
-    #             desired_output[0]: desired_output[1]
-    #         }, err_msg.format(desired_output[0])
-
-    # # 2e. CKP_ACTUAL_STATE
-    # def test_ckp_actual_state_formatting(self):
-    #     err_msg = "❌ actual_state: Checkpoint formatting of '{}' by actual_state.py is incorrect"
-    #     os_type = merge_os_types(nr.inventory.hosts["TEST_CKP"])
-    #     for cmd_output, desired_output in zip(
-    #         desired_actual_cmd.cmd_output["ckp"].items(),
-    #         desired_actual_cmd.actual_state["ckp"].items(),
-    #     ):
-    #         actual_output = actual_state_engine(os_type, {cmd_output[0]: cmd_output[1]})
-    #         assert actual_output == {
-    #             desired_output[0]: desired_output[1]
-    #         }, err_msg.format(desired_output[0])
+        err_msg = f"❌ Actual State: {feature['vendor_os']} {feature['feature']} formatting is incorrect"
+        assert true_actual_state == expected_actual_state, err_msg

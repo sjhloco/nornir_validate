@@ -1,0 +1,110 @@
+{
+    "system": {
+        "image": [
+            {
+                "boot_image": "bootflash:///nxos.9.3.5.bin",
+                "hostname": "DC2-N9K-LEF01",
+                "last_reboot_reason": "Reset Requested by CLI command reload",
+                "os": "9.3(5)",
+                "platform": "C93180YC",
+                "serial": "FDO24080HZU",
+                "uptime": "759 day(s), 4 hour(s), 22 minute(s), 13 second(s)"
+            }
+        ],
+        "mgmt_acl": [
+            {
+                "action": "remark",
+                "destination": "VLAN10",
+                "modifier": "",
+                "name": "TEST_SSH_ACCESS",
+                "port": "",
+                "protocol": "Access",
+                "range": "",
+                "sn": "10",
+                "source": "-"
+            },
+            {
+                "action": "permit",
+                "destination": "any",
+                "modifier": "",
+                "name": "TEST_SSH_ACCESS",
+                "port": "",
+                "protocol": "ip",
+                "range": "",
+                "sn": "20",
+                "source": "10.17.10.0/24"
+            },
+            {
+                "action": "remark",
+                "destination": "Access",
+                "modifier": "",
+                "name": "TEST_SSH_ACCESS",
+                "port": "",
+                "protocol": "MGMT",
+                "range": "",
+                "sn": "30",
+                "source": "Citrix"
+            },
+            {
+                "action": "permit",
+                "destination": "any",
+                "modifier": "",
+                "name": "TEST_SSH_ACCESS",
+                "port": "",
+                "protocol": "ip",
+                "range": "",
+                "sn": "40",
+                "source": "10.10.10.10/32"
+            },
+            {
+                "action": "deny",
+                "destination": "any",
+                "modifier": "",
+                "name": "TEST_SSH_ACCESS",
+                "port": "",
+                "protocol": "ip",
+                "range": "",
+                "sn": "50",
+                "source": "any"
+            },
+            {
+                "action": "permit",
+                "destination": "any",
+                "modifier": "",
+                "name": "TEST_SNMP_ACCESS",
+                "port": "",
+                "protocol": "ip",
+                "range": "",
+                "sn": "10",
+                "source": "10.17.10.0/24"
+            },
+            {
+                "action": "remark",
+                "destination": "VLAN10",
+                "modifier": "",
+                "name": "TEST_SNMP_ACCESS",
+                "port": "",
+                "protocol": "Access",
+                "range": "",
+                "sn": "20",
+                "source": "-"
+            }
+        ],
+        "module": [
+            {
+                "module": "1",
+                "ports": "0",
+                "type": "NX-OSv Supervisor Module",
+                "model": "N7K-SUP1",
+                "status": "active *"
+            },
+            {
+                "module": "3",
+                "ports": "48",
+                "type": "NX-OSv Ethernet Module",
+                "model": "N7K-F248XP-25",
+                "status": "ok"
+            }
+        ]
+    }
+}

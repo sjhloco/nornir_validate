@@ -1,0 +1,359 @@
+# ----------------------------------------------------------------------------
+# Information
+# ----------------------------------------------------------------------------
+## The validation file is structured by feature and then within the feature the sub-features that will be validated. 
+## Both features and sub-features are optional, you dont have to define all features or all sub-features within a feature.
+
+
+### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers.
+### Integers (count): Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+
+all:
+  # ----------------------------------------------------------------------------
+  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  system:
+    ## Software image: The current software image running on the device
+    image: 
+      version: 16.6.2
+    ## Management ACL (strict): ACL defining SSH access to the device (extended ACLs with 'IP' protocol destination 'any') - Not WLC
+    mgmt_acl:
+      - name: TEST_SSH_ACCESS
+        ace:
+          - { remark: MGMT Access - VLAN10 }
+          - { permit: 10.17.10.0/24 }
+          - { remark: Citrix Access }
+          - { permit: 10.10.10.10/32 }
+          - { deny: any }
+    # ASA example: Uses either ssh or http for name and can optionally add interface in the source section
+      # - name: ssh
+      #   ace:
+      #     - { permit: mgmt - 10.17.10.0/24 }
+      #     - { permit: mgmt - 10.10.10.10/32 }
+      # - name: http
+      #   ace:
+      #     - { permit: inside - any }
+    ## MODULE: Module status is optional, if not defined is assumed to be "ok" (NXOS sups may have an active or standby)
+    module:
+      - module_num: 1
+        model: N7K-SUP1
+        status: active *
+      - module_num: 3
+        model: N7K-F248XP-25
+
+  # ----------------------------------------------------------------------------
+  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  redundancy:
+    ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
+    ha_state:
+      local: ACTIVE
+      peer: STANDBY HOT
+    ## Switch Stack (strict): Each stacked switch number, priority, role and state - Not NXOS, ASA, WLC
+    switch_stack:
+      - sw_number: 1
+        priority: 15
+        role: Active
+        state: Ready
+      - sw_number: 2
+        priority: 1
+        role: Member
+        state: Ready
+      - sw_number: 3
+        priority: 14
+        role: Standby
+        state: Ready
+
+  # ----------------------------------------------------------------------------
+  # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
+  # ----------------------------------------------------------------------------
+  neighbors:
+    ## CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
+    cdp:
+      Ten 2/1/1:
+        nbr_name: LN-6500-VSS01
+        nbr_intf: Ten 2/5/15
+      Gi0/2:
+        nbr_name: Switch02
+        nbr_intf: Gi0/3
+  ## LLDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
+    lldp:
+      Te2/1/1:
+        nbr_name: LN-6500-VSS01
+        nbr_intf: Te2/5/15
+      Gi2:
+        nbr_name: Router01
+        nbr_intf: Gi0/1
+
+
+  # ----------------------------------------------------------------------------
+  # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  intf_bonded:
+  ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
+    port_channel:
+      Po1:
+        protocol: LACP
+        members: [Te1/1/1]
+      Po101:
+        protocol: LACP
+        members: [Te1/1/8, Te2/1/8]
+  ## VPC: {role: x, peerlink_vlans: x,x, vpcs: {vpc_id: {po:x, vlans: x,y}}}
+    vpc:
+      role: primary-secondary
+      peerlink_vlans: 110-111,113-116,200,1100,1102,1110-1111
+      vpcs:
+        21:
+          po: Po21
+          vlans: 113-116,200
+        25:
+          po: Po25
+          vlans: 110-111,1100,1102,1110-1111
+        32:
+          po: Po32
+          vlans: 1102
+
+
+
+  # ----------------------------------------------------------------------------
+  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+#   COmeback to interface as should proberly combine them, but then what if it makes it too big? Also some interfaces done have L1 or L2 infor like SVIs, others dont have L3 
+#   interfaces:
+#   ## Interface layer1 information: Physical interface attributes, type, speed, duplex and status. 
+#     layer1:
+#       Gi0/0:
+#         duplex: a-full
+#         speed: a-100
+#         status: connected
+#         vlan: routed
+#       Gi1/0/4:
+#         duplex: a-full
+#         speed: a-1000
+#         status: connected
+#         vlan: 74
+#       Po1:
+#         duplex: a-full
+#         speed: a-10G
+#         status: notconnect
+#         vlan: trunk
+#       Po101:
+#         duplex: a-full
+#         speed: a-1000
+#         status: connected
+#         vlan: trunk
+#     layer2:
+#   ### INTF_SWI_PORT: show interfaces switchport - L2 interface mode (access, trunk down) and VLANs (single or list) over that port
+#     intf_swi_port:
+#       Gi1/0/4:
+#         mode: access
+#         vlan: 74
+#       Po1:
+#         mode: trunk
+#         vlan: [11,12,704,708,901]
+
+
+# Will also include  and vlan (routed, trunk or VLAN ID)
+
+
+#   ### INTF_BR: show ip interface brief - L3 interface and IP address, status is expected to be up (only checks for these interfaces)
+#     intf_brief:
+#       Vlan800: 10.10.20.102
+#       GigabitEthernet1: 10.20.20.102
+#       GigabitEthernet2: 10.30.20.102
+
+    ## WLC interface group !!!! 
+    # INTF_GRP: {grp_name: {ap_groups: x, interfaces: y, wlans: z}}       new check for WLCS
+    intf_grp
+  # ----------------------------------------------------------------------------
+  # Layer2 Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  layer2:
+    ## VLANs (strict intf): VLAN name and list of interfaces in that VLAN (strict interfaces, so those exact interfaces)
+    vlan:
+      701:
+        name: TEST_VL701
+        intf: [Gi1/0/4]
+      1:
+        name: default
+        intf: [Te1/1/2,Te1/1/4,Te1/1/7,Te2/1/2,Te2/1/4,Te2/1/7]
+    ## Spanning-tree VLAN: List of forwarding (FWD) interfaces per-VLAN (access and trunk) - IOS/IOS-XE
+    stp_vlan:
+      - vlan: 701
+        intf: [Po11,Po201,Gi1/0/4]
+      - vlan: 20
+        intf: [Gi0/3]
+    ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN - Not NXOS
+    mac_table:
+      total_mac_count: 1100
+      vl52_mac_count: 6
+      vl10_mac_count: 21
+
+
+  ### HSRP: show standby brief - For each HSRP group (id) the priority and state
+  fhr:
+    hsrp:
+      - id: 1
+        priority: 140
+        state: Active
+
+  # ----------------------------------------------------------------------------
+  # Route-table Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  route_table:
+    ## VRF member interfaces (strict): List of member interfaces for each VRF - Not ASA
+    vrf:
+      BLU: [BD2001,Lo111]
+      AMB: [BD2003,Gi0/1, Gi0/2]
+      GRY: [BD2006, Vl20]
+    ## Total number of subnets: For non-global RT add name of the vrf to the start
+    route_count:
+      global_subnets: 21
+      BLU_subnets: 4
+      AMB_subnets: 15
+    ## Routing table entires: Route and next-hop for all subnets (directly connected use interface as next-hop) 
+    route:
+      global:
+        192.168.111.3/32: 192.168.2.9
+        192.168.45.4/32: Loopback111
+        192.168.1.14/30: GigabitEthernet0/0/5
+        192.168.35.4/32: [192.168.1.2, 192.168.1.10]
+      BLU:
+        0.0.0.0/0: 192.168.1.11
+        192.168.21.21/32: Loopback21
+        10.25.0.0/20: 192.168.17.15
+        172.12.100.0/24: Vlan710
+        10.100.0.0/20: [192.168.12.11, 192.168.12.12] 
+  # ----------------------------------------------------------------------------
+  # OSPF Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  ospf:
+    ## OSPF Interfaces (strict): List of OSPF interfaces with area, cost and state
+    intf:
+      - intf: Gi3
+        area: 0
+        cost: 1
+        state: P2P
+      - intf: Lo1
+        area: 4
+        cost: 1
+        state: LOOP
+      - intf: Gi0/0/0
+        area: 4
+        cost: 100
+        state: P2P
+    ## OSPF Neighbors (strict): List of OSPF neighbors, state is expected top be FULL (doesn't care about DR, BDR, etc)
+    nbrs: [192.168.1.5, 2.2.2.2, 192.168.2.5]
+    ## OSPF database count: Total number of LSAs (all types) in the LSDB
+    lsdb_count:
+      - process: 1
+        total_lsa: 3
+
+  # ----------------------------------------------------------------------------
+  # EIGRP Validations - IOS/IOS-XE
+  # ----------------------------------------------------------------------------
+  eigrp:
+  ## EIGRP Interface (strict): List of EIGRP enabled interfaces
+    intf: [Gi3, Lo1]
+  ### EIGRP Neighbors (strict): List of EIGRP neighbors
+    nbrs: [10.10.10.2, 2.2.2.2]
+
+  # ----------------------------------------------------------------------------
+  # BGP Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  bgp:
+    ## BGP Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of prefixes
+    nbrs:
+      192.168.67.149:
+        asn: 65111
+        rcv_pfx: 55
+      192.168.167.9:
+        asn: 65112
+        rcv_pfx: 6
+
+  # ----------------------------------------------------------------------------
+  # EVPN/VXLAN Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  evpn:
+    ## NVE VNIs (strict): Dictionary of L3VNIs and the associated BDI and VRF, state is expected top be Up - HOW TO MAKE IT SAME FOR NXOS AND ISO/XE
+    nve_vni:
+      10003010:
+        bdi: 3010
+        vrf: BLU
+      10003012:
+        bdi: 3012
+        vrf: GRN
+  ## NVE Peers (strict): Dictionary of L3VNIs and their associated peers, state is expected top be UP - HOW TO MAKE IT SAME FOR NXOS AND ISO/XE
+    nve_peers:
+      10003010:
+        peer: 192.168.99.57
+      10003012:
+        peer: 192.168.99.57
+    ## L2 mac table for NXOS, can you also do for IOS-XE???
+    l2route_mac-ip:
+      x: x
+     # EVPN_MAC_IP: {host-ip: {mac: x, type: y, next-hop: z}}              !!!! NEW for nxos and possibily IOS-XE
+
+
+
+
+| sessions | number wifi clients | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | WLANs (associated intf and SSID) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | APs (image, model, ip and clients) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | flexconnect groups (group and ap count) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+
+
+  # ----------------------------------------------------------------------------
+  # VPN Validations - IOS/IOS-XE
+  # ----------------------------------------------------------------------------
+  ## VPN Peers (strict): List of VPN peers and the associated interfaces, status is expected top be UA - HOW TO MAKE IT SAME FOR ASA AND ISO/XE
+  vpn:
+    sts_peers:
+      - peer: 21.16.9.23
+        intf: Tu10
+      - peer: 212.1.1.2
+        intf: Tu11
+    # AC_VPN: show crypto session brief - {user: {group_policy: x, tunnel_group: x, bytes_tx: x, bytes_rx: x}}    !!!! NEW for asa
+    ac_clients: 
+
+    # NUM_VPN: {ac: xx, sts: xx} !!!! NEW for asa and possibily IOS-XE
+    vpn_count: x
+  # ----------------------------------------------------------------------------
+  # Switchport authentication Validations - IOS/IOS-XE
+  # ----------------------------------------------------------------------------
+  sessions:
+    ## MAB auth sessions -  Total number of MAB authenticated sessions
+    mab_count: 21
+    ## DOT1X auth sessions -  Total number of DOT1X authenticated sessions
+    dot1x_count: 22
+    # NUM_CONN: {total_conn: x}                                                                !!!! NEW for asa
+    fw_conns: x 
+    # NUM_CLIENTS: {total: x, wlan: x}                                               !!!! NEW for wlc
+    wifi_clients: x
+
+  
+
+  wifi:
+     # WLAN: {wlan: {profile: x, intf: x, ssid: x, status: Enabled}}
+     wlan: x
+     # AP_IMAGE and summary  {ap: {primary_image: x, primary_image: x, model: x, ip: x, client_count: x, 
+    ap: x
+    # AP_SUMMARY: {ap: {primary_image: x, primary_image: x}}
+     # FLEX_GTP: {grp_name: ap_count}
+    flexconn: x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
