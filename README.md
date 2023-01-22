@@ -8,26 +8,25 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 
 | Feature | Sub-feature Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
 | ------- | ---------------------- | ------ | ---------- | ---- | --- | --- | ----
-| system | Image | ❌ | ✅ | ✅ | ✅ | ✅  | ❌
+| system | Image version | ❌ | ✅ | ✅ | ✅ | ✅  | ❌
 | system | Management ACL (SSH/SNMP/HTTP) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| system | module status | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
-| redundancy | HA state | ❌ | ✅ | ❌ | ✅ | ✅ | ❌
+| system | Module status | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| redundancy | HA state (local and peer) | ❌ | ✅ | ❌ | ✅ | ✅ | ❌
 | redundancy | Switch stack (state and priority) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
-| neighbors | CDP neighbors | ❌ | ✅ | ✅ | ❌ | ✅ | ❌
-| neighbors | LLDP neighbors | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| neighbor | CDP neighbors | ❌ | ✅ | ✅ | ❌ | ✅ | ❌
+| neighbor | LLDP neighbors | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
 | intf_bonded | Port-channel (membership & status) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| intf_bonded | vpc (membership & status) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌
-
-
-
-| interfaces | Interface status (speed, duplex, status) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| intf_bonded | vpc (status, port membership and VLANs) | ❌ | ❌ | ✅ | ❌ | ❌ | ❌
+| interfaces | Physical interface status (speed, duplex, type and status) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
 | interfaces | Switchport (mode and vlan) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
 | interfaces | Interface brief (IP and status) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
-| interfaces | Interface groups (Interfaces and wlans) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | layer2 | VLANs (member interfaces) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
 | layer2 | Spanning-Tree (FWD vlan interfaces) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌
 | layer2 | MAC address table (count) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
 | fhr | HSRP (priority and state) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+
+
+
 | route_table | VRF (member interfaces) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
 | route_table | Route summary (total subnets) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
 | route_table | Routing table (route and strict next-hops) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
@@ -46,12 +45,18 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 | sessions | MAB & DOT1X Auth Sessions (count) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
 | sessions | number of fw connectiosn | ❌ | ❌ | ❌ | ✅ | ❌ | ❌
 | sessions | number wifi clients | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+
 | wifi | WLANs (associated intf and SSID) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | wifi | APs (image, model, ip and clients) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | Interface groups (Interfaces and wlans) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | wifi | flexconnect groups (group and ap count) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 
 - Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA (including in source interface) or an extended ACL (IP and any port) on other platforms (assumes seq is 10, 20, etc)
-- Module assumes it a status of 'ok', can overide this by defining a statsu (such as active or standby for nxos sup)
+- Module assumes it a status of 'ok', can overide this by defining a status (such as active or standby for nxos sup)
+
+
+
+
 - Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
 - BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
 - Integers (count): Any output that is a numerical value (like route table summary, MAC count, BGP received prefixes, etc) can use an exact value (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
@@ -390,9 +395,9 @@ Every feature has a folder within *feature_templates* that holds a jinja2 templa
 │   ├── intf_bonded
 │   │   ├── intf_bonded_actual_state.py
 │   │   └── intf_bonded_desired_state.j2
-│   ├── neighbors
-│   │   ├── neighbors_actual_state.py
-│   │   └── neighbors_desired_state.j2
+│   ├── neighbor
+│   │   ├── neighbor_actual_state.py
+│   │   └── neighbor_desired_state.j2
 ```
 
 Every feature must also have a per os_type test folder (within *tests/os_test_files*) that contains 4 files to test the actual state and desired state creation. All test files are needed and must pass unit testing for a new feature to be added.
@@ -445,7 +450,7 @@ This will create the following:
 
 ### 2. Edit the JSON formatted command output test file *(os_type_feature_name_cmd_output.json)*
 
-EThis the output that teh actul stae will be gleaned from. Each sub-feature will have a seperate command, this could be a dictionary of a few commands with each under a sub-feature name dictionary. If the command has an NTC template the command output will be a list of dictioanries, if it is jsut screen scrapped output it will be a list with each element being a line of the output.
+This the output that teh actul state will be gleaned from. Each sub-feature will have a seperate command, this could be a dictionary of a few commands with each under a sub-feature name dictionary. If the command has an NTC template the command output will be a list of dictioanries, if it is jsut screen scrapped output it will be a list with each element being a line of the output.
 
 {
     "new_feature": {
@@ -457,11 +462,12 @@ EThis the output that teh actul stae will be gleaned from. Each sub-feature will
     }
 }
 
-The script can be used to generate the json output from a live device or a copy of the devices output (saved to file).
+The script can be used to generate the json output for a single command from a live device or a copy of the devices output from file.
 
 ```none
-python feature_builder.py -di ????????????????
+python feature_builder.py -di <netmiko_ostype> <command> <ip address or filename>
 ```
+
 
 ### 3. Create the validated state test *(os_type_feature_name_validate.yml)*
 
@@ -506,7 +512,7 @@ The desired state contains the commands to be run by each subfeature and the val
 Once the template has been built the `-ds` flag can be used to test it by trying to render the desired state test file *(ostype_feature_desired_state.j2)*) using the template and the validate test file. Once it has been created also run the desired state unit testing for this one feature.
 
 ```
-python new_val_builder.py -ds cisco_wlc wifi
+python feature_builder.py -ds <os_type> <feature> 
 pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[ostype_newfeature]' -vv
 ```
 
@@ -533,9 +539,13 @@ def format_output(os_type: str, sub_feature: str, output: List, tmp_dict: Dict[s
 Once the template has been built the `-as` flag can be used to test it by trying to create the actual state test file *(ostype_feature_actual_state.j2)*) by feeding the test command output through the actual state module.  Once it has been created also run the actual state unit testing for this one feature.
 
 ```
-python new_val_builder.py -as cisco_wlc wifi
+python feature_builder.py -as <os_type> <feature> 
 pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[ostype_newfeature]' -vv
 ```
+
+### ^. Run compliance report test 
+
+pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[ostype_newfeature]' -vv
 
 ### 6. Run all unit tests and add to documentation
 

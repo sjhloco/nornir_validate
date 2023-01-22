@@ -1,0 +1,49 @@
+{
+    "layer2": {
+        "vlan": [
+            {
+                "interfaces": [
+                    "Po1",
+                    "Po21",
+                    "Po22",
+                    "Po23",
+                    "Po24",
+                    "Eth1/21",
+                    "Eth1/22",
+                    "Eth1/23",
+                    "Eth1/24"
+                ],
+                "name": "DC_VL10",
+                "status": "active",
+                "vlan_id": "10"
+            },
+            {
+                "interfaces": ["Po1", "Eth1/9"],
+                "name": "DC2_VL90",
+                "status": "active",
+                "vlan_id": "90"
+            },
+            {
+                "interfaces": ["Po1", "Po28", "Eth1/28"],
+                "name": "DC2_VL2230",
+                "status": "active",
+                "vlan_id": "2230"
+            },
+            {
+                "interfaces": ["Po1"],
+                "name": "DC2_BLU_FABRIC_L3VNI_VL3001",
+                "status": "active",
+                "vlan_id": "3001"
+            }
+        ],
+        "mac_table": [
+            "Total MAC Addresses in Use:    681",
+            "G    6     cc7f.76c7.0907   static   -         F      F    sup-eth1(R)",
+            "Total MAC Addresses in Use:     26",
+            "ERROR: Vlan does not exist",
+            "ERROR: Vlan does not exist",
+            "G   24     cc7f.76c7.0907   static   -         F      F    sup-eth1(R)",
+            "Total MAC Addresses in Use:    306"
+        ]
+    }
+}

@@ -1,0 +1,32 @@
+interface:
+  intf:
+    GigabitEthernet1/1:
+      duplex: Full-duplex
+      speed: 1000 Mbps
+      type: HME_RED_UPLINK_INET
+      status: connected
+    GigabitEthernet1/2:
+      duplex: Full-duplex
+      speed: 1000 Mbps
+      type: null
+      status: connected
+    GigabitEthernet1/3:
+      duplex: Full-duplex
+      speed: 1000 Mbps
+      type: null
+      status: connected
+    Port-channel1.144:
+      duplex: null
+      speed: null
+      type: HME_GST_ACCESS
+      status: connected
+  ip_brief:
+    GigabitEthernet1/1:
+      ip: 192.168.10.253
+      status: up
+    Port-channel1.144:
+      ip: 10.110.144.1
+      status: up
+    Port-channel1.3101:
+      ip: 10.10.254.2
+      status: up

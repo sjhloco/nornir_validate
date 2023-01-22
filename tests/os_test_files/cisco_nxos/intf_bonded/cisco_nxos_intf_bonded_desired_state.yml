@@ -17,34 +17,34 @@ intf_bonded:
             mbr_status: P
       Po26:
         status: U
-        protocol: None
+        protocol: NONE
         members:
           _mode: strict
           Eth1/26:
             mbr_status: P
   vpc:
     show vpc | json:
-      keepalive_status: peer-alive
-      peer_consistency: SUCCESS
-      peerlink_port_state: 1
-      peer_status: peer-ok
-      peerlink_vlans: 110-111,113-116,200,1100,1102,1110-1111
       role: primary-secondary
-      type2_consistency: SUCCESS
+      peer_status: peer-ok
+      keepalive_status: peer-alive
       vlan_consistency: consistent
+      peer_consistency: SUCCESS
+      type2_consistency: SUCCESS
+      peerlink_port_state: 1
+      peerlink_vlans: 110-111,113-116,200,1100,1102,1110-1111
       vpcs:
         21:
-          consistency_status: SUCCESS
           po: Po21
           port_state: 1
+          consistency_status: SUCCESS
           vlans: 113-116,200
         25:
-          consistency_status: SUCCESS
           po: Po25
           port_state: 1
+          consistency_status: SUCCESS
           vlans: 110-111,1100,1102,1110-1111
         32:
-          consistency_status: SUCCESS
           po: Po32
           port_state: 1
+          consistency_status: SUCCESS
           vlans: 1102

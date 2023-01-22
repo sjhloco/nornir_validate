@@ -63,27 +63,7 @@ def format_actual_state(
 # ----------------------------------------------------------------------------
 # Mini-functions used by all OS types to keep DRY
 # ----------------------------------------------------------------------------
-# ACL_FORMAT: Removes all the empty dictionaries from ACL list of dicts
-def _acl_format(input_acl: List) -> List:
-    acl: List = []
-    for each_acl in input_acl:
-        tmp_acl = {}
-        for ace_key, ace_val in each_acl.items():
-            if len(ace_val) != 0:
-                tmp_acl[ace_key] = ace_val
-        acl.append(tmp_acl)
-    return acl
 
-
-# ACL_ADDR: Converts addressing into address/prefix
-def _acl_scr_dst(each_ace: Dict[str, str], src_dst: str) -> str:
-    if each_ace.get(src_dst + "_network") != None:
-        addr = each_ace[src_dst + "_network"] + "/" + each_ace[src_dst + "_wildcard"]
-        return ipaddress.IPv4Interface(addr).with_prefixlen
-    elif each_ace.get(src_dst + "_host") != None:
-        return ipaddress.IPv4Interface(each_ace[src_dst + "_host"]).with_prefixlen
-    else:
-        return each_ace[src_dst + "_any"]
 
 
 def _get_pfxlen(network: str, mask: str) -> str:
@@ -139,81 +119,8 @@ def _add_prefix(output: List) -> List:
     return output
 
 
-# INTEGER: Changes string to integer
-def _make_int(input_data: str) -> int:
-    try:
-        return int(input_data)
-    except:
-        return input_data
 
 
-# Fixes issues due to shit NXOS JSON making dict rather than list if only item. Feed in cmd specific TABLE_xx and ROW_xx keywords
-def shit_nxos(main_dict, parent_dict, child_dict):
-    # breakpoint()
-    if isinstance(main_dict[parent_dict][child_dict], dict):
-        main_dict[parent_dict][child_dict] = [main_dict[parent_dict][child_dict]]
-
-
-# CISCO_CDP_LLDP: To format Cisco CDP or LLDP neighbor output
-def cisco_cdp_lldp_nhbr(tmp_dict: Dict[str, List], output: List) -> None:
-    for each_nbr in output:
-        tmp_dict[each_nbr["local_interface"]] = {
-            each_nbr["neighbor"]: each_nbr["neighbor_interface"]
-        }
-
-
-# CISCO_INTF_STUS: To format Cisco show interface status output
-def cisco_intf_stus(tmp_dict: Dict[str, List], output: List) -> None:
-    for each_intf in output:
-        tmp_dict[each_intf["port"]]["duplex"] = each_intf["duplex"]
-        tmp_dict[each_intf["port"]]["speed"] = _make_int(each_intf["speed"])
-        tmp_dict[each_intf["port"]]["status"] = each_intf["status"]
-        tmp_dict[each_intf["port"]]["vlan"] = _make_int(each_intf["vlan"])
-
-
-# CISCO_INTF_SWPRT: To format Cisco show interface switchport output
-def cisco_intf_swprt(tmp_dict: Dict[str, List], output: List) -> None:
-    for each_intf in output:
-        mode = each_intf["mode"].replace("static ", "")
-        tmp_dict[each_intf["interface"]]["mode"] = mode
-        if each_intf["mode"] == "static access" or each_intf["mode"] == "access":
-            tmp_dict[each_intf["interface"]]["vlan"] = _make_int(
-                each_intf["access_vlan"]
-            )
-        elif each_intf["mode"] == "trunk":
-            tmp_dict[each_intf["interface"]]["vlan"] = each_intf["trunking_vlans"]
-        else:
-            tmp_dict[each_intf["interface"]]["vlan"] = None
-
-
-# CISCO_VL_BRF: To format Cisco show vlan brief output
-def cisco_vl_brf(tmp_dict: Dict[str, List], output: List) -> None:
-    for each_vl in output:
-        vl_id = _make_int(each_vl["vlan_id"])
-        tmp_dict[vl_id]["name"] = each_vl["name"]
-        tmp_dict[vl_id]["intf"] = each_vl["interfaces"]
-    for each_vl in [1, 1002, 1003, 1004, 1005]:
-        if tmp_dict.get(each_vl) != None:
-            del tmp_dict[each_vl]
-
-
-# CISCO_PO: To format Cisco show etherchannel/port-channel summary (not NXOS)
-def cisco_po(tmp_dict: Dict[str, List], output: List) -> None:
-    for each_po in output:
-        tmp_dict[each_po["po_name"]]["status"] = each_po["po_status"]
-        if each_po["protocol"] == "-":
-            each_po["protocol"] = "NONE"
-        tmp_dict[each_po["po_name"]]["protocol"] = each_po["protocol"]
-        po_mbrs = {}
-        for mbr_intf, mbr_status in zip(
-            each_po["interfaces"], each_po["interfaces_status"]
-        ):
-            # For routers as use bndl rather than P
-            if mbr_status == "bndl":
-                mbr_status = "P"
-            # Creates dict of members to add to as value in the PO dictionary
-            po_mbrs[mbr_intf] = {"mbr_status": mbr_status}
-        tmp_dict[each_po["po_name"]]["members"] = po_mbrs
 
 
 # CISCO_OSPF_INTF_BR: To format Cisco show ip ospf interface brief/show ospf interface brief (not NXOS)
@@ -243,90 +150,12 @@ def ios_format(
     # ----------------------------------------------------------------------------
     # SWI_RTR: Switch and router commands
     # ----------------------------------------------------------------------------
-    # IMAGE: show version - {image: code_number}
-    if "show version" in cmd:
-        if len(output[0]["version"]) == 0:
-            tmp_dict["image"] = output[0]["running_image"]
-        else:
-            tmp_dict["image"] = output[0]["version"]
-    # MGMT ACL: show ip access-lists <name> - [{acl_name: {name: seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}]
-    if "show ip access-lists" in cmd:
-        acl = _acl_format(output)
-        tmp_dict1 = defaultdict(dict)
-        for each_ace in acl:
-            # Creates dict for each ACE entry
-            if each_ace.get("line_num") != None:
-                tmp_dict1[each_ace["line_num"]]["action"] = each_ace["action"]
-                tmp_dict1[each_ace["line_num"]]["protocol"] = each_ace["protocol"]
-                tmp_dict1[each_ace["line_num"]]["src"] = _acl_scr_dst(each_ace, "src")
-                tmp_dict1[each_ace["line_num"]]["dst"] = _acl_scr_dst(each_ace, "dst")
-                if each_ace.get("dst_port") != None:
-                    tmp_dict1[each_ace["line_num"]]["dst_port"] = each_ace["dst_port"]
-                elif each_ace.get("icmp_type") != None:
-                    tmp_dict1[each_ace["line_num"]]["icmp_type"] = each_ace["icmp_type"]
-                tmp_dict[each_ace["acl_name"]] = dict(tmp_dict1)
-    # PO: show etherchannel summary - {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}
-    elif "show etherchannel summary" in cmd:
-        cisco_po(tmp_dict, output)
-    # INTF_L3: show ip interface brief -  {intf: {ip:x, status: x}}
-    elif "show ip interface brief" in cmd:
-        for each_intf in output:
-            tmp_dict[each_intf["intf"]]["ip"] = each_intf["ipaddr"]
-            tmp_dict[each_intf["intf"]]["status"] = each_intf["status"]
-    # CDP/LLDP: show cdp/lldp neighbors - {intf: {neighbor: neighbor_interface}}
-    elif "show cdp neighbors" in cmd or "show lldp neighbors" in cmd:
-        cisco_cdp_lldp_nhbr(tmp_dict, output)
-    # HSRP: show standby brief - {group: {state:x, priority: x}}
-    elif "show standby brief" in cmd:
-        for each_nbr in output:
-            grp = _make_int(each_nbr["group"])
-            tmp_dict[grp]["state"] = each_nbr["state"]
-            tmp_dict[grp]["priority"] = _make_int(each_nbr["priority"])
+
+
 
     # ----------------------------------------------------------------------------
-    # SWI: Switch-only commands
-    # ----------------------------------------------------------------------------
-    # SWI_STACK: show switch - {sw_num: {priority: x, role: x, state: x}}
-    elif "show switch" in cmd:
-        if len(output) >= 6:
-            for each_swi in output[5:]:
-                if len(each_swi) != 0:
-                    tmp_swi = each_swi.split()
-                    swi = _make_int(tmp_swi[0].replace("*", ""))
 
-                    tmp_dict[swi]["role"] = tmp_swi[1]
-                    tmp_dict[swi]["priority"] = _make_int(tmp_swi[3])
-                    tmp_dict[swi]["state"] = tmp_swi[5]
-    # VSS_HA: show  redundancy state | in state - {my_state: ACTIVE, peer_state: STANDBY HOT}
-    elif "show  redundancy state | in state" in cmd:
-        for each_swi in output:
-            if len(each_swi) != 0:
-                tmp_swi = each_swi.split()
-                tmp_dict[tmp_swi[0] + "_" + tmp_swi[1]] = each_swi.split("-")[
-                    1
-                ].rstrip()
-    # INTF_L2: show interfaces status - {intf: {duplex: x, speed: x, status: x, vlan:x }}
-    elif "show interfaces status" in cmd:
-        cisco_intf_stus(tmp_dict, output)
-    # SWITCHPORT: show interfaces switchport - {intf: {mode: access or trunk, vlan: x or [x,y]}}
-    elif "show interfaces switchport" in cmd:
-        cisco_intf_swprt(tmp_dict, output)
-    # VLAN: show vlan brief - {vlan: {name: x, intf:[x,y]}}
-    elif "show vlan brief" in cmd:
-        cisco_vl_brf(tmp_dict, output)
-    # STP_VL: show spanning-tree - {vlan: intf:[x,y]}
-    elif "show spanning-tree" in cmd:
-        tmp_dict = defaultdict(list)
-        for each_intf in output:
-            if each_intf["status"] == "FWD":
-                tmp_dict[_make_int(each_intf["vlan_id"])].append(each_intf["interface"])
-    # ALL_MAC: show mac address-table count | in Dynamic - {total_mac: x}
-    elif "show mac address-table | count dynamic|DYNAMIC" in cmd:
-        tmp_dict["total_mac"] = _make_int(output[0].split()[-1])
-    # VLAN_MAC: show mac address-table vlan x | count dynamic|DYNAMIC - {vlxxx_mac: x}
-    elif "show mac address-table vlan" in cmd:
-        vl = cmd.split()[4] + "_total_mac"
-        tmp_dict[vl] = _make_int(output[0].split()[-1])
+
     # AUTH_MAB: show authentication sessions | count mab - {auth_mab: x}
     elif "show authentication sessions | count mab" in cmd:
         tmp_dict["auth_mab"] = _make_int(output[0].split()[-1])
@@ -446,105 +275,9 @@ def nxos_format(
     cmd: str, output: List, tmp_dict: Dict[str, None], actual_state: Dict[str, None]
 ) -> Dict[str, Dict]:
 
-    # IMAGE: {image: code_number}
-    if "show version" in cmd:
-        tmp_dict["image"] = output[0]["os"]
-    # MGMT ACL: [{acl_name: {name: seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}]
-    elif "show access-lists" in cmd:
-        acl = _acl_format(output)
-        tmp_dict1 = defaultdict(dict)
-        for each_ace in acl:
-            # Creates dict for each ACE entry
-            if each_ace.get("action") != "remark":
-                tmp_dict1[each_ace["sn"]]["action"] = each_ace["action"]
-                tmp_dict1[each_ace["sn"]]["protocol"] = each_ace["protocol"]
-                tmp_dict1[each_ace["sn"]]["src"] = each_ace["source"]
-                tmp_dict1[each_ace["sn"]]["dst"] = each_ace["destination"]
-                if each_ace["protocol"] == "icmp" and each_ace.get("modifier") != None:
-                    tmp_dict1[each_ace["sn"]]["icmp_type"] = each_ace["modifier"]
-                elif each_ace.get("modifier") != None:
-                    tmp_dict1[each_ace["sn"]]["dst_port"] = each_ace["modifier"]
-                tmp_dict[each_ace["name"]] = dict(tmp_dict1)
-    # PO: {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}
-    elif "show port-channel summary" in cmd:
-        for each_po in output:
-            tmp_dict[each_po["bundle_iface"]]["status"] = (
-                each_po["bundle_status"].replace("(", "").replace(")", "")
-            )
-            tmp_dict[each_po["bundle_iface"]]["protocol"] = each_po["bundle_proto"]
-            po_mbrs = {}
-            for mbr_intf, mbr_status in zip(
-                each_po["phys_iface"], each_po["phys_iface_status"]
-            ):
-                # Creates dict of members to add to as value in the PO dictionary
-                po_mbrs[mbr_intf] = {
-                    "mbr_status": mbr_status.replace("(", "").replace(")", "")
-                }
-            tmp_dict[each_po["bundle_iface"]]["members"] = po_mbrs
-    # L3_INTF: {intf: {ip:x, status: x}}
-    elif "show ip interface brief vrf all | json" in cmd:
-        shit_nxos(output, "TABLE_intf", "ROW_intf")
-        for intf in output["TABLE_intf"]["ROW_intf"]:
-            tmp_dict[intf["intf-name"]]["status"] = intf["link-state"]
-            intf.setdefault("prefix", None)
-            tmp_dict[intf["intf-name"]]["prefix"] = intf["prefix"]
-    # CDP/LLDP: {intf: {neighbor: neighbor_interface}}
-    elif "show cdp neighbors" in cmd or "show lldp neighbors" in cmd:
-        cisco_cdp_lldp_nhbr(tmp_dict, output)
-    # HSRP: {intf: {state:x, priority: x}}
-    elif "show hsrp brief | json" in cmd:
-        shit_nxos(output, "TABLE_grp_detail", "ROW_grp_detail")
-        for each_hsrp in output["TABLE_grp_detail"]["ROW_grp_detail"]:
-            tmp_dict[each_hsrp["sh_if_index"]]["state"] = each_hsrp["sh_group_state"]
-            tmp_dict[each_hsrp["sh_if_index"]]["priority"] = _make_int(
-                each_hsrp["sh_prio"]
-            )
-    # MODULE: {module_num: {model:x, status: x}}
-    elif "show module" in cmd:
-        for each_mod in output:
-            tmp_dict[_make_int(each_mod["module"])]["model"] = each_mod["model"]
-            tmp_dict[_make_int(each_mod["module"])]["status"] = each_mod["status"]
-    # VPC: {role: x, peer-status: peer-ok, keepalive-status: peer-alive, vlan-consistency: consistent, peer-consistency: SUCCESS, type2-consistency: SUCCESS,
-    #       peer-link-port-state": 1, peer-link-vlans": x,y,z, PoX: {vpc-id: x, port-state: 1, consistency-status: SUCCESS, vlans: x,y,z}
-    elif "show vpc | json" in cmd:
-        tmp_dict["role"] = output["vpc-role"]
-        tmp_dict["peer-status"] = output["vpc-peer-status"]
-        tmp_dict["keepalive-status"] = output["vpc-peer-keepalive-status"]
-        tmp_dict["vlan-consistency"] = output["vpc-per-vlan-peer-consistency"]
-        tmp_dict["peer-consistency"] = output["vpc-peer-consistency-status"]
-        tmp_dict["type2-consistency"] = output["vpc-type-2-consistency-status"]
-        peer_link = output["TABLE_peerlink"]["ROW_peerlink"]
-        tmp_dict["peer-link-port-state"] = _make_int(peer_link["peer-link-port-state"])
-        tmp_dict["peer-link_vlans"] = peer_link["peer-up-vlan-bitset"]
-        # TABLE_vpc is only present if are vPCs configured
-        if output.get("TABLE_vpc") != None:
-            shit_nxos(output, "TABLE_vpc", "ROW_vpc")
-            for vpc in output["TABLE_vpc"]["ROW_vpc"]:
-                tmp_dict[vpc["vpc-ifindex"]]["vpc_id"] = _make_int(vpc["vpc-id"])
-                tmp_dict[vpc["vpc-ifindex"]]["port_status"] = _make_int(
-                    vpc["vpc-port-state"]
-                )
-                tmp_dict[vpc["vpc-ifindex"]]["consistency_status"] = vpc[
-                    "vpc-consistency-status"
-                ]
-                tmp_dict[vpc["vpc-ifindex"]]["vlans"] = vpc["up-vlan-bitset"]
+   
 
-    # INTF: {intf: {duplex: x, speed: x, status: x, vlan:x }}
-    elif "show interface status" in cmd:
-        cisco_intf_stus(tmp_dict, output)
-    # SWITCHPORT: {intf: {mode: access or trunk, vlan: x or [x,y]}}
-    elif "show interface switchport" in cmd:
-        cisco_intf_swprt(tmp_dict, output)
-    # VLAN: {vlan: {name: x, intf:[x,y]}}
-    elif "show vlan brief" in cmd:
-        cisco_vl_brf(tmp_dict, output)
-    # ALL_MAC: {total_mac: x}
-    elif "show mac address-table count dynamic | in Total" in cmd:
-        tmp_dict["total_mac"] = _make_int(output[0].split()[-1])
-    # VLAN_MAC: {vlxxx_total_mac: x}
-    elif "show mac address-table count dynamic vlan " in cmd:
-        vl = cmd.split()[-4] + "_total_mac"
-        tmp_dict[vl] = _make_int(output[0].split()[-1])
+   
     # VRF: {vrf: [intfx, intfy]}
     elif "show vrf interface" in cmd:
         for each_vrf in output:
@@ -669,43 +402,7 @@ def asa_format(
     cmd: str, output: List, tmp_dict: Dict[str, None], actual_state: Dict[str, None]
 ) -> Dict[str, Dict]:
 
-    # IMAGE: {image: code_number}
-    if "show version" in cmd:
-        tmp_dict["image"] = output[0]["version"]
-    # MGMT ACL: [{ssh_or_http: {seq_num: {src: src_ip, intf: interface}]
-    elif "show run ssh" in cmd or "show run http" in cmd:
-        tmp_dict1 = defaultdict(dict)
-        seq = 10
-        for each_ace in output:
-            try:
-                ip_mask = each_ace.split()[1] + "/" + each_ace.split()[2]
-                ip_pfxlen = ipaddress.IPv4Interface(ip_mask).with_prefixlen
-                if ip_pfxlen == "0.0.0.0/0":
-                    tmp_dict1[str(seq)]["src"] = "any"
-                else:
-                    tmp_dict1[str(seq)]["src"] = ip_pfxlen
-                tmp_dict1[str(seq)]["intf"] = each_ace.split()[3]
-                seq = seq + 10
-            except:
-                pass
-        if len(tmp_dict1) != 0:
-            tmp_dict[cmd.split()[-1].upper()] = dict(tmp_dict1)
-    # HA: {local_state: Primary - Active, peer_state: Secondary - Standby Ready}
-    elif "show failover" in cmd:
-        tmp_dict["local_state"] = output[0]["service_state"][0]
-        tmp_dict["peer_state"] = output[0]["service_state_mate"][0]
-    # PO: {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}
-    elif "show port-channel summary" in cmd:
-        cisco_po(tmp_dict, output)
-    # INTF: {intf: {ip: x, name: xx, status, duplex: x, speed: x, status: x, vlan:x }}
-    elif "show interface" in cmd:
-        for each_intf in output:
-            tmp_dict[each_intf["interface"]]["ip"] = each_intf["ip_address"]
-            tmp_dict[each_intf["interface"]]["name"] = each_intf["interface_zone"]
-            tmp_dict[each_intf["interface"]]["status"] = each_intf["link_status"]
-            tmp_dict[each_intf["interface"]]["duplex"] = each_intf["duplex"]
-            tmp_dict[each_intf["interface"]]["speed"] = _make_int(each_intf["speed"])
-            tmp_dict[each_intf["interface"]]["vlan"] = _make_int(each_intf["vlan"])
+  
     # NUM_CONN: {total_conn: x}
     elif "show conn count" in cmd:
         tmp_dict["total_conn"] = _make_int(output[0].split()[0])
@@ -798,56 +495,10 @@ def wlc_format(
     cmd: str, output: List, tmp_dict: Dict[str, None], actual_state: Dict[str, None]
 ) -> Dict[str, Dict]:
 
-    # IMAGE: {image: code_number}
-    if "show sysinfo" in cmd:
-        tmp_dict["image"] = output[0]["product_version"]
-    # HA: {local_state: ACTIVE, peer_state: STANDBY HOT}
-    elif "show redundancy summary" in cmd:
-        tmp_dict["local_state"] = output[0]["local_state"]
-        tmp_dict["peer_state"] = output[0]["peer_state"]
-    # L3_INTF: {intf_name: {ip:x, port: x, vlan: }}
-    elif "show interface summary" in cmd:
-        for each_intf in output:
-            tmp_dict[each_intf["name"]]["ip"] = each_intf["ip_addr"]
-            tmp_dict[each_intf["name"]]["port"] = each_intf["port"]
-            tmp_dict[each_intf["name"]]["vlan"] = _make_int(each_intf["vlan"])
-    # INTF: {intf: {duplex: x, speed: x, status: x }}
-    elif "show port summary" in cmd:
-        for each_intf in output:
-            port = _make_int(each_intf["port"])
-            tmp_dict[port]["status"] = each_intf["link_status"]
-            try:
-                tmp_dict[port]["speed"] = each_intf["physical_status"].split()[0]
-                tmp_dict[port]["duplex"] = each_intf["physical_status"].split()[1]
-            except:
-                tmp_dict[port]["speed"] = each_intf["physical_status"]
-                tmp_dict[port]["duplex"] = each_intf["physical_status"]
-    # CDP: {intf: {neighbor: neighbor_interface}}
-    elif "show cdp neighbors detail" in cmd:
-        for each_nbr in output:
-            tmp_dict[each_nbr["local_port"]] = {
-                each_nbr["destination_host"]: each_nbr["remote_port"]
-            }
-    # WLAN: {wlan: {profile: x, intf: x, ssid: x, status: Enabled}}
-    elif "show wlan summary" in cmd:
-        for each_wlan in output:
-            wlan = _make_int(each_wlan["wlanid"])
-            tmp_dict[wlan]["profile"] = each_wlan["profile"]
-            tmp_dict[wlan]["intf"] = each_wlan["interface"]
-            tmp_dict[wlan]["ssid"] = each_wlan["ssid"]
-            tmp_dict[wlan]["status"] = each_wlan["status"]
 
-    # AP_IMAGE: {ap: {primary_image: x, primary_image: x}}
-    elif "show ap image all" in cmd:
-        for each_ap in output:
-            tmp_dict[each_ap["ap_name"]]["primary_image"] = each_ap["primary_image"]
-            tmp_dict[each_ap["ap_name"]]["backup_image"] = each_ap["backup_image"]
-    # AP_SUMMARY: {ap: {primary_image: x, primary_image: x}}
-    elif "show ap summary" in cmd:
-        for each_ap in output:
-            tmp_dict[each_ap["ap_name"]]["ap_model"] = each_ap["ap_model"]
-            tmp_dict[each_ap["ap_name"]]["ip"] = each_ap["ip"]
-            tmp_dict[each_ap["ap_name"]]["clients"] = each_ap["clients"]
+
+
+
 
     # NUM_CLIENTS: {total: x, wlan: x}
     elif "show client" in cmd:
@@ -861,19 +512,7 @@ def wlc_format(
                     tmp_dict[wlan] = _make_int(each_line.split()[-1])
         else:
             tmp_dict["total"]
-    # INTF_GRP: {grp_name: {ap_groups: x, interfaces: y, wlans: z}}
-    elif "show interface group summary" in cmd:
-        for each_grp in output:
-            grp_name = each_grp["interface_group_name"]
-            tmp_dict[grp_name]["ap_groups"] = _make_int(each_grp["total_ap_groups"])
-            tmp_dict[grp_name]["interfaces"] = _make_int(each_grp["total_interfaces"])
-            tmp_dict[grp_name]["ap_wlans"] = _make_int(each_grp["total_wlans"])
-    # FLEX_GTP: {grp_name: ap_count}
-    elif "show flexconnect group summary" in cmd:
-        for each_grp in output:
-            tmp_dict[each_grp["flexconnect_group_name"]] = _make_int(
-                each_grp["ap_count"]
-            )
+
 
     actual_state[cmd] = dict(tmp_dict)
     return actual_state

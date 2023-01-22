@@ -450,9 +450,11 @@ def task_engine(
 
     # 4d. VAL: Uses Napalm_validate validate method to generate a compliance report
     desired_state = remove_cmds_desired_state(task.host["desired_state"])
+
     comp_result = generate_validate_report(
         desired_state, actual_state, str(task.host), directory
     )
+    breakpoint()
     # # 4e. RSLT: Nornir returns compliance result or if fails the compliance report
     return Result(
         host=task.host,

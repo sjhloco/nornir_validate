@@ -27,7 +27,7 @@ wifi:
     default-flex-group:
       ap_count: 0
     default-flex-group-1826280552:
-      ap_count: 0
+      ap_count: 4
   intf_grp:
     intgrp_guest:
       ap_count: 2

@@ -22,8 +22,8 @@
 {% elif sub_feat == 'switch_stack' %}
     switch_stack:
       {{ switch_stack_cmd }}:
-{% for each_swi in input_vars %}
         _mode: strict
+{% for each_swi in input_vars %}
         {{ each_swi.sw_number }}:
           priority: {{ each_swi.priority }}
           role: {{ each_swi.role }}

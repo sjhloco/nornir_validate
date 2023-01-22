@@ -1,0 +1,23 @@
+{# ####### Set commands on a per-OS basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set hsrp_cmd = "show standby brief" %}
+{% elif 'nxos' in os_type |string %}
+{% set hsrp_cmd = "show hsrp all" %}
+{% elif 'asa' in os_type |string %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+{# ##### Build feature template ##### #}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### HSRP: {cmd: {intf: {state: x, priority: x} ### #}
+{% if sub_feat == 'hsrp' %}
+    hsrp:
+      {{ hsrp_cmd }}: 
+{% for each_hsrp in input_vars %}
+        {{ each_hsrp.intf }}:
+          priority: {{ each_hsrp.priority }}
+          state: {{ each_hsrp.state }}
+{% endfor %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}

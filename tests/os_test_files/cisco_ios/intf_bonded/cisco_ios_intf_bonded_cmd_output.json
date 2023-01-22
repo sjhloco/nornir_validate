@@ -4,10 +4,10 @@
             {
                 "group": "3",
                 "po_name": "Po3",
-                "po_status": "SD",
+                "po_status": "SU",
                 "protocol": "LACP",
                 "interfaces": ["Gi0/15", "Gi0/16"],
-                "interfaces_status": ["D", "D"]
+                "interfaces_status": ["P", "P"]
             }
         ]
     }

@@ -6,7 +6,6 @@ import re
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-# INTEGER: Changes string to integer
 def _make_int(input_data: str) -> int:
     """
     It takes a string and returns an integer if it can, otherwise it returns the original string
@@ -191,6 +190,7 @@ def format_output(
                     tmp_dict[name][seq]["src"] = each_ace["source"]
                 except:
                     tmp_dict[name][seq]["src"] = _acl_scr_dst(each_ace, "src")
+            tmp_dict[name] = dict(tmp_dict[name])
 
     # ----------------------------------------------------------------------------
     # MODULE: {module_num: {model: xxx, status, ok}}

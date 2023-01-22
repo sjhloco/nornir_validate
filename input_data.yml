@@ -5,8 +5,8 @@ all:
   # ----------------------------------------------------------------------------
   system:
   #   # Software image: The current software image running on the device
-    # image: 
-    #   version: 15.2(7)E2
+    image: 
+      version: 9.14(2)15
   #   ## Management ACL (strict): ACL defining SSH access (also http for ASA) to the device (non-ASA must extended ACLs with 'IP' protocol destination 'any' - Not WLC
     # mgmt_acl:
       # - name: TEST_SSH_ACCESS
@@ -23,11 +23,11 @@ all:
     mgmt_acl:
       - name: ssh
         ace:
-          - { permit: 10.17.10.0/24 }
-          - { permit: 10.10.10.10/32 }
-      - name: http
-        ace:
-          - { permit: any }
+          - { permit: HME_GRY_MGMT - any }
+          - { permit: HME_TRI_UPLINK_FW - any }
+      # - name: http
+      #   ace:
+      #     - { permit: any }
 
 
   # intf_bonded:

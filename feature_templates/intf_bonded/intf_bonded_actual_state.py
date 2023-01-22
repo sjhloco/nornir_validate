@@ -5,7 +5,6 @@ from collections import defaultdict
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-# INTEGER: Changes string to integer
 def _make_int(input_data: str) -> int:
     """
     It takes a string and returns an integer if it can, otherwise it returns the original string
@@ -20,20 +19,22 @@ def _make_int(input_data: str) -> int:
         return input_data
 
 
-# Fixes issues due to NXOS JSON making dict rather than list if only item. Feed in cmd specific TABLE_xx and ROW_xx keywords
-def _fix_nxos(main_dict, parent_dict, child_dict):
+def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> List:
     """
-    If the child dictionary is a dictionary, then convert it to a list of dictionaries.
+    Fixes issues due to NXOS JSON making dict rather than list if only 1 item. If the child_dict is a dictionary,
+    convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
 
     :param main_dict: The dictionary that contains the parent dictionary
     :param parent_dict: The parent dictionary key
     :param child_dict: The key of the dictionary that you want to fix
+
     """
     if isinstance(main_dict[parent_dict][child_dict], dict):
         main_dict[parent_dict][child_dict] = [main_dict[parent_dict][child_dict]]
+    return main_dict[parent_dict][child_dict]
 
 
-def _format_status(status: str):
+def _format_status(status: str) -> str:
     """
     It takes the status and for nxos removes additional letters and brackets and returns a string
 
@@ -88,7 +89,7 @@ def format_output(
             tmp_dict[each_po[po_name]]["status"] = _format_status(each_po[po_status])
             if each_po[po_protocol] == "-":
                 each_po[po_protocol] = "NONE"
-            tmp_dict[each_po[po_name]]["protocol"] = each_po[po_protocol]
+            tmp_dict[each_po[po_name]]["protocol"] = each_po[po_protocol].upper()
             po_mbrs = {}
             for mbr_intf, mbr_status in zip(
                 each_po[po_intf], each_po[f"{po_intf}_status"]
@@ -119,14 +120,14 @@ def format_output(
         tmp_dict["peerlink_vlans"] = _make_int(peer_link[0]["peer-up-vlan-bitset"])
         # TABLE_vpc is only present if are vPCs configured
         if output.get("TABLE_vpc") != None:
-            _fix_nxos(output, "TABLE_vpc", "ROW_vpc")
+            output = _fix_nxos(output, "TABLE_vpc", "ROW_vpc")
             tmp_vpc = defaultdict(dict)
-            for vpc in output["TABLE_vpc"]["ROW_vpc"]:
+            for vpc in output:
                 vpc_id = _make_int(vpc["vpc-id"])
                 tmp_vpc[vpc_id]["po"] = vpc["vpc-ifindex"]
                 tmp_vpc[vpc_id]["port_state"] = _make_int(vpc["vpc-port-state"])
                 tmp_vpc[vpc_id]["consistency_status"] = vpc["vpc-consistency-status"]
                 tmp_vpc[vpc_id]["vlans"] = _make_int(vpc["up-vlan-bitset"])
-            tmp_dict["vpcs"] = tmp_vpc
+            tmp_dict["vpcs"] = dict(tmp_vpc)
 
     return dict(tmp_dict)

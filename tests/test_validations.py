@@ -6,20 +6,21 @@ which holds the desired_state, cmd_output and actual_state which have per-os_typ
 import pytest
 import os
 import yaml
-from glob import glob
 import json
+from glob import glob
 
 from nornir import InitNornir
 from nornir.core.task import Result
 from nornir.core.filter import F
 
-from .ORIG_before_feature_rework import desired_actual_cmd
 from nr_val import merge_os_types
 from nr_val import task_template
 from nr_val import task_desired_state
 from nr_val import actual_state_engine
-
 from nr_val import import_actual_state_modules
+from nr_val import remove_cmds_desired_state
+from compliance_report import generate_validate_report
+
 
 # ----------------------------------------------------------------------------
 # Directory that holds inventory files and load ACL dict (show, delete, wcard, mask, prefix)
@@ -133,6 +134,27 @@ def load_json_file(input_json_file):
     return output_json_data
 
 
+def have_same_keys(feature, state, expected_state, true_state):
+    """Test that the keys for the expected desired/actual state and true desired/actual are the same"""
+    exp_ds = set(expected_state.keys())
+    tru_ds = set(true_state.keys())
+    diff = exp_ds.symmetric_difference(tru_ds)
+    err_msg = f"❌ {state}: {feature['vendor_os']} {feature['feature']} missing features or sub-features (diffs): {', '.join(diff)}"
+    assert not diff, err_msg
+
+
+def sub_feature_test(feature, state, expected_state, true_state):
+    """Test each sub feature expected desired/actual/report state and true desired/actual/report are the same"""
+    for sub_feat in expected_state.keys():
+        err_msg = f"❌ {state}: {feature['vendor_os']} {feature['feature']} {sub_feat.upper()} is incorrect"
+        try:
+            del true_state[sub_feat]["complies"]
+            del expected_state[sub_feat]["complies"]
+        except:
+            pass
+        assert true_state[sub_feat] == expected_state[sub_feat], err_msg
+
+
 # ----------------------------------------------------------------------------
 # 1. DESIRED_STATE: Tests the templated input_vars (desired_state) are formatted correctly
 # ----------------------------------------------------------------------------
@@ -165,17 +187,17 @@ class TestDesiredState:
 
         # Load all the files needed for the validation
         validations = load_yaml_file(validate_file)
-        expected_desired_state = load_yaml_file(desired_state_file)
+        expected_ds = load_yaml_file(desired_state_file)
 
         # Filter inventory on OS type amd then get true desired state
         task_nr = nr.filter(F(has_parent_group=os_type))
         output = task_nr.run(task=self.task_get_desired_state, validations=validations)
+        true_ds = output[f"{os_type}_host"][0].result
 
-        # breakpoint()
-        true_desired_state = output[f"{os_type}_host"][0].result
-
-        err_msg = f"❌ Desired State: {feature['vendor_os']} {feature['feature']} templating is incorrect"
-        assert true_desired_state == expected_desired_state, err_msg
+        # Make sure keys are the same and then run unittest of each sub-feature within the feature
+        have_same_keys(feature, "Desired State", expected_ds, true_ds)
+        f_name = feature["feature"].lower()
+        sub_feature_test(feature, "Desired State", expected_ds[f_name], true_ds[f_name])
 
 
 # ----------------------------------------------------------------------------
@@ -193,12 +215,70 @@ class TestActualState:
         os_type = feature["os_type"]
 
         # Load all the files needed for the validation
-        expected_actual_state = load_yaml_file(actual_state_file)
+        expected_as = load_yaml_file(actual_state_file)
         cmd_output = load_json_file(cmd_output)
 
         # Merge all OS types and then get the true actual state
         os_type = merge_os_types(nr.inventory.hosts[f"{os_type}_host"])
-        true_actual_state = actual_state_engine(os_type, cmd_output)
+        true_as = actual_state_engine(os_type, cmd_output)
 
-        err_msg = f"❌ Actual State: {feature['vendor_os']} {feature['feature']} formatting is incorrect"
-        assert true_actual_state == expected_actual_state, err_msg
+        # Make sure keys are the same and then run unittest of each sub-feature within the feature
+        have_same_keys(feature, "Actual State", expected_as, true_as)
+        f_name = feature["feature"].lower()
+        have_same_keys(feature, "Actual State", expected_as[f_name], true_as[f_name])
+        sub_feature_test(feature, "Actual State", expected_as[f_name], true_as[f_name])
+
+
+# ----------------------------------------------------------------------------
+# 3. REPORT: Tests that  teh compliance report passes
+# ----------------------------------------------------------------------------
+class TestComplianceReport:
+    def test_report_passes(self, return_os_feature_name):
+        all_features = get_test_file_info(return_os_feature_name)
+        feature = all_features[return_os_feature_name]
+        desired_state_file = feature["ds_file"]
+        actual_state_file = feature["as_file"]
+
+        # Load all the files needed for the validation
+        tmp_desired_state = load_yaml_file(desired_state_file)
+        desired_state = remove_cmds_desired_state(tmp_desired_state)
+        actual_state = load_yaml_file(actual_state_file)
+
+        # Create the expected passing compliance report and actual compliance report
+        sub_feat = {}
+        for each_sub_feat in actual_state[feature["feature"].lower()]:
+            sub_feat[each_sub_feat] = {"complies": True, "nested": True}
+        expected_report = {
+            "failed": False,
+            "result": "✅ Validation report complies, desired_state and actual_state match.",
+            "report": {
+                feature["feature"].lower(): {
+                    "complies": True,
+                    "present": sub_feat,
+                    "missing": [],
+                    "extra": [],
+                },
+                "complies": True,
+                "skipped": [],
+            },
+            "report_text": "",
+        }
+        true_report = generate_validate_report(desired_state, actual_state, "hst", None)
+
+        # If does not comply run assert on each sub-feature within the report
+        err_msg = f"❌ Compliance Report: {feature['vendor_os']} {feature['feature']} desired and actual state do not match"
+        if true_report.get("failed", True) == False:
+            assert true_report == expected_report, err_msg
+        else:
+            ex_report = expected_report["report"]
+            tr_report = true_report["report"]
+            have_same_keys(
+                feature, "Compliance Report", ex_report["report"], tr_report["report"]
+            )
+            f_name = feature["feature"].lower()
+            ex_report_feat = expected_report["report"][f_name]["present"]
+            tr_report_feat = true_report["report"][f_name]["present"]
+            have_same_keys(feature, "Compliance Report", ex_report_feat, tr_report_feat)
+            sub_feature_test(
+                feature, "Compliance Report", ex_report_feat, tr_report_feat
+            )

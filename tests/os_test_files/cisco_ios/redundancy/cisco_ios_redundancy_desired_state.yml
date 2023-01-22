@@ -5,6 +5,7 @@ redundancy:
       peer_state: STANDBY HOT
   switch_stack:
     show switch detail:
+      _mode: strict
       1:
         priority: 15
         role: Active
@@ -17,4 +18,3 @@ redundancy:
         priority: 1
         role: Member
         state: Ready
-      _mode: strict

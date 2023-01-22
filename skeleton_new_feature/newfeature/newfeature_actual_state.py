@@ -5,7 +5,6 @@ import re
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-# INTEGER: Changes string to integer
 def _make_int(input_data: str) -> int:
     """
     It takes a string and returns an integer if it can, otherwise it returns the original string

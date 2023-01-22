@@ -6,26 +6,26 @@ system:
       10:
         action: permit
         protocol: ip
-        src: inside - 10.17.10.0/24
         dst: any
+        src: inside - 10.17.10.0/24
       20:
         action: permit
         protocol: ip
-        src: inside - 10.10.10.10/32
         dst: any
+        src: inside - 10.10.10.10/32
     ssh:
       10:
         action: permit
         protocol: ip
-        src: mgmt - 10.17.10.0/24
         dst: any
+        src: mgmt - 10.17.10.0/24
       20:
         action: permit
         protocol: ip
-        src: mgmt - 10.10.10.10/32
         dst: any
+        src: mgmt - 10.10.10.10/32
       30:
         action: permit
         protocol: ip
-        src: mgmt - any
         dst: any
+        src: mgmt - any

@@ -5,11 +5,12 @@ all:
     mgmt_acl:
       - name: http
         ace:
-          - { permit: mgmt - 10.17.10.0/24 }
-          - { permit: mgmt - 10.10.10.10/32 }
+          - { permit: inside - 10.17.10.0/24 }
+          - { permit: inside - 10.10.10.10/32 }
       - name: ssh
         ace:
           - { remark: MGMT Access - VLAN10 }
-          - { permit: inside - 10.17.10.0/24 }
+          - { permit: mgmt - 10.17.10.0/24 }
           - { remark: Citrix Access }
-          - { permit: inside - 10.10.10.10/32 }
+          - { permit: mgmt - 10.10.10.10/32 }
+          - { permit: mgmt - any }

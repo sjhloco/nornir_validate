@@ -62,7 +62,7 @@
                 "flexconnect_group_name": "default-flex-group"
             },
             {
-                "ap_count": "0",
+                "ap_count": "4",
                 "flexconnect_group_count": "4",
                 "flexconnect_group_name": "default-flex-group-1826280552"
             }

@@ -31,7 +31,6 @@
           _mode: strict
 {% set seq = namespace(cnt=10) %}
 {% for each_ace in each_acl.ace %}
-
 {% if each_ace.keys() | list | first != 'remark' %}
           {{ seq.cnt }}:
             action: {{ each_ace.keys() | list | first }}

@@ -19,7 +19,7 @@
 {% for each_po_name, each_po_info in input_vars.items() %}
         {{ each_po_name }}:
           status: U
-          protocol: {{ each_po_info.protocol }}
+          protocol: {{ each_po_info.protocol.upper() }}
           members:
             _mode: strict
 {% for each_member in each_po_info.members %}

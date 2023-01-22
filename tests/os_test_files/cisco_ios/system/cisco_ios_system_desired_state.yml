@@ -5,6 +5,7 @@ system:
   mgmt_acl:
     show ip access-lists TEST_SSH_ACCESS:
       TEST_SSH_ACCESS:
+        _mode: strict
         10:
           action: permit
           protocol: ip
@@ -20,15 +21,14 @@ system:
           protocol: ip
           src: any
           dst: any
-        _mode: strict
     show ip access-lists TEST_SNMP_ACCESS:
       TEST_SNMP_ACCESS:
+        _mode: strict
         10:
           action: permit
           protocol: ip
           src: 10.17.10.0/24
           dst: any
-        _mode: strict
   module:
     show module:
       1:

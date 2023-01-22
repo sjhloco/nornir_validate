@@ -4,14 +4,14 @@ redundancy:
     peer_state: STANDBY HOT
   switch_stack:
     1:
-      priority: 15
       role: Active
+      priority: 15
       state: Ready
     2:
-      priority: 14
       role: Standby
+      priority: 14
       state: Ready
     3:
-      priority: 1
       role: Member
+      priority: 1
       state: Ready

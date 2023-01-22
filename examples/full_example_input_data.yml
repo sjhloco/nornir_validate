@@ -67,7 +67,7 @@ all:
   # ----------------------------------------------------------------------------
   # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
   # ----------------------------------------------------------------------------
-  neighbors:
+  neighbor:
     ## CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
     cdp:
       Ten 2/1/1:
@@ -98,7 +98,7 @@ all:
       Po101:
         protocol: LACP
         members: [Te1/1/8, Te2/1/8]
-  ## VPC: {role: x, peerlink_vlans: x,x, vpcs: {vpc_id: {po:x, vlans: x,y}}}
+  ## VPC: The overall VPC state and VLANs over the peer link as well as each VPC member interfaces and vlans
     vpc:
       role: primary-secondary
       peerlink_vlans: 110-111,113-116,200,1100,1102,1110-1111
@@ -114,57 +114,41 @@ all:
           vlans: 1102
 
 
-
   # ----------------------------------------------------------------------------
   # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
   # ----------------------------------------------------------------------------
-#   COmeback to interface as should proberly combine them, but then what if it makes it too big? Also some interfaces done have L1 or L2 infor like SVIs, others dont have L3 
-#   interfaces:
-#   ## Interface layer1 information: Physical interface attributes, type, speed, duplex and status. 
-#     layer1:
-#       Gi0/0:
-#         duplex: a-full
-#         speed: a-100
-#         status: connected
-#         vlan: routed
-#       Gi1/0/4:
-#         duplex: a-full
-#         speed: a-1000
-#         status: connected
-#         vlan: 74
-#       Po1:
-#         duplex: a-full
-#         speed: a-10G
-#         status: notconnect
-#         vlan: trunk
-#       Po101:
-#         duplex: a-full
-#         speed: a-1000
-#         status: connected
-#         vlan: trunk
-#     layer2:
-#   ### INTF_SWI_PORT: show interfaces switchport - L2 interface mode (access, trunk down) and VLANs (single or list) over that port
-#     intf_swi_port:
-#       Gi1/0/4:
-#         mode: access
-#         vlan: 74
-#       Po1:
-#         mode: trunk
-#         vlan: [11,12,704,708,901]
+  interface:
+  ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined)
+    intf:
+      Gi0/1:
+        duplex: a-full
+        speed: a-1000
+        type: access
+      Gi0/2:
+        duplex: full
+        speed: 10G
+        type: trunk
+      Gi0/3:
+        duplex: auto
+        speed: auto
+        type: routed
+      Port-channel1.144:
+        type: HME_GST_ACCESS
+  ## SWITCH: L2 interface mode (access, trunk down) and VLANs (single or list) over that port
+    switchport:
+      Po1:
+        mode: trunk
+        vlan: [11-16,200,1001]
+      Gi0/1:
+        mode: access
+        vlan: 17
+  ## IP_BRIEF: L3 interface and IP address, status is expected to be up (only checks for the specified interfaces)
+    ip_brief: 
+      Lo1: 192.168.1.41
+      Eth1/1: loopback1
+      Vlan6: 172.20.6.1
+  
 
-
-# Will also include  and vlan (routed, trunk or VLAN ID)
-
-
-#   ### INTF_BR: show ip interface brief - L3 interface and IP address, status is expected to be up (only checks for these interfaces)
-#     intf_brief:
-#       Vlan800: 10.10.20.102
-#       GigabitEthernet1: 10.20.20.102
-#       GigabitEthernet2: 10.30.20.102
-
-    ## WLC interface group !!!! 
-    # INTF_GRP: {grp_name: {ap_groups: x, interfaces: y, wlans: z}}       new check for WLCS
-    intf_grp
   # ----------------------------------------------------------------------------
   # Layer2 Validations - IOS/IOS-XE, NXOS
   # ----------------------------------------------------------------------------
@@ -177,25 +161,35 @@ all:
       1:
         name: default
         intf: [Te1/1/2,Te1/1/4,Te1/1/7,Te2/1/2,Te2/1/4,Te2/1/7]
-    ## Spanning-tree VLAN: List of forwarding (FWD) interfaces per-VLAN (access and trunk) - IOS/IOS-XE
+    ## Spanning-tree VLAN: List of forwarding (FWD) interfaces per-VLAN (access and trunk) - Not NXOS
     stp_vlan:
       - vlan: 701
         intf: [Po11,Po201,Gi1/0/4]
       - vlan: 20
         intf: [Gi0/3]
-    ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN - Not NXOS
+    ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN
     mac_table:
       total_mac_count: 1100
       vl52_mac_count: 6
       vl10_mac_count: 21
 
 
-  ### HSRP: show standby brief - For each HSRP group (id) the priority and state
+  # ----------------------------------------------------------------------------
+  # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  ## HSRP: For each HSRP interface the priority and state
   fhr:
     hsrp:
-      - id: 1
-        priority: 140
+      - intf: Vlan11
+        priority: 100
+        state: Standby
+      - intf: Vlan200
+        priority: 110
         state: Active
+
+DONE UPTO HERE
+
+
 
   # ----------------------------------------------------------------------------
   # Route-table Validations - IOS/IOS-XE, NXOS, ASA

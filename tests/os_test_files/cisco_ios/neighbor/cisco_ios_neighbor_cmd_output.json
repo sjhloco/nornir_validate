@@ -1,0 +1,28 @@
+{
+    "neighbor": {
+        "cdp": [
+            {
+                "capability": "R S I",
+                "local_interface": "Gi0/1",
+                "neighbor": "Switch01",
+                "neighbor_interface": "Gi0/3",
+                "platform": "2811"
+            },
+            {
+                "capability": "R S I",
+                "local_interface": "Gi0/2",
+                "neighbor": "Switch02",
+                "neighbor_interface": "Gi0/3",
+                "platform": "2811"
+            }
+        ],
+        "lldp": [
+            {
+                "capabilities": "R",
+                "local_interface": "Gi0/3",
+                "neighbor": "Router01",
+                "neighbor_interface": "Gi0/1"
+            }
+        ]
+    }
+}

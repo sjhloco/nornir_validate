@@ -1,0 +1,6 @@
+fhr:
+  hsrp:
+    show standby brief:
+      Gi0/2:
+        priority: 50
+        state: Active

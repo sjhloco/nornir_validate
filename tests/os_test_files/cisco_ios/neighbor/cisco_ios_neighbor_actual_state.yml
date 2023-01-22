@@ -1,0 +1,9 @@
+neighbor:
+  cdp:
+    Gi0/1:
+      Switch01: Gi0/3
+    Gi0/2:
+      Switch02: Gi0/3
+  lldp:
+    Gi0/3:
+      Router01: Gi0/1

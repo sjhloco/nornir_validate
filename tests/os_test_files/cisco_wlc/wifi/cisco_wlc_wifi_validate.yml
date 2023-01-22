@@ -17,7 +17,7 @@ all:
         client_count: 4
       - ap_name: DC-AP-02
         ap_model: AIR-AP2802I-E-K9
-        ip: 10.20.10.12
+        ip: 10.20.10.14
         client_count: 14
     flexconnect:
       - grp_name: FlexCon Group - Grp1
