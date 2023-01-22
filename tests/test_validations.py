@@ -272,9 +272,7 @@ class TestComplianceReport:
         else:
             ex_report = expected_report["report"]
             tr_report = true_report["report"]
-            have_same_keys(
-                feature, "Compliance Report", ex_report["report"], tr_report["report"]
-            )
+            have_same_keys(feature, "Compliance Report", ex_report, tr_report)
             f_name = feature["feature"].lower()
             ex_report_feat = expected_report["report"][f_name]["present"]
             tr_report_feat = true_report["report"][f_name]["present"]

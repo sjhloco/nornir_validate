@@ -36,11 +36,6 @@
 {% for each_intf, intf_info in input_vars.items() %}
         {{ each_intf }}:
           mode: {{ intf_info.mode }}
-{# {% if intf_info.vlan is iterable %}
-          vlan: {{ intf_info.vlan | join(", ") | replace(" ", "") }}
-{% else %}
-          vlan: {{ intf_info.vlan }}
-{% endif %} #}
           vlan: {{ intf_info.vlan }}
 {% endfor %}
 {# ### IP_BRIEF: {cmd: {intf: {ip:x, status: x}}} ### #}

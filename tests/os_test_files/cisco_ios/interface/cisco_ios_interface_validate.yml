@@ -19,7 +19,7 @@ all:
         vlan: 999
       Gi0/2:
         mode: trunk
-        vlan: [144,3101,3102]
+        vlan: 144,3101,3102
     ip_brief: 
       GigabitEthernet0/1: 10.30.20.101
       GigabitEthernet0/2: unassigned
