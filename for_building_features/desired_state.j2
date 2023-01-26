@@ -15,47 +15,7 @@
     auth_mab: {{ input_vars.total_mab }}
 - show authentication sessions | count dot1x:
     auth_dot1x: {{ input_vars.total_dot1x }}
-{# ########### show vrf - {vrf: [intfx, intfy]} ########## #}
-{% elif feature == 'vrf' %}
-- show vrf:
-{% for each_vrf, intf in input_vars.items() %}
-    {{ each_vrf }}:
-      _mode: strict
-      list: {{ intf }}
-{% endfor %}
-{# ########### show ip route [vrf xxx] summary | in Total - {global_subnets: x, xx_subnets: x} ########## #}
-{% elif feature == 'route_summary' %}
-{% for vrf_info, num_rte in input_vars.items() %}
-{% if vrf_info == "global_subnets" %}
-- show ip route  summary | in Total:
-    {{ vrf_info }}: {{ num_rte }}
-{% else %}
-{% set vrf = vrf_info.split('_') | first %}
-- show ip route vrf {{ vrf }} summary | in Total:
-    {{ vrf_info }}: {{ num_rte }}
-{% endif %}{% endfor %}
-{# ########### show ip  route - {route/prefix: next-hop} ########## #}
-{% elif feature == 'route' %}
-- show ip  route:
-{% for each_rte, each_nh in input_vars.items() %}
-{% if each_nh.__class__.__name__ == 'list' %}
-    {{ each_rte }}: 
-      list: {{ each_nh }}
-{% else %}
-    {{ each_rte }}: {{ each_nh }}
-{% endif %}{% endfor %}
-{# ########### show ip  route vrf BLU - {route/prefix: next-hop} ########## #}
-{% elif 'route' in feature %}
-{% set vrf = feature.split('_') | first %}
-- show ip  route vrf {{ vrf }}:
-{% for each_rte, each_nh in input_vars.items() %}
-{% if each_nh.__class__.__name__ == 'list' %}
-    {{ each_rte }}:
-      _mode: strict 
-      list: {{ each_nh }}
-{% else %}
-    {{ each_rte }}: {{ each_nh }}
-{% endif %}{% endfor %}
+
 {# ########### show ip ospf interface brief - {intf: {area: x, cost: y, state: z}} ########## #}
 {% elif feature == 'ospf_intf' %}
 - show ip ospf interface brief:

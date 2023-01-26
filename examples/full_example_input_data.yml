@@ -50,19 +50,16 @@ all:
       local: ACTIVE
       peer: STANDBY HOT
     ## Switch Stack (strict): Each stacked switch number, priority, role and state - Not NXOS, ASA, WLC
-    switch_stack:
+    sw_stack:
       - sw_number: 1
         priority: 15
         role: Active
-        state: Ready
       - sw_number: 2
         priority: 1
         role: Member
-        state: Ready
       - sw_number: 3
         priority: 14
         role: Standby
-        state: Ready
 
   # ----------------------------------------------------------------------------
   # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
@@ -187,9 +184,6 @@ all:
         priority: 110
         state: Active
 
-DONE UPTO HERE
-
-
 
   # ----------------------------------------------------------------------------
   # Route-table Validations - IOS/IOS-XE, NXOS, ASA
@@ -200,12 +194,12 @@ DONE UPTO HERE
       BLU: [BD2001,Lo111]
       AMB: [BD2003,Gi0/1, Gi0/2]
       GRY: [BD2006, Vl20]
-    ## Total number of subnets: For non-global RT add name of the vrf to the start
+    ## Total number of subnets: Either the global (default) RT or the name of the vrf
     route_count:
-      global_subnets: 21
-      BLU_subnets: 4
-      AMB_subnets: 15
-    ## Routing table entires: Route and next-hop for all subnets (directly connected use interface as next-hop) 
+      global: 21
+      BLU: 4
+      AMB: 15
+    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
     route:
       global:
         192.168.111.3/32: 192.168.2.9
@@ -218,6 +212,12 @@ DONE UPTO HERE
         10.25.0.0/20: 192.168.17.15
         172.12.100.0/24: Vlan710
         10.100.0.0/20: [192.168.12.11, 192.168.12.12] 
+
+
+
+DONE UPTO HERE
+
+
   # ----------------------------------------------------------------------------
   # OSPF Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
@@ -264,6 +264,10 @@ DONE UPTO HERE
       192.168.167.9:
         asn: 65112
         rcv_pfx: 6
+
+
+
+
 
   # ----------------------------------------------------------------------------
   # EVPN/VXLAN Validations - IOS/IOS-XE, NXOS

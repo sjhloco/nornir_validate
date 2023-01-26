@@ -1,21 +1,27 @@
-Interface                  IP-Address      OK? Method Status                Protocol
-Virtual0                   127.1.0.1       YES unset  up                    up  
-GigabitEthernet1/1         192.168.1.253   YES CONFIG up                    up  
-GigabitEthernet1/2         unassigned      YES unset  up                    up  
-GigabitEthernet1/3         unassigned      YES unset  up                    up  
-GigabitEthernet1/4         unassigned      YES unset  administratively down down
-GigabitEthernet1/5         unassigned      YES unset  administratively down down
-GigabitEthernet1/6         unassigned      YES unset  administratively down down
-GigabitEthernet1/7         unassigned      YES unset  administratively down down
-GigabitEthernet1/8         unassigned      YES unset  administratively down down
-Internal-Control1/1        unassigned      YES unset  up                    down
-Internal-Data1/1           unassigned      YES unset  up                    up  
-Internal-Data1/2           unassigned      YES unset  down                  down
-Internal-Data1/3           unassigned      YES unset  up                    up  
-Internal-Data1/4           169.254.1.1     YES unset  up                    up  
-Management1/1              10.10.128.2     YES CONFIG up                    up  
-Port-channel1              unassigned      YES unset  up                    up  
-Port-channel1.144          10.10.144.1     YES CONFIG up                    up  
-Port-channel1.3101         10.10.254.2     YES CONFIG up                    up  
-Port-channel1.3102         10.10.254.10    YES CONFIG up                    up  
 
+Routing Table: AMB
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
+
+Gateway of last resort is 10.10.254.10 to network 0.0.0.0
+
+B*    0.0.0.0/0 [200/0] via 10.10.254.10, 3w4d
+      10.0.0.0/8 is variably subnetted, 9 subnets, 6 masks
+B        10.0.0.0/8 [200/0] via 10.10.254.3 (TRI), 1d16h
+B        10.10.96.0/19 [200/0], 3w4d, Null0
+C        10.10.96.0/24 is directly connected, Vlan96
+L        10.10.96.1/32 is directly connected, Vlan96
+B        10.10.254.0/29 is directly connected, 3w4d, Vlan3101
+L        10.10.254.1/32 is directly connected, Vlan3101
+C        10.10.254.8/29 is directly connected, Vlan3102
+L        10.10.254.9/32 is directly connected, Vlan3102
+B        10.20.0.0/16 [200/0] via 10.10.254.10, 3w4d
+B     172.16.0.0/12 [200/0] via 10.10.254.3 (TRI), 1d16h
+B     192.168.0.0/16 [200/0] via 10.10.254.3 (TRI), 1d16h

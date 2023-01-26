@@ -9,7 +9,7 @@ all:
         intf: [Gi0/1]
     stp_vlan:
       - vlan: 144
-        intf: [Gi0/6,Gi0/8,Gi0/11,Po1]
+        intf: [Gi0/6, Gi0/8, Gi0/11, Po1]
       - vlan: 3102
         intf: [Po1]
     mac_table:

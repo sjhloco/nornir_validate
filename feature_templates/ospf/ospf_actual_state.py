@@ -1,6 +1,6 @@
 from typing import Dict, List
+from collections import defaultdict
 import re
-
 
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
@@ -43,37 +43,29 @@ def format_output(
 
     ### KEY: Set the dictionary keys to use on a per-OS basis
     if bool(re.search("ios", os_type)):
-        ha_state_local = "active_software_state"
-        ha_state_peer = "standby_software_state"
+        new_subfeat1 = "xxx"
+        new_subfeat2 = "xxx"
     elif bool(re.search("nxos", os_type)):
-        pass
+        new_subfeat1 = "yyy"
+        new_subfeat2 = "yyy"
     elif bool(re.search("asa", os_type)):
-        ha_state_local = "service_state"
-        ha_state_peer = "service_state_mate"
+        new_subfeat1 = "zzz"
+        new_subfeat2 = "zzz"
     elif bool(re.search("wlc", os_type)):
-        ha_state_local = "local_state"
-        ha_state_peer = "peer_state"
+        new_subfeat1 = "xxx"
+        new_subfeat2 = "xxx"
+    # ----------------------------------------------------------------------------
+    # SUB_FEATURE1_NAME: {key_name: x}
+    # ----------------------------------------------------------------------------
+    if sub_feature == "new_subfeat1":
+        tmp_dict["key_name"] = output[0][new_subfeat1]
 
     # ----------------------------------------------------------------------------
-    # HA_STATE: {local_state: x, peer_state: x}
+    # SUB_FEATURE2_NAME: {xxx: {y: y, z: xxx}}
     # ----------------------------------------------------------------------------
-    if sub_feature == "ha_state":
-        if bool(re.search("asa", os_type)):
-            tmp_dict["local_state"] = output[0][ha_state_local][0]
-            tmp_dict["peer_state"] = output[0][ha_state_peer][0]
-        else:
-            tmp_dict["local_state"] = output[0][ha_state_local]
-            tmp_dict["peer_state"] = output[0][ha_state_peer]
-
-    # ----------------------------------------------------------------------------
-    # SWI_STACK: show switch - {sw_num: {priority: x, role: x, state: x}}
-    # ----------------------------------------------------------------------------
-    elif sub_feature == "sw_stack":
-        for each_swi in output:
-            swi = _make_int(each_swi["switch"])
-            tmp_dict[swi]["role"] = each_swi["role"]
-            tmp_dict[swi]["priority"] = _make_int(each_swi["priority"])
-            tmp_dict[swi]["role"] = each_swi["role"]
-            tmp_dict[swi]["state"] = each_swi["state"]
+    elif sub_feature == "new_subfeat2":
+        for each_item in output:
+            tmp_dict[each_item]["y"] = each_x["y"]
+            tmp_dict[each_item]["z"] = each_x[new_subfeat2]
 
     return dict(tmp_dict)

@@ -1,7 +1,7 @@
 {# ####### Set commands on a per-OS basis ####### #}
 {% if 'ios' in os_type |string %}
 {% set ha_state_cmd = "show redundancy" %}
-{% set switch_stack_cmd = "show switch detail" %}
+{% set sw_stack_cmd = "show switch detail" %}
 {% elif 'nxos' in os_type |string %}
 {% elif 'asa' in os_type |string %}
 {% set ha_state_cmd = "show failover" %}
@@ -19,9 +19,9 @@
         local_state: {{ input_vars.local }}
         peer_state: {{ input_vars.peer }}
 {# ### SWI_STACK: {sw_num: {priority: x, role: x, state: Ready}} ### #}
-{% elif sub_feat == 'switch_stack' %}
-    switch_stack:
-      {{ switch_stack_cmd }}:
+{% elif sub_feat == 'sw_stack' %}
+    sw_stack:
+      {{ sw_stack_cmd }}:
         _mode: strict
 {% for each_swi in input_vars %}
         {{ each_swi.sw_number }}:

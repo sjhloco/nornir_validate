@@ -3,7 +3,7 @@ redundancy:
     show redundancy:
       local_state: ACTIVE
       peer_state: STANDBY HOT
-  switch_stack:
+  sw_stack:
     show switch detail:
       _mode: strict
       1:

@@ -1,5 +1,5 @@
 from typing import Dict, List
-import ipaddress
+
 from collections import defaultdict
 import re
 import json
@@ -66,10 +66,7 @@ def format_actual_state(
 
 
 
-def _get_pfxlen(network: str, mask: str) -> str:
-    ip_mask = network + "/" + mask
-    ip_pfxlen = ipaddress.IPv4Interface(ip_mask).with_prefixlen
-    return ip_pfxlen
+
 
 
 # REMOVE: Removes the specified character and anything after it
@@ -98,25 +95,7 @@ def _edit_rte(output: List, rte_idx: int, pfx: int) -> None:
     output[rte_idx] = " ".join(rte)
 
 
-# ADD_PFX: Adds prefix to subnetted routes in routing table as these show prefix on another line
-def _add_prefix(output: List) -> List:
-    for idx, each_rte in enumerate(output):
-        if "is subnetted" in each_rte:
-            # Gets the prefix and the number of routes that need it adding
-            pfx = each_rte.split()[0].split("/")[1]
-            num_rtes = int(each_rte.split()[-2])
-            skipped = 0
-            # Uses range to call the list index nof route and add prefix to it
-            for x in range(1, num_rtes + 1):
-                # Bypass any lines with next-hop on new line (counts number of skipped)
-                if output[idx + x].split()[0][0] == "[":
-                    skipped = skipped + 1
-                else:
-                    _edit_rte(output, idx + x, pfx)
-            # If was any skipped lines, has to run again to account for skipped indexes
-            if skipped != 0:
-                _edit_rte(output, idx + x, pfx)
-    return output
+
 
 
 
@@ -163,54 +142,7 @@ def ios_format(
     elif "show authentication sessions | count dot1x" in cmd:
         tmp_dict["auth_dot1x"] = _make_int(output[0].split()[-1])
 
-    # ----------------------------------------------------------------------------
-    # RTR: Router-only commands
-    # ----------------------------------------------------------------------------
-    # VRF: show vrf - {vrf: [intfx, intfy]}
-    elif "show vrf" in cmd:
-        for each_vrf in output:
-            tmp_dict[each_vrf["name"]] = each_vrf["interfaces"]
-    # NUM_ROUTES: show ip route  summary | in Total - {vrf_subnets: x}
-    elif re.match(r"show ip route .* summary \| in Total", cmd):
-        if len(output) != 0:
-            if cmd.split()[4] == "|":
-                vrf = "global_subnets"
-            else:
-                vrf = cmd.split()[4] + "_subnets"
-            tmp_dict[vrf] = _make_int(output[0].split()[2])
-    # ROUTES: show ip  route - {route/prefix: next-hop, route/prefix: [next-hop, next-hop]}
-    elif re.match("show ip  route.*", cmd):
-        tmp_nh = []
-        # Function to add prefix to subnetted routes
-        output = _add_prefix(output)
-        # Format the route table output
-        for each_rte in reversed(output):
-            tmp_rte = each_rte.split()
-            # Removes extra route type OSPF (E2, IA) or EIGRP (EX) add to make len of lines same
-            if len(tmp_rte) == 8:
-                del tmp_rte[1]
-            if len(tmp_rte) == 0 or tmp_rte[0] == "Routing":
-                pass
-            # Catches multiple next-hops or next-hop on new line adds a list which is then used if it is "via"
-            elif tmp_rte[0][0] == "[":
-                tmp_nh.append(tmp_rte[2].replace(",", ""))
-            # Routes and next-hops on same line
-            elif "via" in each_rte:
-                if len(tmp_nh) == 0:
-                    tmp_dict[tmp_rte[1]] = tmp_rte[4].replace(",", "")
-                else:
-                    tmp_nh.append(tmp_rte[4].replace(",", ""))
-                    tmp_dict[tmp_rte[1]] = tmp_nh
-                    tmp_nh = []
-            # Routes on own line with next hops on separate line (NH caught with "[")
-            elif len(tmp_rte) == 2 or len(tmp_rte) == 3:
-                # In case only 1 next-hop make it a string
-                if len(tmp_nh) == 1:
-                    tmp_nh = tmp_nh[0]
-                tmp_dict[tmp_rte[1]] = tmp_nh
-                tmp_nh = []
-            elif "directly" in each_rte:
-                tmp_dict[tmp_rte[1]] = tmp_rte[5]
+
 
     # OSPF_INTF: show ip ospf interface brief - {intf: {area: x, cost: y, state: z}}
     elif "show ip ospf interface brief" in cmd:
@@ -278,51 +210,7 @@ def nxos_format(
    
 
    
-    # VRF: {vrf: [intfx, intfy]}
-    elif "show vrf interface" in cmd:
-        for each_vrf in output:
-            if tmp_dict.get(each_vrf["name"]) == None:
-                tmp_dict[each_vrf["name"]] = [each_vrf["interface"]]
-            else:
-                tmp_dict[each_vrf["name"]].append(each_vrf["interface"])
-    # NUM_ROUTES: {global_subnets: x, vrfX_subnets: x}
-    elif re.match(r"show ip route .* summary \| in Total", cmd):
-        if len(output) != 0:
-            if cmd.split()[4] == "|":
-                vrf = "global_subnets"
-            else:
-                vrf = cmd.split()[4] + "_subnets"
-            tmp_dict[vrf] = _make_int(output[0].split()[2])
-    # ROUTES: {vrf: {route/prefix: {type: x, nexthop: next-hop}, route/prefix: {type: x, nexthop: [next-hop, next-hop]}}}
-    elif re.match("show ip route vrf all", cmd):
-        for each_rte in output:
-            # Creates varaibles used to create data model
-            vrf = each_rte["vrf"]
-            rte = each_rte["network"] + "/" + each_rte["mask"]
-            if each_rte["network"] == each_rte["nexthop_ip"]:
-                nh = each_rte["nexthop_if"]
-            else:
-                nh = each_rte["nexthop_ip"]
-            # If VRF doenst exist add VRF and route
-            if tmp_dict.get(vrf) == None:
-                tmp_dict[vrf] = {rte: {"nexthop": nh}}
-            # If route doesnt exist add it, if already exists add additonal non-duplicate next-hops
-            else:
-                if tmp_dict[vrf].get(rte) == None:
-                    tmp_dict[vrf].update({rte: {"nexthop": nh}})
-                elif not isinstance(tmp_dict[vrf][rte]["nexthop"], list):
-                    if tmp_dict[vrf][rte]["nexthop"] != nh:
-                        tmp_dict[vrf][rte]["nexthop"] = [tmp_dict[vrf][rte]["nexthop"]]
-                        tmp_dict[vrf][rte]["nexthop"].append(nh)
-                else:
-                    tmp_dict[vrf][rte]["nexthop"].append(nh)
-            # Add route type, joins route type if is a routing protocol
-            if len(each_rte["type"]) == 0:
-                tmp_dict[vrf][rte]["type"] = each_rte["protocol"]
-            else:
-                tmp_dict[vrf][rte]["type"] = (
-                    each_rte["protocol"] + " " + each_rte["type"]
-                )
+
 
     # OSPF_INTF: {intf: {vrf: v, area: w, cost: x, state: y, nbr_count: z}}
     elif "show ip ospf interface brief vrf all | json" in cmd:
@@ -407,31 +295,7 @@ def asa_format(
     elif "show conn count" in cmd:
         tmp_dict["total_conn"] = _make_int(output[0].split()[0])
     # NUM_ROUTES: {global_subnets: x}
-    elif "show  route summary | in Total" in cmd:
-        tmp_dict["global_subnets"] = _make_int(output[0].split()[2])
-    # ROUTES: {route/prefix: {type: x, nexthop: next-hop}, route/prefix: {type: x, nexthop: [next-hop, next-hop]}}
-    elif "show route" in cmd:
-        for each_rte in output:
-            # Creates varaibles used to create data model
-            rte = _get_pfxlen(each_rte["network"], each_rte["mask"])
-            if len(each_rte["nexthopip"]) != 0:
-                nh = each_rte["nexthopip"]
-            else:
-                nh = each_rte["nexthopif"]
-            # If route doesnt exist add it, if already exists add additonal non-duplicate next-hops
-            if tmp_dict.get(rte) == None:
-                tmp_dict[rte]["nexthop"] = nh
-            elif not isinstance(tmp_dict[rte]["nexthop"], list):
-                if tmp_dict[rte]["nexthop"] != nh:
-                    tmp_dict[rte]["nexthop"] = [tmp_dict[rte]["nexthop"]]
-                    tmp_dict[rte]["nexthop"].append(nh)
-            else:
-                tmp_dict[rte]["nexthop"].append(nh)
-            # Add route type, joins route type if is a routing protocol
-            if len(each_rte["type"]) == 0:
-                tmp_dict[rte]["type"] = each_rte["protocol"]
-            else:
-                tmp_dict[rte]["type"] = each_rte["protocol"] + " " + each_rte["type"]
+
     # BGP_PEER: {peer: {asn:x, rcv_pfx:x}}
     elif "show bgp summary" in cmd:
         for each_peer in output:

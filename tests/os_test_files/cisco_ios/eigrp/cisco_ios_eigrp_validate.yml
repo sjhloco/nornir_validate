@@ -1,0 +1,9 @@
+all:
+  new_feature:
+    new_subfeat1: 
+      xxx: yyy
+    new_subfeat2:
+      - xx: yy
+        xy: xx
+      - yx: yy
+        xz: xx

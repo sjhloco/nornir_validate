@@ -27,8 +27,8 @@ from ntc_templates.parse import parse_output
 ! python new_val_builder.py -as <os_type> <feature>                                       Generate the desired state (saved to <os_type>_<feature>_actual_state.yml) 
 """
 
-# USERNAME = "test_user"
-# PASSWORD = "L00K_pa$$w0rd_github!"
+USERNAME = "test_user"
+PASSWORD = "L00K_pa$$w0rd_github!"
 
 # ----------------------------------------------------------------------------
 # Flags to define what is run, all take 2 arguments except -di that takes 3
@@ -178,7 +178,7 @@ def generate_cmd_data(
 
     # Print using JSON dump to change all ' for ""
     if isinstance(struc_data, str):
-        rc.print(struc_data.splitlines())
+        rc.print(json.dumps(struc_data.splitlines()))
     else:
         rc.print(json.dumps(struc_data))
 
@@ -255,7 +255,6 @@ def create_actual_state(rc: "Rich", os_type: str, feature: str) -> None:
         tmp_dict = defaultdict(dict)
         result = eval(feature).format_output(os_type, sub_feature, output, tmp_dict)
         actual_state[feature][sub_feature] = result
-
     # Save to yaml
     as_file = os.path.join(TEST_PATH, f"{os_type}_{feature}_actual_state.yml")
     with open(as_file, "w") as yaml_file:

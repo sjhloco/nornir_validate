@@ -1,0 +1,83 @@
+route_table:
+  vrf:
+    show vrf interface:
+      BLU:
+        _mode: strict
+        intf:
+          list:
+          - Vlan108
+          - Vlan109
+          - Vlan110
+          - Vlan111
+          - Vlan112
+          - Vlan113
+          - Vlan3001
+          - loopback21
+      AMB:
+        _mode: strict
+        intf:
+          list:
+          - Vlan3003
+      default:
+        _mode: strict
+        intf:
+          list:
+          - Ethernet1/1
+          - Ethernet1/2
+          - loopback1
+          - loopback2
+          - Vlan1
+  route_count:
+    show ip route  summary | in VRF|Route:
+      global: 21
+    show ip route vrf BLU summary | in VRF|Route:
+      BLU: 925
+  route:
+    show ip route vrf all:
+      global:
+        192.168.2.33/32:
+          rtype: ospf-DC_UNDERLAY intra
+          nh: 192.168.2.33
+        192.168.2.37/32:
+          rtype: ospf-DC_UNDERLAY intra
+          nh:
+            _mode: strict
+            list:
+            - 192.168.2.33
+            - 192.168.2.34
+        192.168.12.8/29:
+          rtype: direct
+          nh: Vlan3101
+        192.168.12.9/32:
+          rtype: local
+          nh: Vlan3101
+      BLU:
+        0.0.0.0/0:
+          rtype: static
+          nh: 10.1.100.1
+        10.251.32.0/19:
+          rtype: bgp-65301 external
+          nh: 192.168.2.57
+        10.253.1.16/28:
+          rtype: ospf-BLU1 nssa
+          nh: 192.168.11.3
+        10.253.1.32/28:
+          rtype: bgp-65301 external
+          nh: 192.168.2.57
+        10.22.10.0/23:
+          rtype: ospf-BLU1 nssa
+          nh: 192.168.11.3
+      TRI:
+        192.168.2.123/32:
+          rtype: local
+          nh: Lo71
+        192.168.2.124/32:
+          rtype: bgp-65102 internal
+          nh: 192.168.2.62
+        10.255.23.10/32:
+          rtype: bgp-65111 external
+          nh:
+            _mode: strict
+            list:
+            - 192.168.1.57
+            - 192.168.1.58

@@ -6,36 +6,39 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 
 ## Current Validations
 
-| Feature | Sub-feature Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
+| Feature | Sub-feature | Description | Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
 | ------- | ---------------------- | ------ | ---------- | ---- | --- | --- | ----
-| system | Image version | ❌ | ✅ | ✅ | ✅ | ✅  | ❌
-| system | Management ACL (SSH/SNMP/HTTP) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| system | Module status | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
-| redundancy | HA state (local and peer) | ❌ | ✅ | ❌ | ✅ | ✅ | ❌
-| redundancy | Switch stack (state and priority) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
-| neighbor | CDP neighbors | ❌ | ✅ | ✅ | ❌ | ✅ | ❌
-| neighbor | LLDP neighbors | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
-| intf_bonded | Port-channel (membership & status) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| intf_bonded | vpc (status, port membership and VLANs) | ❌ | ❌ | ✅ | ❌ | ❌ | ❌
-| interfaces | Physical interface status (speed, duplex, type and status) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
-| interfaces | Switchport (mode and vlan) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
-| interfaces | Interface brief (IP and status) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
-| layer2 | VLANs (member interfaces) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
-| layer2 | Spanning-Tree (FWD vlan interfaces) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌
-| layer2 | MAC address table (count) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
-| fhr | HSRP (priority and state) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| system | image | software version number | ❌ | ✅ | ✅ | ✅ | ✅  | ❌
+| system | mgmt_acl | Management ACLs (SSH/SNMP/HTTP) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| system | module | Module model and status (explicit) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| redundancy | ha_state | Local and peer state | ❌ | ✅ | ❌ | ✅ | ✅ | ❌
+| redundancy | sw_stack | Switch stack state (explicit), priority and role | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| neighbor | cdp | Neighbor device and port | ❌ | ✅ | ✅ | ❌ | ✅ | ❌
+| neighbor | lldp | Neighbor device and port | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| intf_bonded | port-channel | Po strict membership & status (explicit) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| intf_bonded | vpc | VPC status (explicit), port membership and VLANs | ❌ | ❌ | ✅ | ❌ | ❌ | ❌
+| interface | intf | Port speed, duplex, type and status (explicit) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| interface | layer2 | Switchport mode and vlans | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| interface | ip_brief | Interface IP and status (explicit) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| layer2 | vlan | Exact interfaces in VLANs | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| layer2 | stp_vlan | Spanning-tree interfaces state (explicit FWD) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌
+| layer2 | mac_table | Total and per-VLAN MAC count | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| fhr | hsrp | HSRP interface, priority and state | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| route_table | vrf | VRF strict interface membership | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| route_table | route_count | total subnets in global or per-VRF | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
+| route_table | route | Per-VRF route type and strict next-hops | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 
 
 
-| route_table | VRF (member interfaces) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
-| route_table | Route summary (total subnets) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
-| route_table | Routing table (route and strict next-hops) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
+
 | ospf | OSPF Interface (interfaces, area, cost) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 | ospf | OSPF neighbors (neighbor, state) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 | opsf | OSPF database (Total LSAs) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 | eigrp | EIGRP Interface | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
 | eigrp | EIGRP neighbors | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
 | bgp | BGP peers (peer, asn, rcv_pfx) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+
+
 | evpn | NVE VNI (L3VNI, VRF, BDI, state) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
 | evpn | NVE peer (L3VNI, peer, state) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
 | evpn | EVPN type2 MAC/IP table | ✅ | ✅ | ✅ | ❌ | ❌ | ❌              <<<<< think can have cmd output on ios-xe, must check
@@ -51,15 +54,18 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 | wifi | Interface groups (Interfaces and wlans) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | wifi | flexconnect groups (group and ap count) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 
-- Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA (including in source interface) or an extended ACL (IP and any port) on other platforms (assumes seq is 10, 20, etc)
-- Module assumes it a status of 'ok', can overide this by defining a status (such as active or standby for nxos sup)
-
-
-
-
-- Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
-- BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
 - Integers (count): Any output that is a numerical value (like route table summary, MAC count, BGP received prefixes, etc) can use an exact value (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+- Strict mode: Can be used to ensure of an exact match, no more, no less (for dictionaries or lists)
+- Explicit states: This means that the state isnt manually entered in the vlaidate file rather that it is automatically  explixlty expected to be in a good state.
+- Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA (including in source interface) or an extended ACL (IP and any port) on other platforms (assumes seq is 10, 20, etc)
+- Module assumes it a status of 'ok', however unliek eoxplxit states thise can be overiden by defining a status (such as active or standby for nxos sup)
+- Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
+
+
+
+
+- BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
+
 
 <!-- | Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
 | ---------- | ------ | ---------- | ---- | --- | --- | ----------
@@ -430,7 +436,7 @@ Every feature must also have a per os_type test folder (within *tests/os_test_fi
 Use the following command to create the folder directories as well as all the needed files except for the test *_desired_state.yml* and *_actual_state.yml* files (as these will be created by subsequent runs of the script). If you are just adding another OS to an existing feature it will obviously on created the test directories and files for that os_type of te feature. All the files created have the skelton structure already set as well as the formatting for comments that should be followed.
 
 ```none
-python feature_builder.py -cf <os_type>_<feature_name>
+python feature_builder.py -cf <os_type> <feature_name>
 ```
 
 This will create the following:
@@ -509,6 +515,20 @@ The desired state contains the commands to be run by each subfeature and the val
 {% endif %}{% endfor %}
 ```
 
+Any desired state values that are lists of objects (can also be strict) require an extra key called *list*, this is not needed in actual state).
+
+```yaml
+route_table:
+  vrf:
+    show vrf:
+      BLU:
+        _mode: strict
+        intf:
+          list:
+          - Lo12
+          - Vl5
+```
+
 Once the template has been built the `-ds` flag can be used to test it by trying to render the desired state test file *(ostype_feature_desired_state.j2)*) using the template and the validate test file. Once it has been created also run the desired state unit testing for this one feature.
 
 ```
@@ -556,3 +576,4 @@ pytest tests/test_validations.py -vv
 ```
 
 If all tests pass add the inforation reagrds to the feature to the *current validations* table of the README and add an example of the new validation to the *full_example_input_data.yml* file.
+

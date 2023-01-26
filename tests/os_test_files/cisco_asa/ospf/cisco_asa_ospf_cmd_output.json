@@ -1,0 +1,20 @@
+{
+    "new_feature": {
+        "sub_feature1": [
+            {
+                "config_register": "0xF",
+                "hardware": ["WS-C3560CX-12PC-S"]
+            }
+        ],
+        "sub_feature2": [
+            {
+                "module": "1",
+                "port": "16"
+            },
+            {
+                "module": "5",
+                "port": "5"
+            }
+        ]
+    }
+}

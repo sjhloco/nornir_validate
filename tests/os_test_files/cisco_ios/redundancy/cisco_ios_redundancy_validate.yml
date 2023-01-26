@@ -3,7 +3,7 @@ all:
     ha_state:
       local: ACTIVE
       peer: STANDBY HOT
-    switch_stack:
+    sw_stack:
       - sw_number: 1
         priority: 15
         role: Active
