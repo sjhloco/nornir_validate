@@ -1,27 +1,92 @@
-
-Routing Table: AMB
-Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
-       a - application route
-       + - replicated route, % - next hop override, p - overrides from PfR
-
-Gateway of last resort is 10.10.254.10 to network 0.0.0.0
-
-B*    0.0.0.0/0 [200/0] via 10.10.254.10, 3w4d
-      10.0.0.0/8 is variably subnetted, 9 subnets, 6 masks
-B        10.0.0.0/8 [200/0] via 10.10.254.3 (TRI), 1d16h
-B        10.10.96.0/19 [200/0], 3w4d, Null0
-C        10.10.96.0/24 is directly connected, Vlan96
-L        10.10.96.1/32 is directly connected, Vlan96
-B        10.10.254.0/29 is directly connected, 3w4d, Vlan3101
-L        10.10.254.1/32 is directly connected, Vlan3101
-C        10.10.254.8/29 is directly connected, Vlan3102
-L        10.10.254.9/32 is directly connected, Vlan3102
-B        10.20.0.0/16 [200/0] via 10.10.254.10, 3w4d
-B     172.16.0.0/12 [200/0] via 10.10.254.3 (TRI), 1d16h
-B     192.168.0.0/16 [200/0] via 10.10.254.3 (TRI), 1d16h
+BGP summary information for VRF AMB, address family IPv4 Unicast
+ 
+BGP summary information for VRF AMB, address family IPv6 Unicast
+ 
+BGP summary information for VRF BLU, address family IPv4 Unicast
+BGP router identifier 192.168.101.101, local AS number 65101
+BGP table version is 2301549, IPv4 Unicast config peers 1, capable peers 1
+827 network entries and 1406 paths using 105308 bytes of memory
+BGP attribute entries [107/18404], BGP AS path entries [26/272]
+BGP community entries [0/0], BGP clusterlist entries [6/24]
+ 
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+10.255.113.1    4 65001 21968368 22451737  2301549    0    0    24w2d 0        
+ 
+BGP summary information for VRF BLU, address family IPv6 Unicast
+ 
+BGP summary information for VRF GRN, address family IPv4 Unicast
+ 
+BGP summary information for VRF GRN, address family IPv6 Unicast
+ 
+BGP summary information for VRF GRY, address family IPv4 Unicast
+ 
+BGP summary information for VRF GRY, address family IPv6 Unicast
+ 
+BGP summary information for VRF NPE, address family IPv4 Unicast
+ 
+BGP summary information for VRF NPE, address family IPv6 Unicast
+ 
+BGP summary information for VRF RED, address family IPv4 Unicast
+ 
+BGP summary information for VRF RED, address family IPv6 Unicast
+ 
+BGP summary information for VRF TRI, address family IPv4 Unicast
+BGP router identifier 192.168.101.123, local AS number 65101
+BGP table version is 8526, IPv4 Unicast config peers 1, capable peers 1
+55 network entries and 102 paths using 9940 bytes of memory
+BGP attribute entries [11/1892], BGP AS path entries [8/80]
+BGP community entries [0/0], BGP clusterlist entries [6/24]
+ 
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+10.253.1.74     4 65171 3078819 3074406     8526    0    0     2w5d 24    
+ 
+BGP summary information for VRF TRI, address family IPv6 Unicast
+ 
+BGP summary information for VRF default, address family IPv4 Unicast
+BGP router identifier 192.168.101.37, local AS number 65101
+BGP table version is 14450, IPv4 Unicast config peers 5, capable peers 5
+36 network entries and 56 paths using 11184 bytes of memory
+BGP attribute entries [24/4128], BGP AS path entries [13/102]
+BGP community entries [0/0], BGP clusterlist entries [6/24]
+ 
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+192.168.14.2    4 65104 8429603 8531693    14450    0    0    1d08h 2        
+192.168.31.1    4 65121 8081582 8260415    14450    0    0     1w0d 2        
+192.168.31.17   4 65123 8167842 8348036    14450    0    0     1w0d 2        
+192.168.102.2   4 65101 1166456 1165743    14450    0    0     2y0w 28       
+192.168.151.2   4 65102 1074723 1073151    14450    0    0     1w1d 18       
+ 
+BGP summary information for VRF default, address family IPv6 Unicast
+ 
+BGP summary information for VRF default, address family VPNv4 Unicast
+ 
+BGP summary information for VRF default, address family VPNv6 Unicast
+ 
+BGP summary information for VRF default, address family IPv4 MVPN
+ 
+BGP summary information for VRF default, address family IPv6 MVPN
+ 
+BGP summary information for VRF default, address family L2VPN EVPN
+BGP router identifier 192.168.101.37, local AS number 65101
+BGP table version is 63025110, L2VPN EVPN config peers 7, capable peers 7
+4630 network entries and 8017 paths using 1210960 bytes of memory
+BGP attribute entries [796/136912], BGP AS path entries [31/334]
+BGP community entries [0/0], BGP clusterlist entries [6/24]
+ 
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+172.29.129.240  4 65121 8081498 8246843 63025110    0    0     1w0d 6        
+172.29.133.240  4 65123 8167863 8334538 63025110    0    0     1w0d 6        
+192.168.101.33  4 65101 40997672 23273121 63025110    0    0    2y11w 1782     
+192.168.101.34  4 65101 40992491 23273008 63025110    0    0    2y11w 1782     
+192.168.201.37  4 65102 23261970 26520909 63025110    0    0     1w1d 698      
+192.168.201.38  4 65102 23309853 26564632 63025110    0    0     2y2w 698      
+192.168.255.42  4 65104 20901792 21346308 63025110    0    0    1d08h 14       
+ 
+Neighbor        T    AS PfxRcd     Type-2     Type-3     Type-4     Type-5   
+172.29.129.240  I 65121 6          0          0          0          6        
+172.29.133.240  I 65123 6          0          0          0          6        
+192.168.101.33  I 65101 1782       1434       14         0          334      
+192.168.101.34  I 65101 1782       1434       14         0          334      
+192.168.201.37  E 65102 698        481        7          0          210      
+192.168.201.38  E 65102 698        481        7          0          210      
+192.168.255.42  I 65104 14         0          0          0          14

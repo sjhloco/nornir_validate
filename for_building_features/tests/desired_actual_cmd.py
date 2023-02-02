@@ -213,170 +213,19 @@ cmd_output = {
     "ios": {
         "show authentication sessions | count mab": "Number of lines which match regexp = 13",
         "show authentication sessions | count dot1x": "Number of lines which match regexp = 21",
-        "show vrf": [
-            {
-                "default_rd": "1:1",
-                "interfaces": ["Lo50"],
-                "name": "BLU",
-                "protocols": "ipv4",
-            }
-        ],
-        "show ip route  summary | in Total": "Total           6           20          0           2288        9956",
-        "show ip route vrf BLU summary | in Total": "Total           17          113         0           11232       49320",
-        "show ip  route": "Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP\n"
-        "       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area \n"
-        "       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2\n"
-        "       E1 - OSPF external type 1, E2 - OSPF external type 2\n"
-        "       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2\n"
-        "       ia - IS-IS inter area, * - candidate default, U - per-user static route\n"
-        "       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP\n"
-        "       a - application route\n"
-        "       + - replicated route, % - next hop override, p - overrides from PfR\n"
-        "\n"
-        "Gateway of last resort is 10.30.20.1 to network 0.0.0.0\n"
-        "\n"
-        "S*    0.0.0.0/0 [1/0] via 10.30.20.1\n"
-        "      1.0.0.0/32 is subnetted, 1 subnets\n"
-        "C        1.1.1.1 is directly connected, Loopback1\n"
-        "      2.0.0.0/32 is subnetted, 1 subnets\n"
-        "B        2.2.2.2 [20/0] via 10.10.10.2, 04:34:22\n"
-        "      4.0.0.0/32 is subnetted, 1 subnets\n"
-        "O        4.4.4.4 [110/2] via 10.10.10.2, 04:34:35, GigabitEthernet3\n"
-        "      5.0.0.0/32 is subnetted, 1 subnets\n"
-        "O IA     5.5.5.5 [110/2] via 10.10.10.2, 04:34:35, GigabitEthernet3\n"
-        "      6.0.0.0/32 is subnetted, 1 subnets\n"
-        "O E2     6.6.6.6 [110/20] via 10.10.10.2, 04:34:35, GigabitEthernet3\n"
-        "      10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks\n"
-        "C        10.10.10.0/24 is directly connected, GigabitEthernet3\n"
-        "L        10.10.10.1/32 is directly connected, GigabitEthernet3\n"
-        "C        10.30.20.0/24 is directly connected, GigabitEthernet1\n"
-        "L        10.30.20.102/32 is directly connected, GigabitEthernet1\n"
-        "      21.0.0.0/32 is subnetted, 1 subnets\n"
-        "D        21.1.1.1 [90/130816] via 10.10.10.2, 03:05:48, GigabitEthernet3\n"
-        "      23.0.0.0/32 is subnetted, 1 subnets\n"
-        "D EX     23.1.1.1 [170/130816] via 10.10.10.2, 03:05:54, GigabitEthernet3\n"
-        "O        192.168.14.4/30\n"
-        "        [110/100] via 192.168.14.2, 01:34:45, Port-channel1\n"
-        "    192.168.25.0/32 is subnetted, 5 subnets\n"
-        "C        192.168.25.41 is directly connected, Loopback1\n"
-        "O        192.168.25.42\n"
-        "        [110/101] via 192.168.14.10, 23:34:23, GigabitEthernet4\n"
-        "        [110/101] via 192.168.14.2, 23:33:52, Port-channel1\n"
-        "O        192.168.25.43 [110/51] via 192.168.14.2, 23:42:46, Port-channel1\n"
-        "C        192.168.25.45 is directly connected, Loopback2\n"
-        "C        192.168.25.47 is directly connected, Loopback3",
-        "show ip  route vrf BLU": "\n"
-        "Routing Table: BLU\n"
-        "Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP\n"
-        "       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area \n"
-        "       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2\n"
-        "       E1 - OSPF external type 1, E2 - OSPF external type 2\n"
-        "       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2\n"
-        "       ia - IS-IS inter area, * - candidate default, U - per-user static route\n"
-        "       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP\n"
-        "       a - application route\n"
-        "       + - replicated route, % - next hop override, p - overrides from PfR\n"
-        "\n"
-        "Gateway of last resort is not set\n"
-        "\n"
-        "      50.0.0.0/32 is subnetted, 1 subnets\n"
-        "C        50.1.1.1 is directly connected, Loopback50\n"
-        "B        10.12.1.0/27 [200/1000] via 192.168.12.5, 1w1d\n"
-        "                    [200/1000] via 192.168.12.1, 1w1d\n"
-        "B        10.12.242.64/28 [200/1000] via 192.168.12.5, 1w1d\n"
-        "                        [200/1000] via 192.168.12.1, 1w1d\n"
-        "    172.16.0.0/24 is subnetted, 2 subnets\n"
-        "B        172.16.10.0 [200/0] via 10.80.10.2, 04:42:57\n"
-        "B        172.16.20.0 [200/0] via 10.80.10.2, 04:42:52",
-        "show ip ospf interface brief": [
-            {
-                "area": "0",
-                "cost": "1",
-                "interface": "Lo7",
-                "ip_address_mask": "7.7.7.7/32",
-                "neighbors_fc": "0/0",
-                "state": "LOOP",
-            },
-            {
-                "area": "0",
-                "cost": "1",
-                "interface": "Gi3",
-                "ip_address_mask": "10.10.10.1/24",
-                "neighbors_fc": "1/1",
-                "state": "P2P",
-            },
-            {
-                "area": "2",
-                "cost": "1",
-                "interface": "Lo8",
-                "ip_address_mask": "8.8.8.8/32",
-                "neighbors_fc": "0/0",
-                "state": "LOOP",
-            },
-        ],
-        "show ip ospf neighbor": [
-            {
-                "address": "192.168.255.1",
-                "dead_time": "00:00:35",
-                "interface": "Vlan98",
-                "neighbor_id": "192.168.255.1",
-                "priority": "1",
-                "state": "FULL/BDR",
-            },
-            {
-                "address": "2.2.2.2",
-                "dead_time": "00:00:31",
-                "interface": "Vlan2",
-                "neighbor_id": "2.2.2.2",
-                "priority": "1",
-                "state": "FULL/BDR",
-            },
-        ],
-        "show ip ospf database database-summary | in Total": "  Total         11       0        0       ",
-        "show ip eigrp interfaces": "EIGRP-IPv4 Interfaces for AS(1)\n"
-        "                              Xmit Queue   PeerQ        Mean   Pacing Time   Multicast    Pending\n"
-        "Interface              Peers  Un/Reliable  Un/Reliable  SRTT   Un/Reliable   Flow Timer   Routes\n"
-        "Gi3                      1        0/0       0/0           9       0/0           50           0\n"
-        "Lo20                     0        0/0       0/0           0       0/0            0           0",
-        "show ip eigrp neighbors": [
-            {
-                "address": "10.10.10.2",
-                "as": "1",
-                "hold": "11",
-                "interface": "Gi3",
-                "q_cnt": "0",
-                "rto": "100",
-                "seq_num": "7",
-                "srtt": "9",
-                "uptime": "04:49:21",
-            }
-        ],
-        "show bgp all summary": "For address family: IPv4 Unicast\n"
-        "BGP router identifier 9.9.9.9, local AS number 65101\n"
-        "BGP table version is 3, main routing table version 3\n"
-        "2 network entries using 496 bytes of memory\n"
-        "2 path entries using 272 bytes of memory\n"
-        "2/2 BGP path/bestpath attribute entries using 560 bytes of memory\n"
-        "1 BGP AS-PATH entries using 24 bytes of memory\n"
-        "0 BGP route-map cache entries using 0 bytes of memory\n"
-        "0 BGP filter-list cache entries using 0 bytes of memory\n"
-        "BGP using 1352 total bytes of memory\n"
-        "BGP activity 2/0 prefixes, 2/0 paths, scan interval 60 secs\n"
-        "\n"
-        "Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd\n"
-        "10.10.10.2      4          888     313     323        3    0    0 04:49:08        1",
-        "show nve vni": "Interface  VNI        Multicast-group VNI state  Mode  BD    cfg vrf\n"
-        "nve1       10301   N/A             Up         L3CP  301  CLI BLU\n"
-        "nve1       10302   N/A             Up         L3CP  302  CLI GRN",
-        "show nve peers": "Interface  VNI      Type Peer-IP          RMAC/Num_RTs   eVNI     state flags UP time\n"
-        "nve1       10301 L3CP 192.168.1.2   2466.8cd1.5555 10301   UP   A/M 2d10h\n"
-        "nve1       10302 L3CP 192.168.1.2   2466.8cd1.5555 10302   UP   A/M 2d10h",
-        "show crypto session brief": "Status: A- Active, U - Up, D - Down, I - Idle, S - Standby, N - Negotiating\n"
-        "        K - No IKE\n"
-        "ivrf = (none)\n"
-        "Peer            I/F          Username        Group/Phase1_id          Uptime   Status\n"
-        "21.16.9.23  Tu11                         10.211.20.2             10:55:31 UA",
-    },
+  
+                "show nve vni": "Interface  VNI        Multicast-group VNI state  Mode  BD    cfg vrf",
+                "nve1       10301   N/A             Up         L3CP  301  CLI BLU",
+                "nve1       10302   N/A             Up         L3CP  302  CLI GRN",
+                "show nve peers": "Interface  VNI      Type Peer-IP          RMAC/Num_RTs   eVNI     state flags UP time",
+                "nve1       10301 L3CP 192.168.1.2   2466.8cd1.5555 10301   UP   A/M 2d10h",
+                "nve1       10302 L3CP 192.168.1.2   2466.8cd1.5555 10302   UP   A/M 2d10h",
+                "show crypto session brief": "Status: A- Active, U - Up, D - Down, I - Idle, S - Standby, N - Negotiating",
+                "        K - No IKE",
+                "ivrf = (none)",
+                "Peer            I/F          Username        Group/Phase1_id          Uptime   Status",
+                "21.16.9.23  Tu11                         10.211.20.2             10:55:31 UA",  
+
     ## --------------------------------------------------------------------------------------
     ## NXOS: Command output for NXOS os-type
     ## --------------------------------------------------------------------------------------

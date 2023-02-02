@@ -69,12 +69,7 @@ def format_actual_state(
 
 
 
-# REMOVE: Removes the specified character and anything after it
-def _remove_char(input_data: str, char: str) -> str:
-    if char in input_data:
-        return input_data.split(char)[0]
-    else:
-        return input_data
+
 
 
 # HOST_RTE: Add /32 to any host routes
@@ -102,21 +97,7 @@ def _edit_rte(output: List, rte_idx: int, pfx: int) -> None:
 
 
 
-# CISCO_OSPF_INTF_BR: To format Cisco show ip ospf interface brief/show ospf interface brief (not NXOS)
-def cisco_ospf_intf_br(tmp_dict: Dict[str, List], output: List) -> None:
-    for each_intf in output:
-        tmp_dict[each_intf["interface"]]["area"] = _make_int(each_intf["area"])
-        tmp_dict[each_intf["interface"]]["state"] = each_intf["state"]
-        tmp_dict[each_intf["interface"]]["cost"] = _make_int(each_intf["cost"])
-        tmp_dict[each_intf["interface"]]["nbr_count"] = each_intf["neighbors_fc"]
 
-
-# CISCO_OSPF_NBR: To format Cisco show ip ospf neighbor/show ospf neighbor (not NXOS)
-def cisco_ospf_nbr(tmp_dict: Dict[str, List], output: List) -> None:
-    for each_nhbr in output:
-        tmp_dict[each_nhbr["neighbor_id"]] = {
-            "state": _remove_char(each_nhbr["state"], "/ ")
-        }
 
 
 # ----------------------------------------------------------------------------
@@ -144,35 +125,9 @@ def ios_format(
 
 
 
-    # OSPF_INTF: show ip ospf interface brief - {intf: {area: x, cost: y, state: z}}
-    elif "show ip ospf interface brief" in cmd:
-        cisco_ospf_intf_br(tmp_dict, output)
-    # OSPF_NBR: show ip ospf neighbor - {nbr_ip: {state: x}}
-    elif "show ip ospf neighbor" in cmd:
-        cisco_ospf_nbr(tmp_dict, output)
-    # OSPF_LSDB: show ip ospf database database-summary | in Total - {process: total_lsa:, process: total_lsa:}
-    elif "show ip ospf database database-summary | in Total" in cmd:
-        if len(output) != 0:
-            tmp_dict["total_lsa"] = _make_int(output[0].split()[1])
-    # EIGRP_INTF: show ip eigrp interfaces - {intf: [x, y]}
-    elif "show ip eigrp interfaces" in cmd:
-        tmp_dict = defaultdict(list)
-        if len(output) >= 4:
-            for each_nbr in output[3:]:
-                tmp_dict["intf"].append(each_nbr.split()[0])
-    # EIGRP_NBR: show ip eigrp neighbors - {nbrs: [x, y]}
-    elif "show ip eigrp neighbors" in cmd:
-        tmp_dict = defaultdict(list)
-        for each_nbr in output:
-            if len(each_nbr) != 0:
-                tmp_dict["nbrs"].append(each_nbr["address"])
-    # BGP_PEER: show bgp all summary - {peer: {asn:x, rcv_pfx:x}}
-    elif "show bgp all summary" in cmd:
-        for each_line in output:
-            if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", each_line):
-                bgp_peer = each_line.split()
-                tmp_dict[bgp_peer[0]]["asn"] = _make_int(bgp_peer[2])
-                tmp_dict[bgp_peer[0]]["rcv_pfx"] = _make_int(bgp_peer[-1])
+
+
+
     # NVE_INTF: show nve vni - {l3vni: {bdi: x, vrf: z, state: UP}}
     elif "show nve vni" in cmd:
         for each_vni in output[1:]:
@@ -212,53 +167,7 @@ def nxos_format(
    
 
 
-    # OSPF_INTF: {intf: {vrf: v, area: w, cost: x, state: y, nbr_count: z}}
-    elif "show ip ospf interface brief vrf all | json" in cmd:
-        shit_nxos(output, "TABLE_ctx", "ROW_ctx")
-        for each_proc in output["TABLE_ctx"]["ROW_ctx"]:
-            shit_nxos(each_proc, "TABLE_intf", "ROW_intf")
-            # Loops through interfaces in OSPF process and creates temp dict of each interface in format {intf_name: {attribute: value}}
-            for each_intf in each_proc["TABLE_intf"]["ROW_intf"]:
-                tmp_dict[each_intf["ifname"]]["vrf"] = each_proc["cname"]
-                tmp_dict[each_intf["ifname"]]["area"] = each_intf["area"]
-                tmp_dict[each_intf["ifname"]]["cost"] = each_intf["cost"]
-                tmp_dict[each_intf["ifname"]]["status"] = each_intf["admin_status"]
-                tmp_dict[each_intf["ifname"]]["nbr_count"] = each_intf["nbr_total"]
-    # OSPF_NBR: {nbr_ip: {state: x}}
-    elif "show ip ospf neighbor vrf all" in cmd:
-        for each_nhbr in output:
-            tmp_dict[each_nhbr["neighbor_ipaddr"]] = {
-                "state": _remove_char(each_nhbr["state"], "/ ")
-            }
-    # OSPF_LSDB:{process: total_lsa:, process: total_lsa:}
-    elif "show ip ospf database database-summary vrf all | in Total|VRF" in cmd:
-        if len(output) != 0:
-            for idx, each_line in enumerate(output):
-                if len(each_line.split()) > 2:
-                    proc = each_line.split()[-3]
-                    if tmp_dict.get(each_line.split()[-3]) == None:
-                        tmp_dict[proc] = _make_int(output[idx + 1].split()[-1])
-                    else:
-                        tmp_dict[proc] = tmp_dict[proc] + _make_int(
-                            output[idx + 1].split()[-1]
-                        )
-    # BGP_PEER: {peer: {asn:x, rcv_pfx:x}}
-    elif "show bgp all summary | json" in cmd:
-        shit_nxos(output, "TABLE_vrf", "ROW_vrf")
-        for each_vrf in output["TABLE_vrf"]["ROW_vrf"]:
-            shit_nxos(each_vrf, "TABLE_af", "ROW_af")
-            for each_af in each_vrf["TABLE_af"]["ROW_af"]:
-                shit_nxos(each_af, "TABLE_saf", "ROW_saf")
-                for each_saf in each_af["TABLE_saf"]["ROW_saf"]:
-                    if each_saf.get("TABLE_neighbor") != None:
-                        shit_nxos(each_saf, "TABLE_neighbor", "ROW_neighbor")
-                        for each_nbr in each_saf["TABLE_neighbor"]["ROW_neighbor"]:
-                            tmp_dict[each_nbr["neighborid"]]["asn"] = _make_int(
-                                each_nbr["neighboras"]
-                            )
-                            tmp_dict[each_nbr["neighborid"]]["rcv_pfx"] = _make_int(
-                                each_nbr["prefixreceived"]
-                            )
+
     # NVE_INTF: {vni: {vl_vrf: vlan_or_vrf, state: UP}}
     elif "show nve vni | json" in cmd:
         shit_nxos(output, "TABLE_nve_vni", "ROW_nve_vni")
@@ -296,31 +205,8 @@ def asa_format(
         tmp_dict["total_conn"] = _make_int(output[0].split()[0])
     # NUM_ROUTES: {global_subnets: x}
 
-    # BGP_PEER: {peer: {asn:x, rcv_pfx:x}}
-    elif "show bgp summary" in cmd:
-        for each_peer in output:
-            tmp_dict[each_peer["bgp_neigh"]]["asn"] = _make_int(each_peer["neigh_as"])
-            tmp_dict[each_peer["bgp_neigh"]]["rcv_pfx"] = _make_int(
-                each_peer["state_pfxrcd"]
-            )
-    # OSPF_INTF: {intf: {area: x, cost: y, state: z, nbr_count: z}}
-    elif "show ospf interface brief" in cmd:
-        cisco_ospf_intf_br(tmp_dict, output)
-    # OSPF_NBR: {nbr_ip: {state: x}}
-    elif "show ospf neighbor" in cmd:
-        cisco_ospf_nbr(tmp_dict, output)
-    # OSPF_LSDB: {process: total_lsa:, process: total_lsa:}
-    elif "show ospf database database-summary | in Process|Total" in cmd:
-        if len(output) != 0:
-            for idx, each_line in enumerate(output):
-                if re.search("^Process", each_line):
-                    proc = _make_int(each_line.split()[1])
-                    if tmp_dict.get(each_line.split()[1]) == None:
-                        tmp_dict[proc] = _make_int(output[idx + 1].split()[1])
-                    else:
-                        tmp_dict[proc] = tmp_dict[proc] + _make_int(
-                            output[idx + 1].split()[1]
-                        )
+ 
+ 
     # STS_VPN: show crypto session brief - {vpn_peer: {bytes_tx: x, bytes_rx: x}}
     elif "show vpn-sessiondb detail l2l" in cmd:
         for each_vpn in output:

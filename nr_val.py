@@ -225,7 +225,10 @@ def remove_cmds_desired_state(desired_state: Dict[str, Dict]) -> Dict[str, Dict]
         for sub_feat_name, sub_feat_cmds in sub_feature.items():
             clean_desired_state[feature][sub_feat_name] = {}
             for cmd_ds in sub_feat_cmds.values():
-                if isinstance(cmd_ds, dict):
+                # !!!! for any commands that are combined, so dont have a validation - check if it breask htings, used for OSPF
+                if isinstance(cmd_ds, str):
+                    pass
+                elif isinstance(cmd_ds, dict):
                     clean_desired_state[feature][sub_feat_name].update(cmd_ds)
                 else:
                     clean_desired_state[feature][sub_feat_name] = cmd_ds
@@ -346,7 +349,6 @@ def task_template(
             feature=feature,
             sub_features=values["sub_features"],
         ).result
-        # breakpoint()
         # 2c. SERIALISE: Convert Jinja string into yaml and list of dicts [cmd: {seq: ket:val}] into a dict of cmds {cmd: {seq: key:val}}
         desired_state.update(return_yaml_desired_state(str_desired_state))
 
@@ -454,7 +456,6 @@ def task_engine(
     comp_result = generate_validate_report(
         desired_state, actual_state, str(task.host), directory
     )
-    breakpoint()
     # # 4e. RSLT: Nornir returns compliance result or if fails the compliance report
     return Result(
         host=task.host,

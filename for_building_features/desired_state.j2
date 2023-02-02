@@ -16,49 +16,9 @@
 - show authentication sessions | count dot1x:
     auth_dot1x: {{ input_vars.total_dot1x }}
 
-{# ########### show ip ospf interface brief - {intf: {area: x, cost: y, state: z}} ########## #}
-{% elif feature == 'ospf_intf' %}
-- show ip ospf interface brief:
-{% for each_intf in input_vars %}
-    _mode: strict
-    {{ each_intf.intf }}:
-      area: {{ each_intf.area }}
-      cost: {{ each_intf.cost }}
-      state: {{ each_intf.state }}
-{% endfor %}
-{# ########### show ip ospf neighbor - {nbr_ip: {state: FULL}} ########## #}
-{% elif feature == 'ospf_nbr' %}
-- show ip ospf neighbor:
-    _mode: strict
-{% for each_nbr in input_vars.nbrs %}
-    {{ each_nbr }}:
-      state: FULL
-{% endfor %}
-{# ########### show ip ospf database database-summary | in Total - {total_lsa: x } ########## #}
-{% elif feature == 'ospf_lsdb' %}
-- show ip ospf database database-summary | in Total:
-    total_lsa: {{ input_vars.total_lsa }}
-{# ########### show ip eigrp interfaces - {intf: [x, y]} ########## #}
-{% elif feature == 'eigrp_intf' %}
-- show ip eigrp interfaces:
-    intf:
-      _mode: strict
-      list: {{ input_vars.intf }}
-{# ########### show ip eigrp neighbors - {nbrs: [x, y]} ########## #}
-{% elif feature == 'eigrp_nbr' %}
-- show ip eigrp neighbors:
-    nbrs:
-      _mode: strict
-      list: {{ input_vars.nbrs }}
-{# ########### show bgp all summary - {peer: {asn:x, rcv_pfx:x}} ########## #}
-{% elif feature == 'bgp_summary' %}
-- show bgp all summary:
-    _mode: strict
-{% for each_peer, peer_info in input_vars.items() %}
-    {{ each_peer }}:
-      asn: {{ peer_info.asn }}
-      rcv_pfx: {{ peer_info.rcv_pfx }}
-{% endfor %}
+
+
+
 {# ########### show nve vni - {l3vni: {bdi: x, vrf: z, state: UP}} ########## #}
 {% elif feature == 'nve_vni' %}
 - show nve vni:

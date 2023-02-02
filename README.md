@@ -27,16 +27,19 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 | route_table | vrf | VRF strict interface membership | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
 | route_table | route_count | total subnets in global or per-VRF | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
 | route_table | route | Per-VRF route type and strict next-hops | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| route | intf | Interfaces area, cost, neighbor count and state (explicit) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| route_protocol | eigrp_intf_nbr: | Interfaces and list (strict) of neighbors and state (explicit) off them | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| route_protocol | ospf_intf_nbr | Interfaces and list (strict) of neighbors and state (explicit) off them | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| route_protocol | ospf_lsdb_count | Total LSAs per-ospf process | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
+
+
+
+| route_protocol | peers | BGP peer, asn and rcv_pfx or state | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 
 
 
 
-| ospf | OSPF Interface (interfaces, area, cost) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| ospf | OSPF neighbors (neighbor, state) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| opsf | OSPF database (Total LSAs) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| eigrp | EIGRP Interface | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
-| eigrp | EIGRP neighbors | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
-| bgp | BGP peers (peer, asn, rcv_pfx) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+Routing protocol is the neighbor address rather than ID as can have mulitple neighbors with same ID over diff interfaces
 
 
 | evpn | NVE VNI (L3VNI, VRF, BDI, state) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
@@ -60,42 +63,12 @@ As the name suggests I have not reinvented the wheel here, I just extended [*nap
 - Management ACL: Validation of the allowed management addresses for SSH and HTTP on ASA (including in source interface) or an extended ACL (IP and any port) on other platforms (assumes seq is 10, 20, etc)
 - Module assumes it a status of 'ok', however unliek eoxplxit states thise can be overiden by defining a status (such as active or standby for nxos sup)
 - Routing table: Uses a string for a single next-hop or a list if there are multiple next-hops
-
-
-
-
+- EIGRP and OSPF is a dictioanry of interfaces with the optiona lstrict list of neigbors off them, state and if OSPF the process ID and area
+- OSPF neighbors state is expected top be FULL, it doesn't care about DR, BDR, etc
 - BGP peers: If peers have same the IP uses those from the upper address family (for example with MPLS VPN will ignore IPv4 and only use VPNv4 peer)
 
 
-<!-- | Validation | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo
-| ---------- | ------ | ---------- | ---- | --- | --- | ----------
-| Image | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Management ACL (SSH/SNMP/HTTP) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| Port-channel (membership & status) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Interface brief (IP and status) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| CDP neighbors | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| LLDP neighbors | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| HSRP (priority and state) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Switch stack (state and priority) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VSS HA state | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Interface status (speed, duplex, status) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Switchport (mode and vlan) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VLANs (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Spanning-Tree (FWD vlan interfaces) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| MAC address table (count) | ✅|  ✅  | ❌ | ❌ | ❌ | ❌
-| MAB & DOT1X Auth Sessions (count) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VRF (member interfaces) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Route summary (total subnets) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| Routing table (route and strict next-hops) | ❌ |  ✅  | ❌ | ❌ | ❌ | ❌
-| OSPF Interface (interfaces, area, cost) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| OSPF neighbors (neighbor, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| OSPF database (Total LSAs) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| EIGRP Interface | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| EIGRP neighbors | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| BGP peers (peer, asn, rcv_pfx) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| NVE VNI (L3VNI, VRF, BDI, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| NVE peer (L3VNI, peer, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌
-| VPN (peer, interface, state) | ✅ |  ✅  | ❌ | ❌ | ❌ | ❌ -->
+
 
 
 ## Installation and Prerequisites
@@ -577,3 +550,68 @@ pytest tests/test_validations.py -vv
 
 If all tests pass add the inforation reagrds to the feature to the *current validations* table of the README and add an example of the new validation to the *full_example_input_data.yml* file.
 
+
+!!! Wherever possible best to use dict rather than a list of dicts as get better output on what when wrong. Fore example:
+
+with bas ASN
+
+  route_protocol:
+    eigrp_nbr:
+      - ip: 10.10.10.2
+        intf: Gi3
+        asn: 1
+      - ip: 10.230.205.27
+        intf: Vl10
+        asn: 54
+
+E             Full diff:
+E               {
+E             +  'diff': {'complies': False,
+E             +           'extra': [{'asn': 545,
+E             +                      'intf': 'Vl10',
+E             +                      'ip': '10.230.205.27',
+E             +                      'state': 'up'}],
+E             +           'missing': [{'asn': 54,
+E             +                        'intf': 'Vl10',
+E             +                        'ip': '10.230.205.27',
+E             +                        'state': 'up'}],
+E             +           'present': [{'asn': 1,
+E             +                        'intf': 'Gi3',
+E             +                        'ip': '10.10.10.2',
+E             +                        'state': 'up'}]},
+E                'nested': True,
+E               }
+
+  route_protocol:
+    eigrp_nbr:
+      10.10.10.2:
+        intf: Gi3
+        asn: 1
+      10.230.205.27:
+        intf: Vl10
+        asn: 54
+
+E             +  'diff': {'complies': False,
+E             +           'extra': [],
+E             +           'missing': [],
+E             +           'present': {'10.10.10.2': {'complies': True,
+E             +                                      'nested': True},
+E             +                       '10.230.205.27': {'complies': False,
+E             +                                         'diff': {'complies': False,
+E             +                                                  'extra': [],
+E             +                                                  'missing': [],
+E             +                                                  'present': {'asn': {'actual_value': 545,
+E             +                                                                      'complies': False,
+E             +                                                                      'expected_value': 55,
+E             +                                                                      'nested': False},
+E             +                                                              'intf': {'complies': True,
+E             +                                                                       'nested': False},
+E             +                                                              'state': {'complies': True,
+E             +                                                                        'nested': False}}},
+E             +                                         'nested': True}}},
+E                'nested': True,
+E               }
+
+
+
+!!!! If want to use multiple commands to form a su-feature then all but one of the commands can have a dict value of any string rather than a dict ofm validatiosn and will be removed when commands are removed, see ospf for example

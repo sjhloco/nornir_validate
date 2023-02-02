@@ -54,7 +54,6 @@
       {{ route_count_cmd.split('  ') | first }} vrf {{ vrf_info }} {{ route_count_cmd.split('  ') | last }}: 
         {{ vrf_info }}: {{ num_rte }}
 {% endif %}{% endfor %}
-
 {# ### RTE_TABLE: {cmd: {vrf: {route/prefix: type: x, nh: y}}) ### #}
 {% elif sub_feat == 'route' %}
     route:

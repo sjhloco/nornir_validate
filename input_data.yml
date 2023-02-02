@@ -3,10 +3,10 @@ all:
   # ----------------------------------------------------------------------------
   # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
   # ----------------------------------------------------------------------------
-  system:
-  #   # Software image: The current software image running on the device
-    image: 
-      version: 9.14(2)15
+  # system:
+  # #   # Software image: The current software image running on the device
+  #   image: 
+  #     version: 9.14(2)15
   #   ## Management ACL (strict): ACL defining SSH access (also http for ASA) to the device (non-ASA must extended ACLs with 'IP' protocol destination 'any' - Not WLC
     # mgmt_acl:
       # - name: TEST_SSH_ACCESS
@@ -20,15 +20,20 @@ all:
       #   ace:
       #     - { remark: MGMT Access - VLAN10 }
       #     - { permit: any }
-    mgmt_acl:
-      - name: ssh
-        ace:
-          - { permit: HME_GRY_MGMT - any }
-          - { permit: HME_TRI_UPLINK_FW - any }
+    # mgmt_acl:
+    #   - name: ssh
+    #     ace:
+    #       - { permit: HME_GRY_MGMT - any }
+    #       - { permit: HME_TRI_UPLINK_FW - any }
       # - name: http
       #   ace:
       #     - { permit: any }
-
+  route_protocol:
+    ospf_nbr: 
+      Gi3:
+        pid: 100
+        area: 0 
+        nbr: [10.10.10.2, 10.10.10.3]
 
   # intf_bonded:
   # ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)

@@ -186,7 +186,7 @@ all:
 
 
   # ----------------------------------------------------------------------------
-  # Route-table Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_table:
     ## VRF member interfaces (strict): List of member interfaces for each VRF - Not ASA
@@ -214,50 +214,52 @@ all:
         10.100.0.0/20: [192.168.12.11, 192.168.12.12] 
 
 
-
-DONE UPTO HERE
-
-
   # ----------------------------------------------------------------------------
-  # OSPF Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
-  ospf:
-    ## OSPF Interfaces (strict): List of OSPF interfaces with area, cost and state
-    intf:
-      - intf: Gi3
+  route_protocol:
+    ## EIGRP Interface/Neighbor (strict): List of EIGRP enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    eigrp_intf_nbr:
+      Gi3:
+        asn: 1
+        nbr: 10.10.10.2
+      Vl10:
+        asn: 545
+        nbr: 10.230.205.27
+    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ospf_intf_nbr: 
+      Gi0/3:
+        pid: 3
+        area: 1
+        nbr: 192.168.230.2
+      Gi1/2:
+        pid: 3
+        area: 1
+      Vl120:
+        pid: 2
         area: 0
-        cost: 1
-        state: P2P
-      - intf: Lo1
-        area: 4
-        cost: 1
-        state: LOOP
-      - intf: Gi0/0/0
-        area: 4
-        cost: 100
-        state: P2P
-    ## OSPF Neighbors (strict): List of OSPF neighbors, state is expected top be FULL (doesn't care about DR, BDR, etc)
-    nbrs: [192.168.1.5, 2.2.2.2, 192.168.2.5]
-    ## OSPF database count: Total number of LSAs (all types) in the LSDB
-    lsdb_count:
+        nbr: [192.168.10.2, 192.168.10.3]
+      Po1:
+        pid: 1
+        area: 0
+        nbr: 10.90.10.1
+      Vl110:
+        pid: 1
+        area: 1
+    ## OSPF database count: The total number of LSAs (all types) in the LSDB per OSPF process
+    ospf_lsdb_count:
       - process: 1
         total_lsa: 3
 
-  # ----------------------------------------------------------------------------
-  # EIGRP Validations - IOS/IOS-XE
-  # ----------------------------------------------------------------------------
-  eigrp:
-  ## EIGRP Interface (strict): List of EIGRP enabled interfaces
-    intf: [Gi3, Lo1]
-  ### EIGRP Neighbors (strict): List of EIGRP neighbors
-    nbrs: [10.10.10.2, 2.2.2.2]
+
+DONE UPTO HERE
 
   # ----------------------------------------------------------------------------
   # BGP Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   bgp:
-    ## BGP Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of prefixes
-    nbrs:
+    ## BGP Peers/Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of received prefixes
+    peers:
       192.168.67.149:
         asn: 65111
         rcv_pfx: 55
@@ -292,13 +294,6 @@ DONE UPTO HERE
       x: x
      # EVPN_MAC_IP: {host-ip: {mac: x, type: y, next-hop: z}}              !!!! NEW for nxos and possibily IOS-XE
 
-
-
-
-| sessions | number wifi clients | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
-| wifi | WLANs (associated intf and SSID) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
-| wifi | APs (image, model, ip and clients) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
-| wifi | flexconnect groups (group and ap count) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 
 
   # ----------------------------------------------------------------------------
