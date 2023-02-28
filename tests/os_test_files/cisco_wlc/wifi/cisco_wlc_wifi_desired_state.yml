@@ -23,6 +23,15 @@ wifi:
         model: AIR-AP2802I-E-K9
         ip: 10.20.10.14
         client_count: 14
+  client_count:
+    show client summary:
+      total_count: 4
+    show client wlan 99931: SUB_FEATURE_COMBINED_CMD
+    show client wlan 31:
+      wl31_count: 2
+    show client wlan 99920: SUB_FEATURE_COMBINED_CMD
+    show client wlan 20:
+      wl20_count: 1
   flexconnect:
     show flexconnect group summary:
       FlexCon Group - Grp1:
@@ -32,14 +41,14 @@ wifi:
   intf_grp:
     show interface group summary:
       intgrp_guest:
-        ap_count: 2
+        ap_grp_count: 2
         intf_count: 1
         wlan_count: 1
       intgrp_prod:
-        ap_count: 6
+        ap_grp_count: 6
         intf_count: 1
         wlan_count: 1
       intgrp_byod:
-        ap_count: 11
+        ap_grp_count: 11
         intf_count: 1
         wlan_count: 2

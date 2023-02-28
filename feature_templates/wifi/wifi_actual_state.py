@@ -63,9 +63,9 @@ def format_output(
             tmp_dict[wlanid]["status"] = "Enabled"
 
     # ----------------------------------------------------------------------------
-    # AP:  {ap_name: {model: x, ip: x, clients: x}}}
+    # AP: {ap_name: {model: x, ip: x, clients: x}}}
     # ----------------------------------------------------------------------------
-    if sub_feature == "ap":
+    elif sub_feature == "ap":
         for each_ap in output:
 
             a = each_ap["ap_name"]
@@ -74,9 +74,27 @@ def format_output(
             tmp_dict[each_ap["ap_name"]]["client_count"] = _make_int(each_ap["clients"])
 
     # ----------------------------------------------------------------------------
+    # CLIENT_COUNT: {total_count: x, wlxx_count: x}
+    # ----------------------------------------------------------------------------
+    elif sub_feature == "client_count":
+        if len(output) != 0:
+            tmp_output = []
+            for each_line in output:
+                if "Number of Cl" in each_line or "Invalid WLAN ID 999" in each_line:
+                    tmp_output.append(each_line)
+        if len(tmp_output) != 0:
+            for idx, each_line in enumerate(tmp_output):
+                if "Invalid WLAN ID 999" in each_line:
+                    name = f"wl{each_line.split()[4].replace('999', '')}_count"
+                    tmp_dict[name] = _make_int(tmp_output[idx + 1].split()[-1])
+                    tmp_output[idx + 1] = ""
+                elif "Number of Cl" in each_line:
+                    tmp_dict["total_count"] = _make_int(each_line.split()[-1])
+
+    # ----------------------------------------------------------------------------
     # FLEXCONN: {grp_name: {ap_count: x}}}
     # ----------------------------------------------------------------------------
-    if sub_feature == "flexconnect":
+    elif sub_feature == "flexconnect":
         for each_grp in output:
             name = each_grp["flexconnect_group_name"]
             tmp_dict[name]["ap_count"] = _make_int(each_grp["ap_count"])
@@ -84,10 +102,10 @@ def format_output(
     # ----------------------------------------------------------------------------
     # INTF_GRP: {grp_name: {ap_count: x, intf_count: x, wlan_count: x}}}
     # ----------------------------------------------------------------------------
-    if sub_feature == "intf_grp":
+    elif sub_feature == "intf_grp":
         for each_grp in output:
             name = each_grp["interface_group_name"]
-            tmp_dict[name]["ap_count"] = _make_int(each_grp["total_ap_groups"])
+            tmp_dict[name]["ap_grp_count"] = _make_int(each_grp["total_ap_groups"])
             tmp_dict[name]["intf_count"] = _make_int(each_grp["total_interfaces"])
             tmp_dict[name]["wlan_count"] = _make_int(each_grp["total_wlans"])
 

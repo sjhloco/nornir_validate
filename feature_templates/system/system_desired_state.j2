@@ -5,7 +5,7 @@
 {% set module_cmd = "show module" %}
 {% elif 'nxos' in os_type |string %}
 {% set image_cmd = "show version" %}
-{% set mgmt_acl_cmd = "show ip access-lists" %}
+{% set mgmt_acl_cmd = "show access-lists" %}
 {% set module_cmd = "show module" %}
 {% elif 'asa' in os_type |string %}
 {% set image_cmd = "show version" %}
@@ -17,7 +17,7 @@
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
-{# ### IMAGE: {cmd: version: code_number}} ### #}
+{# ### IMAGE: {cmd: code_number}} ### #}
 {% if sub_feat == 'image' %}
     image: 
       {{ image_cmd }}: 

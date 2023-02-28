@@ -43,29 +43,30 @@ def format_output(
 
     ### KEY: Set the dictionary keys to use on a per-OS basis
     if bool(re.search("ios", os_type)):
-        new_subfeat1 = "xxx"
-        new_subfeat2 = "xxx"
+        nve_vni_bd_vrf = "vrf"
     elif bool(re.search("nxos", os_type)):
-        new_subfeat1 = "yyy"
-        new_subfeat2 = "yyy"
+        nve_vni_bd_vrf = "bd_vrf"
     elif bool(re.search("asa", os_type)):
-        new_subfeat1 = "zzz"
-        new_subfeat2 = "zzz"
+        pass
     elif bool(re.search("wlc", os_type)):
-        new_subfeat1 = "xxx"
-        new_subfeat2 = "xxx"
+        pass
     # ----------------------------------------------------------------------------
-    # SUB_FEATURE1_NAME: {key_name: x}
+    # NVE_VNI: {l3vni: {bdi_vrf: z, state: Up}}
     # ----------------------------------------------------------------------------
-    if sub_feature == "new_subfeat1":
-        tmp_dict["key_name"] = output[0][new_subfeat1]
+    if sub_feature == "nve_vni":
+        for each_vni in output:
+            vni = _make_int(each_vni["vni"])
+            if "L2" in each_vni["mode"]:
+                tmp_dict[vni]["bd_vrf"] = _make_int(each_vni["bd"])
+            else:
+                tmp_dict[vni]["bd_vrf"] = _make_int(each_vni[nve_vni_bd_vrf])
+            tmp_dict[vni]["state"] = each_vni["state"]
 
     # ----------------------------------------------------------------------------
-    # SUB_FEATURE2_NAME: {xxx: {y: y, z: xxx}}
+    # NVE_PEER: {peer1_ip: state: Up, peer1_ip: state: Up}
     # ----------------------------------------------------------------------------
-    elif sub_feature == "new_subfeat2":
-        for each_item in output:
-            tmp_dict[each_item]["y"] = each_x["y"]
-            tmp_dict[each_item]["z"] = each_x[new_subfeat2]
+    elif sub_feature == "nve_peer":
+        for each_peer in output:
+            tmp_dict[each_peer["peer"]] = each_peer["state"].capitalize()
 
     return dict(tmp_dict)

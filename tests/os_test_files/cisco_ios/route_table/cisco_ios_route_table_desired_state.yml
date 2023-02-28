@@ -2,28 +2,28 @@ route_table:
   vrf:
     show vrf:
       BLU:
-        _mode: strict
         intf:
+          _mode: strict
           list:
           - Lo12
           - Vl5
           - Vl10
           - Vl20
       AMB:
-        _mode: strict
         intf:
+          _mode: strict
           list:
           - Vl96
           - Vl3102
       GRN:
-        _mode: strict
         intf:
+          _mode: strict
           list:
           - Gi0/1
   route_count:
-    show ip route  summary | in name|Total:
+    show ip  route summary | in name|Total:
       global: 20
-    show ip route vrf BLU summary | in name|Total:
+    show ip  route vrf BLU summary | in name|Total:
       BLU: 113
   route:
     show ip route:

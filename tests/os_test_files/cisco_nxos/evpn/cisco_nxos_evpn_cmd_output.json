@@ -1,0 +1,83 @@
+{
+    "evpn": {
+        "nve_vni": [
+            {
+                "interface": "nve1",
+                "vni": "10006",
+                "mcast_group": "UnicastBGP",
+                "state": "Up",
+                "mode": "CP",
+                "type": "L2",
+                "bd_vrf": "6"
+            },
+            {
+                "interface": "nve1",
+                "vni": "20093",
+                "mcast_group": "UnicastBGP",
+                "state": "Up",
+                "mode": "CP",
+                "type": "L2",
+                "bd_vrf": "93"
+            },
+            {
+                "interface": "nve1",
+                "vni": "3098",
+                "mcast_group": "UnicastBGP",
+                "state": "Up",
+                "mode": "CP",
+                "type": "L2",
+                "bd_vrf": "98"
+            },
+            {
+                "interface": "nve1",
+                "vni": "10301",
+                "mcast_group": "n/a",
+                "state": "Up",
+                "mode": "CP",
+                "type": "L3",
+                "bd_vrf": "BLU"
+            },
+            {
+                "interface": "nve1",
+                "vni": "10303",
+                "mcast_group": "n/a",
+                "state": "Up",
+                "mode": "CP",
+                "type": "L3",
+                "bd_vrf": "AMB"
+            },
+            {
+                "interface": "nve1",
+                "vni": "10306",
+                "mcast_group": "n/a",
+                "state": "Up",
+                "mode": "CP",
+                "type": "L3",
+                "bd_vrf": "GRY"
+            }
+        ],
+        "nve_peer": [
+            {
+                "interface": "nve1",
+                "peer": "192.168.111.41",
+                "state": "Up",
+                "type": "CP",
+                "rmac": "0200.c0a8.6533  "
+            },
+            {
+                "interface": "nve1",
+                "peer": "192.168.111.47",
+                "state": "Up",
+                "type": "CP",
+                "rmac": "2416.9dd1.5127 "
+            },
+            {
+                "interface": "nve1",
+                "peer": "192.168.111.81",
+                "state": "Up",
+                "type": "CP",
+                "rmac": "0200.c0a8.655b "
+            }
+        ]
+    }
+}

@@ -71,7 +71,7 @@ def _create_parser() -> Dict[str, Any]:
 # ----------------------------------------------------------------------------
 # Create the Feature and feature test directories
 # ----------------------------------------------------------------------------
-def create_feature_dir(rc: "Rich", os_type: str, feature: str) -> None:
+def create_feature_dir(os_type: str, feature: str) -> None:
     """
     > Create new feature and feature test folders (copies those from skeleton_new_feature so
     includes all files)
@@ -124,9 +124,7 @@ def create_feature_dir(rc: "Rich", os_type: str, feature: str) -> None:
 # ----------------------------------------------------------------------------
 # Generates the data structured command output
 # ----------------------------------------------------------------------------
-def generate_cmd_data(
-    rc: "Rich", os_type: str, command: str, host_or_file: str
-) -> None:
+def generate_cmd_data(os_type: str, command: str, host_or_file: str) -> None:
     """
     > This function takes in a Rich Console object, an OS type, a command, and a host or file name. It
     then checks if the host is a valid IP address or if the file exists. If it's a valid IP address, it
@@ -186,7 +184,9 @@ def generate_cmd_data(
 # ----------------------------------------------------------------------------
 # Create the desired state yaml test file
 # ----------------------------------------------------------------------------
-def create_desired_state(rc: "Rich", os_type: str, feature: str) -> None:
+def create_desired_state(
+    os_type: str, feature: str, TEST_PATH: str, TMPL_PATH: str
+) -> None:
     """
     It takes the data from the `validate.yml` file, renders the template, and saves the result to a file
 
@@ -225,13 +225,17 @@ def create_desired_state(rc: "Rich", os_type: str, feature: str) -> None:
     #     yaml.dump(yaml.load(ds, Loader=yaml.Loader)[0], f, sort_keys=False)
     with open(ds_file, "w") as yaml_file:
         yaml.dump(desired_state, yaml_file, sort_keys=False)
-    rc.print(f"✅ Created the file '{ds_file}'")
+    # Saves need to have rich in pytest
+    try:
+        rc.print(f"✅ Created the file '{ds_file}'")
+    except:
+        print(f"✅ Created the file '{ds_file}'")
 
 
 # ----------------------------------------------------------------------------
 # Create the desired state yaml test file
 # ----------------------------------------------------------------------------
-def create_actual_state(rc: "Rich", os_type: str, feature: str) -> None:
+def create_actual_state(os_type: str, feature: str, TEST_PATH: str) -> None:
     """
     > It takes the command output file and converts it to the actual state file
 
@@ -259,7 +263,11 @@ def create_actual_state(rc: "Rich", os_type: str, feature: str) -> None:
     as_file = os.path.join(TEST_PATH, f"{os_type}_{feature}_actual_state.yml")
     with open(as_file, "w") as yaml_file:
         yaml.dump(dict(actual_state), yaml_file, sort_keys=False)
-    rc.print(f"✅ Created the file '{as_file}'")
+    # Saves need to have rich in pytest
+    try:
+        rc.print(f"✅ Created the file '{as_file}'")
+    except:
+        print(f"✅ Created the file '{as_file}'")
 
 
 # ----------------------------------------------------------------------------
@@ -269,7 +277,7 @@ def main():
     """
     The engine that runs the different functions based on arguments passed at runtime
     """
-    global TEST_PATH, TMPL_PATH
+    global rc
     my_theme = {"repr.ipv4": "none", "repr.number": "none", "repr.call": "none"}
     rc = Console(theme=Theme(my_theme))
 
@@ -281,14 +289,14 @@ def main():
 
     # Dependant on the flag run the relevant function
     if args["create_feature"] != None:
-        create_feature_dir(rc, os_type, feature)
+        create_feature_dir(os_type, feature)
     elif args["discovery"] != None:
         host_or_file = args["discovery"][2]
-        generate_cmd_data(rc, os_type, feature, host_or_file)
+        generate_cmd_data(os_type, feature, host_or_file)
     elif args["create_desired_state"] != None:
-        create_desired_state(rc, os_type, feature)
+        create_desired_state(os_type, feature, TEST_PATH, TMPL_PATH)
     elif args["create_actual_state"] != None:
-        create_actual_state(rc, os_type, feature)
+        create_actual_state(os_type, feature, TEST_PATH)
     else:
         raise Exception(
             "At least one of the arguments '-cf', '-as' or '-ds' is required"

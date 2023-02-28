@@ -4,6 +4,9 @@ all:
       1:
         name: default
         intf: []
+      10:
+        name: test
+        intf: []
       20:
         name: test20
         intf: [Gi0/1]
@@ -12,6 +15,8 @@ all:
         intf: [Gi0/6, Gi0/8, Gi0/11, Po1]
       - vlan: 3102
         intf: [Po1]
+      - vlan: 96
+        intf: [Gi0/6, Gi0/8, Gi0/11]
     mac_table:
       total_mac_count: 19
       vl10_mac_count: 6

@@ -19,6 +19,10 @@ all:
         ap_model: AIR-AP2802I-E-K9
         ip: 10.20.10.14
         client_count: 14
+    client_count:
+      total_count: 4
+      wl31_count: 2
+      wl20_count: 1
     flexconnect:
       - grp_name: FlexCon Group - Grp1
         ap_count: 44
@@ -26,14 +30,14 @@ all:
         ap_count: 4
     intf_grp:
       - grp_name: intgrp_guest
-        ap_count: 2
+        ap_grp_count: 2
         intf_count: 1
         wlan_count: 1
       - grp_name: intgrp_prod
-        ap_count: 6
+        ap_grp_count: 6
         intf_count: 1
         wlan_count: 1
       - grp_name: intgrp_byod
-        ap_count: 11
+        ap_grp_count: 11
         intf_count: 1
         wlan_count: 2

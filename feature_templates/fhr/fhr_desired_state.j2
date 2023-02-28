@@ -2,7 +2,7 @@
 {% if 'ios' in os_type |string %}
 {% set hsrp_cmd = "show standby brief" %}
 {% elif 'nxos' in os_type |string %}
-{% set hsrp_cmd = "show hsrp all" %}
+{% set hsrp_cmd = "show hsrp | json" %}
 {% elif 'asa' in os_type |string %}
 {% elif 'wlc' in os_type |string %}
 {% endif %}

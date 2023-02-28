@@ -26,20 +26,33 @@ intf_bonded:
     peer_consistency: SUCCESS
     type2_consistency: SUCCESS
     peerlink_port_state: 1
-    peerlink_vlans: 110-111,113-116,200,1100,1102,1110-1111
+    peerlink_vlans:
+    - 110-111
+    - 113-116
+    - 200
+    - 1100
+    - 1102
+    - 1110-1111
     vpcs:
       21:
         po: Po21
         port_state: 1
         consistency_status: SUCCESS
-        vlans: 113-116,200
+        vlans:
+        - 113-116
+        - 200
       25:
         po: Po25
         port_state: 1
         consistency_status: SUCCESS
-        vlans: 110-111,1100,1102,1110-1111
+        vlans:
+        - 110-111
+        - 1100
+        - 1102
+        - 1110-1111
       32:
         po: Po32
         port_state: 1
         consistency_status: SUCCESS
-        vlans: 1102
+        vlans:
+        - 1102

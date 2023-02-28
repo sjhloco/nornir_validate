@@ -6,6 +6,11 @@ layer2:
         intf:
           _mode: strict
           list: []
+      10:
+        name: test
+        intf:
+          _mode: strict
+          list: []
       20:
         name: test20
         intf:
@@ -15,12 +20,19 @@ layer2:
   stp_vlan:
     show spanning-tree:
       144:
+        _mode: strict
         Gi0/6: FWD
         Gi0/8: FWD
         Gi0/11: FWD
         Po1: FWD
       3102:
+        _mode: strict
         Po1: FWD
+      96:
+        _mode: strict
+        Gi0/6: FWD
+        Gi0/8: FWD
+        Gi0/11: FWD
   mac_table:
     show mac address-table dynamic | count dynamic|DYNAMIC:
       total_mac_count: 19

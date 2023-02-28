@@ -7,7 +7,7 @@
 {% elif 'nxos' in os_type |string %}
 {% set vlan_cmd = "show vlan brief" %}
 {% set mac_table_all_cmd = "show mac address-table count dynamic" %}
-{% set mac_table_cmd = "show mac address-table static vlan | last 1" %}
+{% set mac_table_cmd = "show mac  address-table static vlan | last 1" %}
 {% elif 'asa' in os_type |string %}
 {% elif 'wlc' in os_type |string %}
 {% endif %}
@@ -33,6 +33,7 @@
 {% for each_vl in input_vars %}
         {{ each_vl.vlan }}: 
 {% for each_intf in each_vl.intf %}
+          _mode: strict
           {{ each_intf }}: FWD
 {% endfor %}{% endfor %}
 {# ### MAC TABLE COUNT: {cmd:  {total_mac_count: x, vlxxx_mac_count: x} ### #}
@@ -46,7 +47,7 @@
 {% elif 'nxos' in os_type |string %}
       {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}:
         {{ mac_info }}: {{ num_mac }}  
-      show mac address-table count dynamic vlan {{ vl }}:
+      {{ mac_table_all_cmd }} vlan {{ vl }}:
         {{ mac_info }}: {{ num_mac }}
 {% else %}
       {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}:

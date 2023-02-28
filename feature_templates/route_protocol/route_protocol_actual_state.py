@@ -26,9 +26,6 @@ def _remove_char(input_data: str, char: str) -> str:
     "If the specified character is in the input data, return the input data split on the specified
     character, otherwise return the input data."
 
-    The function is called _remove_char because it removes a character from a string. The underscore at
-    the beginning of the function name indicates that the function is private
-
     :param input_data: The string to be modified
     :type input_data: str
     :param char: The character to remove
@@ -43,7 +40,16 @@ def _remove_char(input_data: str, char: str) -> str:
 
 
 def _remove_dup_peers(input_data: List, bgp_addr_fam: str) -> List:
-    # If duplicate peers remove the IPv4 one as likely to be the underlay
+    """
+    If duplicate peers remove the IPv4 address family as likely to be the underlay
+    The function returns a list of dictionaries
+
+    :param input_data: This is the list of dictionaries that we want to remove duplicates from
+    :type input_data: List
+    :param bgp_addr_fam: The address family to use for the BGP session
+    :type bgp_addr_fam: str
+    :return: A list of dictionaries
+    """
     output = copy(input_data)
     for idx, each_peer in enumerate(input_data):
         for idx1, each_peer1 in enumerate(input_data):
@@ -105,7 +111,6 @@ def format_output(
                 tmp_dict[intf]["nbr"] = {each_nbr["address"]: state}
             else:
                 tmp_dict[intf]["nbr"][each_nbr["address"]] = state
-        tmp_dict = dict(tmp_dict)
 
     # ----------------------------------------------------------------------------
     # OSPF_INTF_NBR: {intf: {pid, x, area: x, nbr: {nbr_ip: FULL}}
@@ -122,27 +127,30 @@ def format_output(
             else:
                 state = _remove_char(each_intf["state"], "/")
                 dict_nbr[each_intf["interface"]][each_intf[ospf_nbr_ip]] = state
-        # Match neigbors to interfaces adding neighbors as a list to interfaces
+        # Match neighbors to interfaces adding neighbors as a list to interfaces
         for intf in tmp_dict.keys():
             for intf1, nbr in dict_nbr.items():
-                spl_intf = re.split(r"(\D+)", intf.lower())[1:]
-                spl_intf1 = re.split(r"(\D+)", intf1.lower())[1:]
-                if spl_intf[-1] == spl_intf1[-1] and spl_intf[0] in spl_intf1[0]:
-                    tmp_dict[intf]["nbr"].update(nbr)
-        tmp_dict = dict(tmp_dict)
+                # ASA has to be treated differently as interfaces are logical names
+                if bool(re.search("asa", os_type)):
+                    if intf == intf1:
+                        tmp_dict[intf]["nbr"].update(nbr)
+                else:
+                    spl_intf = re.split(r"(\D+)", intf.lower())[1:]
+                    spl_intf1 = re.split(r"(\D+)", intf1.lower())[1:]
+                    # If the interface number ([1:]) matches and the short name is in long name ([0])
+                    if spl_intf[1:] == spl_intf1[1:] and spl_intf[0] in spl_intf1[0]:
+                        tmp_dict[intf]["nbr"].update(nbr)
 
     # ----------------------------------------------------------------------------
-    # OSPF_LSDB_COUNT: [{process: x, total_lsa: x}]
+    # OSPF_LSDB_COUNT: {process: total_lsa: x}
     # ----------------------------------------------------------------------------
     elif sub_feature == "ospf_lsdb_count":
-        tmp_dict = []
         for idx, each_item in enumerate(output):
             if "Process ID" in each_item:
                 proc = _make_int(each_item.split("s ID")[1].replace(")", "").split()[0])
                 lsdb_count = _make_int(output[idx + 1].split()[1])
                 if lsdb_count != 0:
-                    tmp_dict.append(dict(process=proc, lsdb_count=lsdb_count))
-    # Returns a list rather than dictionary that most other actual states do
+                    tmp_dict[proc]["total_lsa"] = lsdb_count
 
     # ----------------------------------------------------------------------------
     # BGP_PEER: {peer: {asn:x, rcv_pfx:x}}
@@ -155,6 +163,5 @@ def format_output(
             tmp_dict[each_peer["bgp_neigh"]]["rcv_pfx"] = _make_int(
                 each_peer["state_pfxrcd"]
             )
-        tmp_dict = dict(tmp_dict)
 
-    return tmp_dict
+    return dict(tmp_dict)

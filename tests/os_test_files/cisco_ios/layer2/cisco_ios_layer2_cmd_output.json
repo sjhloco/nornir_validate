@@ -82,36 +82,6 @@
                 "type": "P2p "
             },
             {
-                "vlan_id": "3101",
-                "interface": "Gi0/6",
-                "role": "Desg",
-                "status": "FWD",
-                "cost": "4",
-                "port_priority": "128",
-                "port_id": "6",
-                "type": "P2p "
-            },
-            {
-                "vlan_id": "3101",
-                "interface": "Gi0/8",
-                "role": "Desg",
-                "status": "FWD",
-                "cost": "4",
-                "port_priority": "128",
-                "port_id": "8",
-                "type": "P2p"
-            },
-            {
-                "vlan_id": "3101",
-                "interface": "Po1",
-                "role": "Desg",
-                "status": "FWD",
-                "cost": "3",
-                "port_priority": "128",
-                "port_id": "456",
-                "type": "P2p "
-            },
-            {
                 "vlan_id": "3102",
                 "interface": "Po1",
                 "role": "Desg",

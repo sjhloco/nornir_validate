@@ -1,3 +1,2 @@
 system:
-  image:
-    version: 8.10.171.0
+  image: 8.10.171.0

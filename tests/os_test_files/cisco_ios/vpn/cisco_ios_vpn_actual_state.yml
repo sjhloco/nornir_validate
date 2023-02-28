@@ -1,0 +1,6 @@
+vpn:
+  sts_peer:
+    10.161.255.14: UP-ACTIVE
+    192.168.0.1: UP-ACTIVE
+  vpn_count:
+    sts: 2

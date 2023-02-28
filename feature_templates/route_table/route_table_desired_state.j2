@@ -1,12 +1,14 @@
 {# ####### Set commands on a per-OS basis ####### #}
 {% if 'ios' in os_type |string %}
 {% set vrf_cmd = "show vrf" %}
-{% set route_count_cmd = "show ip route  summary | in name|Total" %}
+{% set route_count_cmd = "show ip  route summary | in name|Total" %}
+{% set route_vrf_count_cmd = "show ip  route vrf x summary | in name|Total" %}
 {% set route_cmd = "show ip route" %}
 {% elif 'nxos' in os_type |string %}
 {% set vrf_cmd = "show vrf interface" %}
-{% set route_count_cmd = "show ip route  summary | in VRF|Route" %}
-{% set route_cmd = "show ip route vrf all" %}
+{% set route_count_cmd = "show ip  route summary | in VRF|routes" %}
+{% set route_vrf_count_cmd = "show ip  route summary vrf x | in VRF|routes" %}
+{% set route_cmd = "show ip route" %}
 {% elif 'asa' in os_type |string %}
 {% set route_count_cmd = "show route summary | in maximum-paths|Total" %}
 {% set route_cmd = "show route" %}
@@ -29,6 +31,18 @@
 {% endif %}{% endfor %}
 {%- endmacro -%}
 
+{%- macro def_route1(rte_tab, rte) -%}
+{% for rte, rte_info in rte.items() %}
+          {{ rte }}:
+            rtype: {{ rte_info.rtype }}
+{% if rte_info.nh.__class__.__name__ == 'list' %}
+            nh: 
+              _mode: strict 
+              list: {{ rte_info.nh }}
+{% else %}
+            nh: {{ rte_info.nh }}
+{% endif %}{% endfor %}
+{%- endmacro -%}
 
 {# ##### Build feature template ##### #}
 - {{ feature }}:
@@ -39,8 +53,8 @@
       {{ vrf_cmd }}: 
 {% for each_vrf, intf in input_vars.items() %}
         {{ each_vrf }}:
-          _mode: strict
           intf: 
+            _mode: strict
             list: {{ intf }}
 {% endfor %}
 {# ### RTE_COUNT: {cmd: {global_subnets: x, xx_subnets: x}) ### #}
@@ -50,8 +64,8 @@
 {% if vrf_info == "global" %}
       {{ route_count_cmd }}: 
         {{ vrf_info }}: {{ num_rte }}
-{% else %}
-      {{ route_count_cmd.split('  ') | first }} vrf {{ vrf_info }} {{ route_count_cmd.split('  ') | last }}: 
+{% else%}
+      {{ route_vrf_count_cmd.split('x') | first }}{{ vrf_info }}{{ route_vrf_count_cmd.split('x') | last }}: 
         {{ vrf_info }}: {{ num_rte }}
 {% endif %}{% endfor %}
 {# ### RTE_TABLE: {cmd: {vrf: {route/prefix: type: x, nh: y}}) ### #}
@@ -61,13 +75,10 @@
 {% if each_rte_tab == "global" %}
       {{ route_cmd }}:
         {{ def_route(each_rte_tab, each_rte) }}
-{% elif (each_rte_tab != "global") and ('ios' in os_type |string) %}
+{% else %}
       {{ route_cmd }} vrf {{ each_rte_tab }}:
         {{ def_route(each_rte_tab, each_rte) }}
-{% else %}
-        {{ def_route(each_rte_tab, each_rte) }}
 {% endif %}{% endfor %}
-
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
 

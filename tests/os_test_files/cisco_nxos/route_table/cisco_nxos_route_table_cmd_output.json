@@ -10,15 +10,11 @@
             {"id": "4", "interface": "Vlan113", "name": "BLU", "origin": "--"},
             {"id": "4", "interface": "Vlan3001", "name": "BLU", "origin": "--"},
             {"id": "4", "interface": "loopback21", "name": "BLU", "origin": "--"},
-            {"id": "5", "interface": "Vlan3002", "name": "GRN", "origin": "--"},
-            {"id": "6", "interface": "Vlan98", "name": "RED", "origin": "--"},
-            {"id": "6", "interface": "Vlan99", "name": "RED", "origin": "--"},
             {"id": "1", "interface": "Vlan1", "name": "default", "origin": "--"},
             {"id": "1", "interface": "loopback1", "name": "default", "origin": "--"},
             {"id": "1", "interface": "loopback2", "name": "default", "origin": "--"},
             {"id": "1", "interface": "Ethernet1/1", "name": "default", "origin": "--"},
-            {"id": "1", "interface": "Ethernet1/2", "name": "default", "origin": "--"},
-            {"id": "2", "interface": "mgmt0", "name": "management", "origin": "--"}
+            {"id": "1", "interface": "Ethernet1/2", "name": "default", "origin": "--"}
         ],
         "route_count": [
             "IP Route Table for VRF \"BLU\"",

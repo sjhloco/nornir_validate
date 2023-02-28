@@ -21,8 +21,8 @@ def _make_int(input_data: str) -> int:
 
 def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> List:
     """
-    Fixes issues due to NXOS JSON making dict rather than list if only 1 item. If the child_dict is a dictionary,
-    convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
+    Fixes issues due to NXOS JSON making dict rather than list if only 1 item. 
+    If the child_dict is a dictionary, convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
 
     :param main_dict: The dictionary that contains the parent dictionary
     :param parent_dict: The parent dictionary key
@@ -75,7 +75,7 @@ def format_output(
     # ----------------------------------------------------------------------------
     if sub_feature == "hsrp":
         if bool(re.search("nxos", os_type)):
-            output = _fix_nxos(output, "TABLE_grp_detail", "ROW_grp_detail")
+            output = _fix_nxos(output[0], "TABLE_grp_detail", "ROW_grp_detail")
         for each_nbr in output:
             tmp_dict[each_nbr[hsrp_intf]]["priority"] = _make_int(each_nbr[hsrp_prio])
             tmp_dict[each_nbr[hsrp_intf]]["state"] = each_nbr[hsrp_state]

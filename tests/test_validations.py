@@ -13,6 +13,8 @@ from nornir import InitNornir
 from nornir.core.task import Result
 from nornir.core.filter import F
 
+from feature_builder import create_desired_state
+from feature_builder import create_actual_state
 from nr_val import merge_os_types
 from nr_val import task_template
 from nr_val import task_desired_state
@@ -29,7 +31,7 @@ TEST_INVENTORY = os.path.join(os.path.dirname(__file__), "test_inventory")
 # WHERE TEST FILES ARE
 OS_TEST_FILES = os.path.join(os.path.dirname(__file__), "os_test_files")
 # ACTUAL VALIDATE TEMPLATES
-TEMPLATE_DIR = os.path.join(os.getcwd(), "templates/")
+TEMPLATE_DIR = os.path.join(os.getcwd(), "feature_templates/")
 
 
 # ----------------------------------------------------------------------------
@@ -134,19 +136,30 @@ def load_json_file(input_json_file):
     return output_json_data
 
 
-def have_same_keys(feature, state, expected_state, true_state):
+def have_same_keys(feature, check_type, expected_state, true_state):
     """Test that the keys for the expected desired/actual state and true desired/actual are the same"""
     exp_ds = set(expected_state.keys())
     tru_ds = set(true_state.keys())
     diff = exp_ds.symmetric_difference(tru_ds)
-    err_msg = f"❌ {state}: {feature['vendor_os']} {feature['feature']} missing features or sub-features (diffs): {', '.join(diff)}"
+    if check_type == "val-keys":
+        text_msg = "missing sub-feature validated objects/keys"
+        check_type = "Compliance Report"
+    elif check_type == "subfeat":
+        text_msg = "missing sub-features"
+        check_type = "Compliance Report"
+    else:
+        text_msg = "missing features"
+    str_diff = []
+    for x in diff:
+        str_diff.append(str(x))
+    err_msg = f"❌ {check_type}: {feature['vendor_os']} {feature['feature']} {text_msg} (diffs): {', '.join(str_diff)}"
     assert not diff, err_msg
 
 
 def sub_feature_test(feature, state, expected_state, true_state):
     """Test each sub feature expected desired/actual/report state and true desired/actual/report are the same"""
     for sub_feat in expected_state.keys():
-        err_msg = f"❌ {state}: {feature['vendor_os']} {feature['feature']} {sub_feat.upper()} is incorrect"
+        err_msg = f"❌ {state}: {feature['vendor_os']} {feature['feature']} is incorrect"
         try:
             del true_state[sub_feat]["complies"]
             del expected_state[sub_feat]["complies"]
@@ -180,10 +193,17 @@ class TestDesiredState:
         """Uses other methods to load all the files and then per-feature desired state assertion"""
         all_features = get_test_file_info(return_os_feature_name)
         feature = all_features[return_os_feature_name]
-
         validate_file = feature["val_file"]
         desired_state_file = feature["ds_file"]
         os_type = feature["os_type"]
+        vendor_os = feature["vendor_os"].lower()
+
+        # Generates a new testbed desired state (from validate file) to run test against
+        TEST_PATH = os.path.join(OS_TEST_FILES, vendor_os, feature["feature"].lower())
+        TMPL_PATH = os.path.join(TEMPLATE_DIR, feature["feature"].lower())
+        create_desired_state(
+            vendor_os, feature["feature"].lower(), TEST_PATH, TMPL_PATH
+        )
 
         # Load all the files needed for the validation
         validations = load_yaml_file(validate_file)
@@ -209,10 +229,14 @@ class TestActualState:
         """Uses other methods to load all the files and then run per-feature actual state assertion"""
         all_features = get_test_file_info(return_os_feature_name)
         feature = all_features[return_os_feature_name]
-
         cmd_output = feature["cmd_file"]
         actual_state_file = feature["as_file"]
         os_type = feature["os_type"]
+        vendor_os = feature["vendor_os"].lower()
+
+        # Generates a new testbed desired state (from validate file) to run test against
+        TEST_PATH = os.path.join(OS_TEST_FILES, vendor_os, feature["feature"].lower())
+        create_actual_state(vendor_os, feature["feature"].lower(), TEST_PATH)
 
         # Load all the files needed for the validation
         expected_as = load_yaml_file(actual_state_file)
@@ -244,39 +268,48 @@ class TestComplianceReport:
         desired_state = remove_cmds_desired_state(tmp_desired_state)
         actual_state = load_yaml_file(actual_state_file)
 
-        # Create the expected passing compliance report and actual compliance report
-        sub_feat = {}
+        # Create the expected passing compliance report
+        all_sub_feat = []
+        sub_feat = {"complies": True}
         for each_sub_feat in actual_state[feature["feature"].lower()]:
-            sub_feat[each_sub_feat] = {"complies": True, "nested": True}
+            base_dict = {"complies": True, "missing": [], "extra": []}
+            name = f"{feature['feature'].lower()}.{each_sub_feat}"
+            all_sub_feat.append(name)
+            tmp_sub_feat = actual_state[feature["feature"].lower()][each_sub_feat]
+            if isinstance(tmp_sub_feat, dict):
+                present = {}
+                for k, v in tmp_sub_feat.items():
+                    if isinstance(v, dict) or isinstance(v, list):
+                        present[k] = {"complies": True, "nested": True}
+                    else:
+                        present[k] = {"complies": True, "nested": False}
+            elif isinstance(tmp_sub_feat, list):
+                present = tmp_sub_feat.copy()
+            else:
+                present = {each_sub_feat: {"complies": True, "nested": False}}
+            base_dict.update({"present": present})
+            sub_feat[name] = base_dict
         expected_report = {
             "failed": False,
+            "report": sub_feat,
             "result": "✅ Validation report complies, desired_state and actual_state match.",
-            "report": {
-                feature["feature"].lower(): {
-                    "complies": True,
-                    "present": sub_feat,
-                    "missing": [],
-                    "extra": [],
-                },
-                "complies": True,
-                "skipped": [],
-            },
             "report_text": "",
         }
+        # Create the actual compliance report
         true_report = generate_validate_report(desired_state, actual_state, "hst", None)
-
-        # If does not comply run assert on each sub-feature within the report
-        err_msg = f"❌ Compliance Report: {feature['vendor_os']} {feature['feature']} desired and actual state do not match"
-        if true_report.get("failed", True) == False:
-            assert true_report == expected_report, err_msg
-        else:
-            ex_report = expected_report["report"]
-            tr_report = true_report["report"]
-            have_same_keys(feature, "Compliance Report", ex_report, tr_report)
-            f_name = feature["feature"].lower()
-            ex_report_feat = expected_report["report"][f_name]["present"]
-            tr_report_feat = true_report["report"][f_name]["present"]
-            have_same_keys(feature, "Compliance Report", ex_report_feat, tr_report_feat)
-            sub_feature_test(
-                feature, "Compliance Report", ex_report_feat, tr_report_feat
-            )
+        ex_report = expected_report["report"]
+        tr_report = true_report["report"]
+        # Validate all the features are there (keys)
+        have_same_keys(feature, "Compliance Report", ex_report, tr_report)
+        for sub_feat in all_sub_feat:
+            feature["feature"] = sub_feat.upper()
+            # Validate all the sub-features are there (keys)
+            have_same_keys(feature, "subfeat", ex_report[sub_feat], tr_report[sub_feat])
+            # Validate all the sub-features keys (validated objects) are there
+            ex_report_val = ex_report[sub_feat]["present"]
+            tr_report_val = tr_report[sub_feat]["present"]
+            if isinstance(ex_report_val, dict):
+                have_same_keys(feature, "val-keys", ex_report_val, tr_report_val)
+            # Validate all the sub-features match
+            err_msg = f"❌ Compliance Report: {feature['vendor_os']} {feature['feature']} desired and actual state do not match"
+            assert ex_report_val == tr_report_val, err_msg

@@ -1,0 +1,5 @@
+auth_session:
+  mab_count:
+    show authentication sessions | count mab: 13
+  dot1x_count:
+    show authentication sessions | count dot1x: 21

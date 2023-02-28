@@ -28,7 +28,6 @@
                 "type": "--",
                 "vlan": "routed"
             }
-
         ],
         "switchport": [
             {
@@ -56,41 +55,43 @@
                 "voice_vlan": ""
             }
         ],
-        "ip_brief": {
-            "TABLE_intf": {
-                "ROW_intf": [
-                    {
-                        "vrf-name-out": "default",
-                        "intf-name": "Lo1",
-                        "proto-state": "up",
-                        "link-state": "up",
-                        "admin-state": "up",
-                        "iod": "34",
-                        "prefix": "192.168.1.41",
-                        "ip-disabled": "FALSE"
-                    },
-                    {
-                        "vrf-name-out": "default",
-                        "intf-name": "Eth1/1",
-                        "proto-state": "up",
-                        "link-state": "up",
-                        "admin-state": "up",
-                        "iod": "87",
-                        "unnum-intf": "loopback1",
-                        "ip-disabled": "FALSE"
-                    },
-                    {
-                        "vrf-name-out": "BLU",
-                        "intf-name": "Vlan6",
-                        "proto-state": "up",
-                        "link-state": "up",
-                        "admin-state": "up",
-                        "iod": "23",
-                        "prefix": "172.20.6.1",
-                        "ip-disabled": "FALSE"
-                    }
-                ]
+        "ip_brief": [
+            {
+                "TABLE_intf": {
+                    "ROW_intf": [
+                        {
+                            "vrf-name-out": "default",
+                            "intf-name": "Lo1",
+                            "proto-state": "up",
+                            "link-state": "up",
+                            "admin-state": "up",
+                            "iod": "34",
+                            "prefix": "192.168.1.41",
+                            "ip-disabled": "FALSE"
+                        },
+                        {
+                            "vrf-name-out": "default",
+                            "intf-name": "Eth1/1",
+                            "proto-state": "up",
+                            "link-state": "up",
+                            "admin-state": "up",
+                            "iod": "87",
+                            "unnum-intf": "loopback1",
+                            "ip-disabled": "FALSE"
+                        },
+                        {
+                            "vrf-name-out": "BLU",
+                            "intf-name": "Vlan6",
+                            "proto-state": "up",
+                            "link-state": "up",
+                            "admin-state": "up",
+                            "iod": "23",
+                            "prefix": "172.20.6.1",
+                            "ip-disabled": "FALSE"
+                        }
+                    ]
+                }
             }
-        }
+        ]
     }
 }

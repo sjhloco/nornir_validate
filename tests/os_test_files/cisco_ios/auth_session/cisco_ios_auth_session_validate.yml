@@ -1,0 +1,4 @@
+all:
+  auth_session:
+    mab_count: 13
+    dot1x_count: 21

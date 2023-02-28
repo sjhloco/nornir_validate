@@ -5,6 +5,7 @@
 {% elif 'wlc' in os_type |string %}
 {% set wlan_cmd = "show wlan summary" %}
 {% set ap_cmd = "show ap summary" %}
+{% set client_count_cmd = "show client" %}
 {% set flexconn_cmd = "show flexconnect group summary" %}
 {% set intf_grp_cmd = "show interface group summary" %}
 {% endif %}
@@ -13,7 +14,7 @@
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
-{# ### WLAN:  {cmd: {wlan_id: {intf: x, ssid: xy, status: Enabled}}} #}
+{# ### WLAN: {cmd: {wlan_id: {intf: x, ssid: xy, status: Enabled}}} #}
 {% if sub_feat == 'wlan' %}
     wlan: 
       {{ wlan_cmd }}:  
@@ -23,7 +24,7 @@
           ssid: {{ each_wlan.ssid }}
           status: Enabled
 {% endfor %}
-{# ### AP:  {cmd: {ap_name: {model: x, ip: x, clients: x}}} #}
+{# ### AP: {cmd: {ap_name: {model: x, ip: x, clients: x}}} #}
 {% elif sub_feat == 'ap' %}
     ap: 
       {{ ap_cmd }}:  
@@ -33,7 +34,20 @@
           ip: {{ each_ap.ip }}
           client_count: {{ each_ap.client_count }}
 {% endfor %}
-{# ### FLEXCONN:  {cmd: {grp_name: {ap_count: x}}} #}
+{# ### CLIENT_COUNT: {cmd: {total_count: x, wlxx_count: x}} #}
+{% elif sub_feat == 'client_count' %}
+    client_count:
+{% for wlan, cnt in input_vars.items() %}
+{% if wlan == "total_count" %}
+      {{ client_count_cmd }} summary:
+        {{ wlan }}: {{ cnt }}
+{% else %}
+      {{ client_count_cmd }} wlan {{ wlan.replace("wl", "999").replace("_count", "") }}:
+        SUB_FEATURE_COMBINED_CMD
+      {{ client_count_cmd }} wlan {{ wlan.replace("wl", "").replace("_count", "") }}:
+        {{ wlan }}: {{ cnt }}
+{% endif %}{% endfor %}
+{# ### FLEXCONN: {cmd: {grp_name: {ap_count: x}}} #}
 {% elif sub_feat == 'flexconnect' %}
     flexconnect: 
       {{ flexconn_cmd }}:  
@@ -41,13 +55,13 @@
         {{ each_grp.grp_name }}:
           ap_count: {{ each_grp.ap_count }}
 {% endfor %}
-{# ### INTF_GRP:  {cmd: {grp_name: {ap_count: x, intf_count: x, wlan_count: x}}} #}
+{# ### INTF_GRP: {cmd: {grp_name: {ap_count: x, intf_count: x, wlan_count: x}}} #}
 {% elif sub_feat == 'intf_grp' %}
     intf_grp: 
       {{ intf_grp_cmd }}:  
 {% for each_grp in input_vars %}
         {{ each_grp.grp_name }}:
-          ap_count: {{ each_grp.ap_count }}
+          ap_grp_count: {{ each_grp.ap_grp_count }}
           intf_count: {{ each_grp.intf_count }}
           wlan_count: {{ each_grp.wlan_count }}
 {% endfor %}

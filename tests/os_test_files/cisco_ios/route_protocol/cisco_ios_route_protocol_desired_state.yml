@@ -12,7 +12,7 @@ route_protocol:
           _mode: strict
           10.230.205.27: up
   ospf_intf_nbr:
-    show ip ospf interface brief: filler_for_combined_cmd
+    show ip ospf interface brief: SUB_FEATURE_COMBINED_CMD
     show ip ospf neighbor:
       Gi0/3:
         pid: 3
@@ -45,9 +45,8 @@ route_protocol:
         nbr: {}
   ospf_lsdb_count:
     show ip ospf database database-summary | in Process ID|Total:
-      list:
-      - process: 1
-        lsdb_count: 11
+      1:
+        total_lsa: 11
   bgp_peer:
     show ip bgp all summary:
       _mode: strict

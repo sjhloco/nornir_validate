@@ -12,14 +12,14 @@ all:
         members: [Eth1/26]
     vpc:
       role: primary-secondary
-      peerlink_vlans: 110-111,113-116,200,1100,1102,1110-1111
+      peerlink_vlans: [110-111,113-116,200,1100,1102,1110-1111]
       vpcs:
         21:
           po: Po21
-          vlans: 113-116,200
+          vlans: [113-116,200]
         25:
           po: Po25
-          vlans: 110-111,1100,1102,1110-1111
+          vlans: [110-111,1100,1102,1110-1111]
         32:
           po: Po32
-          vlans: 1102
+          vlans: [1102]

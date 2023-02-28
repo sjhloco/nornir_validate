@@ -46,7 +46,7 @@
                 "trunking_vlans": ["ALL"]
             },
             {
-                "interface": "Gi0/2",
+                "interface": "Po1",
                 "switchport": "Enabled",
                 "switchport_monitor": "",
                 "switchport_negotiation": "On",
@@ -56,6 +56,18 @@
                 "native_vlan": "1",
                 "voice_vlan": "none",
                 "trunking_vlans": ["144,3101,3102"]
+            },
+            {
+                "interface": "Gi0/2",
+                "switchport": "Enabled",
+                "switchport_monitor": "",
+                "switchport_negotiation": "On",
+                "mode": "trunk",
+                "admin_mode": "trunk",
+                "access_vlan": "1",
+                "native_vlan": "1",
+                "voice_vlan": "none",
+                "trunking_vlans": ["144"]
             }
         ],
         "ip_brief": [

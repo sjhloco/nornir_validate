@@ -28,6 +28,6 @@ layer2:
       intf:
       - Po1
   mac_table:
-    total_mac_count: 681
     vl6_mac_count: 26
     vl24_mac_count: 306
+    total_mac_count: 681

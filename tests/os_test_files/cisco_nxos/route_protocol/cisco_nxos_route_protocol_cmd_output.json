@@ -38,28 +38,6 @@
                 "process": "DC_UNDERLAY",
                 "vrf": "default",
                 "interface_count": "6",
-                "interface": "Lo2",
-                "area": "0.0.0.0",
-                "cost": "1",
-                "state": "LOOPBACK",
-                "neighbors_fc": "0",
-                "status": "up"
-            },
-            {
-                "process": "DC_UNDERLAY",
-                "vrf": "default",
-                "interface_count": "6",
-                "interface": "Lo3",
-                "area": "0.0.0.0",
-                "cost": "1",
-                "state": "LOOPBACK",
-                "neighbors_fc": "0",
-                "status": "up"
-            },
-            {
-                "process": "DC_UNDERLAY",
-                "vrf": "default",
-                "interface_count": "6",
                 "interface": "Eth1/1",
                 "area": "0.0.0.0",
                 "cost": "1",

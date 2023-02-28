@@ -1,6 +1,6 @@
 route_protocol:
   ospf_intf_nbr:
-    show ip ospf interface brief vrf all: filler_for_combined_cmd
+    show ip ospf interface brief vrf all: SUB_FEATURE_COMBINED_CMD
     show ip ospf neighbor vrf all:
       Vlan10:
         pid: BLU1
@@ -31,14 +31,13 @@ route_protocol:
           _mode: strict
           172.16.101.34: FULL
   ospf_lsdb_count:
-    show ip ospf database database-summary vrf all | in Process ID|Total:
-      list:
-      - process: BLU1
-        lsdb_count: 20
-      - process: DC_UNDERLAY
-        lsdb_count: 6
+    show ip ospf database database-summary vrf all | in "Process ID|Total":
+      BLU1:
+        total_lsa: 20
+      DC_UNDERLAY:
+        total_lsa: 6
   bgp_peer:
-    show ip bgp summary vrf all:
+    show ip bgp all summary vrf all:
       _mode: strict
       10.25.113.1:
         asn: 65001

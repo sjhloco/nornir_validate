@@ -29,8 +29,8 @@ all:
         pid: 1
         area: 1
     ospf_lsdb_count:
-      - process: 1
-        lsdb_count: 11
+      1:
+        total_lsa: 11
     bgp_peer:
       192.168.11.1:
         asn: 65101

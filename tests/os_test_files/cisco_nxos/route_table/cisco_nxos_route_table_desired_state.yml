@@ -2,8 +2,8 @@ route_table:
   vrf:
     show vrf interface:
       BLU:
-        _mode: strict
         intf:
+          _mode: strict
           list:
           - Vlan108
           - Vlan109
@@ -14,13 +14,13 @@ route_table:
           - Vlan3001
           - loopback21
       AMB:
-        _mode: strict
         intf:
+          _mode: strict
           list:
           - Vlan3003
       default:
-        _mode: strict
         intf:
+          _mode: strict
           list:
           - Ethernet1/1
           - Ethernet1/2
@@ -28,12 +28,14 @@ route_table:
           - loopback2
           - Vlan1
   route_count:
-    show ip route  summary | in VRF|Route:
+    show ip  route summary | in VRF|routes:
       global: 21
-    show ip route vrf BLU summary | in VRF|Route:
+    show ip  route summary vrf BLU | in VRF|routes:
       BLU: 925
+    show ip  route summary vrf TRI | in VRF|routes:
+      TRI: 58
   route:
-    show ip route vrf all:
+    show ip route:
       global:
         192.168.2.33/32:
           rtype: ospf-DC_UNDERLAY intra
@@ -51,6 +53,7 @@ route_table:
         192.168.12.9/32:
           rtype: local
           nh: Vlan3101
+    show ip route vrf BLU:
       BLU:
         0.0.0.0/0:
           rtype: static
@@ -67,6 +70,7 @@ route_table:
         10.22.10.0/23:
           rtype: ospf-BLU1 nssa
           nh: 192.168.11.3
+    show ip route vrf TRI:
       TRI:
         192.168.2.123/32:
           rtype: local

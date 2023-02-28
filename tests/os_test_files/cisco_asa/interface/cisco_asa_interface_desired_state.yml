@@ -1,6 +1,6 @@
 interface:
   intf:
-    show interface status:
+    show interface:
       GigabitEthernet1/1:
         duplex: Full-duplex
         speed: 1000 Mbps

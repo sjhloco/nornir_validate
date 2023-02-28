@@ -22,9 +22,9 @@ def _make_int(input_data: str) -> int:
 
 def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> List:
     """
-    Fixes issues due to NXOS JSON making dict rather than list if only 1 item. If the child_dict is a dictionary,
-    convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
-
+    Fixes issues due to NXOS JSON making dict rather than list if only 1 item.
+    If the child_dict is a dictionary, convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
+    
     :param main_dict: The dictionary that contains the parent dictionary
     :param parent_dict: The parent dictionary key
     :param child_dict: The key of the dictionary that you want to fix
@@ -144,8 +144,12 @@ def format_output(
                     each_intf["access_vlan"]
                 )
             elif bool(re.search("trunk", each_intf["mode"])):
-                # breakpoint()
-                tmp_dict[each_intf["interface"]]["vlan"] = each_intf["trunking_vlans"]
+                trunk_vl = each_intf["trunking_vlans"]
+                try:
+                    trunk_vl = [_make_int(vl) for vl in trunk_vl.split(",")]
+                except:
+                    trunk_vl = [_make_int(vl) for vl in trunk_vl[0].split(",")]
+                tmp_dict[each_intf["interface"]]["vlan"] = trunk_vl
             else:
                 tmp_dict[each_intf["interface"]]["vlan"] = None
 
@@ -154,11 +158,9 @@ def format_output(
     # ----------------------------------------------------------------------------
     elif sub_feature == "ip_brief":
         if bool(re.search("nxos", os_type)):
-            output = _fix_nxos(output, "TABLE_intf", "ROW_intf")
-        ### Need to update new feature skeleton adn intf bond with new fix_nxos function
+            output = _fix_nxos(output[0], "TABLE_intf", "ROW_intf")
 
         for each_intf in output:
-            # intf.setdefault(ip_ip, None)
             tmp_dict[each_intf[ip_name]]["ip"] = each_intf.get(
                 ip_ip, each_intf.get("unnum-intf")
             )

@@ -38,14 +38,18 @@
         peer_consistency: SUCCESS
         type2_consistency: SUCCESS
         peerlink_port_state: 1
-        peerlink_vlans: {{ input_vars.peerlink_vlans }}
+        peerlink_vlans: 
+          _mode: strict
+          list: {{ input_vars.peerlink_vlans }}
         vpcs:
 {% for each_vpc_id, each_vpc_info in input_vars.vpcs.items() %}
           {{ each_vpc_id }}:
             po: {{ each_vpc_info.po }}
             port_state: 1
             consistency_status: SUCCESS
-            vlans: {{ each_vpc_info.vlans }}
+            vlans: 
+              _mode: strict
+              list: {{ each_vpc_info.vlans }}
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}

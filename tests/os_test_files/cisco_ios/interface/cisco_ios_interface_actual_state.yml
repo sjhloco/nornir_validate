@@ -19,10 +19,16 @@ interface:
     Gi0/1:
       mode: access
       vlan: 999
-    Gi0/2:
+    Po1:
       mode: trunk (member of bundle Po1)
       vlan:
-      - 144,3101,3102
+      - 144
+      - 3101
+      - 3102
+    Gi0/2:
+      mode: trunk
+      vlan:
+      - 144
   ip_brief:
     GigabitEthernet0/1:
       ip: 10.30.20.101

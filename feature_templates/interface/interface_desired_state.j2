@@ -8,7 +8,7 @@
 {% set switchport_cmd = "show interface switchport" %}
 {% set ip_brief_cmd = "show ip interface brief vrf all | json" %}
 {% elif 'asa' in os_type |string %}
-{% set intf_cmd = "show interface status" %}
+{% set intf_cmd = "show interface" %}
 {% set ip_brief_cmd = "show interface ip brief" %}
 {% elif 'wlc' in os_type |string %}
 {% set intf_cmd = "show port summary" %}
@@ -34,10 +34,15 @@
     switchport: 
       {{ switchport_cmd }}: 
 {% for each_intf, intf_info in input_vars.items() %}
-        {{ each_intf }}:
+        {{ each_intf }}: 
           mode: {{ intf_info.mode }}
+{% if intf_info.vlan.__class__.__name__ != 'list' %}
           vlan: {{ intf_info.vlan }}
-{% endfor %}
+{% elif intf_info.vlan.__class__.__name__ == 'list' %}
+          vlan: 
+            _mode: strict
+            list: {{ intf_info.vlan }}
+{% endif %}{% endfor %}
 {# ### IP_BRIEF: {cmd: {intf: {ip:x, status: x}}} ### #}
 {% elif sub_feat == 'ip_brief' %}
     ip_brief: 

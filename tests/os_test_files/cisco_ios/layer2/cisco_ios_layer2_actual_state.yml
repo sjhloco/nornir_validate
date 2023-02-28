@@ -20,13 +20,9 @@ layer2:
       Gi0/8: FWD
       Gi0/11: FWD
       Po1: FWD
-    3101:
-      Gi0/6: FWD
-      Gi0/8: FWD
-      Po1: FWD
     3102:
       Po1: FWD
   mac_table:
-    total_mac_count: 19
     vl10_mac_count: 6
     vl64_mac_count: 5
+    total_mac_count: 19

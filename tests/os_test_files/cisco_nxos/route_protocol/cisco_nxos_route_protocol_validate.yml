@@ -21,10 +21,10 @@ all:
         area: 0.0.0.0
         nbr: 172.16.101.34
     ospf_lsdb_count:
-      - process: BLU1
-        lsdb_count: 20
-      - process: DC_UNDERLAY
-        lsdb_count: 6
+      BLU1:
+        total_lsa: 20
+      DC_UNDERLAY:
+        total_lsa: 6
     bgp_peer:
       10.25.113.1:
         asn: 65001

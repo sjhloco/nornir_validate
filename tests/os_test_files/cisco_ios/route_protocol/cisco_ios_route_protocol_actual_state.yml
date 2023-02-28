@@ -19,11 +19,6 @@ route_protocol:
       area: 1
       nbr:
         192.168.220.2: FULL
-    Gi1/1:
-      pid: 3
-      area: 1
-      nbr:
-        192.168.210.2: FULL
     Vl120:
       pid: 2
       area: 0
@@ -40,8 +35,8 @@ route_protocol:
       area: 1
       nbr: {}
   ospf_lsdb_count:
-  - process: 1
-    lsdb_count: 11
+    1:
+      total_lsa: 11
   bgp_peer:
     192.168.11.1:
       asn: 65101

@@ -1,7 +1,6 @@
 all:
   system:
-    image: 
-      version: 9.12(4)37
+    image: 9.12(4)37
     mgmt_acl:
       - name: http
         ace:

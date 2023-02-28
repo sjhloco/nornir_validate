@@ -13,13 +13,6 @@ route_table:
       - Vlan113
       - Vlan3001
       - loopback21
-    GRN:
-      intf:
-      - Vlan3002
-    RED:
-      intf:
-      - Vlan98
-      - Vlan99
     default:
       intf:
       - Vlan1
@@ -27,9 +20,6 @@ route_table:
       - loopback2
       - Ethernet1/1
       - Ethernet1/2
-    management:
-      intf:
-      - mgmt0
   route_count:
     BLU: 925
     global: 21

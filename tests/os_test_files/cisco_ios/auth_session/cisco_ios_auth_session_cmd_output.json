@@ -1,0 +1,10 @@
+{
+    "auth_session": {
+        "mab_count": [
+            "Number of lines which match regexp = 13"
+        ],
+        "dot1x_count": [
+            "Number of lines which match regexp = 21"
+        ]
+    }
+}

@@ -44,9 +44,11 @@ def format_output(
     ### KEY: Set the dictionary keys to use on a per-OS basis
     if bool(re.search("ios", os_type)):
         mac_table_match = "Vlan"
+        mac_table_match1 = "Vlan"
         mac_table_element = -1
     elif bool(re.search("nxos", os_type)):
         mac_table_match = "static"
+        mac_table_match1 = "Vlan"
         mac_table_element = 1
     elif bool(re.search("asa", os_type)):
         pass
@@ -78,11 +80,17 @@ def format_output(
     # MAC TABLE COUNT: {total_mac_count: x, vlx_mac_count: x}
     # ----------------------------------------------------------------------------
     elif sub_feature == "mac_table":
-        tmp_dict["total_mac_count"] = _make_int(output[0].split()[-1])
-
-        for idx, each_item in enumerate(output[1:]):
+        for idx, each_item in enumerate(output):
             if mac_table_match in each_item:
                 name = f"vl{each_item.split()[mac_table_element].replace(':', '')}_mac_count"
-                tmp_dict[name] = _make_int(output[idx + 2].split()[-1])
+                tmp_dict[name] = _make_int(output[idx + 1].split()[-1])
+                output[idx] = ""
+                output[idx + 1] = ""
+            elif "error" in each_item.lower() or "^" in each_item:
+                output[idx] = ""
+        # Only lines left will be count of total MACs
+        for each_item in output:
+            if len(each_item) != 0:
+                tmp_dict["total_mac_count"] = _make_int(each_item.split()[-1])
 
     return dict(tmp_dict)

@@ -4,27 +4,19 @@ import argparse
 import yaml
 from collections import defaultdict
 import os
-import sys
-import ipdb
+import json
 import re
 import ast
-from pprint import pprint
 from glob import glob
 import importlib
-import copy
-
 
 from nornir import InitNornir
 from nornir.core.task import Task, Result
 from nornir_jinja2.plugins.tasks import template_file
 from nornir_utils.plugins.tasks.data import load_yaml
 from nornir_netmiko.tasks import netmiko_send_command
-
-# from nornir_utils.plugins.functions import print_result
 from nornir_rich.functions import print_result
 
-# Needed so can find modules when is import into another script
-sys.path.insert(0, "nornir_validate")
 from compliance_report import generate_validate_report
 
 # ----------------------------------------------------------------------------
@@ -37,13 +29,13 @@ REPORT_DIRECTORY = None
 # REPORT_DIRECTORY = "/Users/user1/Documents/Coding/Nornir/code/nornir_validate"
 # REPORT_DIRECTORY = "C:\\scripts\\nornir_checks\\nornir_validate\\reports"
 
+
 # ----------------------------------------------------------------------------
 # Gather input Arguments
 # ----------------------------------------------------------------------------
 def _create_parser() -> Dict[str, Any]:
     """
-    The function `_create_parser()` creates a parser object, adds arguments to the parser object, and
-    returns the arguments as a dictionary
+    Creates a parser object, adds arguments to the parser object, and returns the arguments as a dictionary
 
     :return: A dictionary of the command line arguments.
     """
@@ -64,27 +56,6 @@ def _create_parser() -> Dict[str, Any]:
 
 
 # ----------------------------------------------------------------------------
-# TMPL_PATH: Generates and returns the path to the feature templates
-# ----------------------------------------------------------------------------
-def return_template_path() -> str:
-    """
-    If the current working directory is `validation_builder`, then the template path is
-    `feature_templates/` in the parent directory
-    todo - Needed incase importing the module, will go once packaged and published
-
-    :return: The path to the feature_templates directory
-    """
-
-    if "validation_builder" in os.getcwd():
-        tmpl_path = os.path.join(os.path.dirname(os.getcwd()), "feature_templates/")
-    elif "nornir_validate" in os.getcwd():
-        tmpl_path = "feature_templates/"
-    else:
-        tmpl_path = "nornir_validate/feature_templates/"
-    return tmpl_path
-
-
-# ----------------------------------------------------------------------------
 # IMPORT: Import all the actual_state modules required based on validation input data
 # ----------------------------------------------------------------------------
 def import_actual_state_modules(input_data: str) -> None:
@@ -99,7 +70,8 @@ def import_actual_state_modules(input_data: str) -> None:
         with open(input_data) as f:
             validations = f.read()
     else:
-        validations = input_data
+        validations = str(input_data)
+
     # Gather the path of the actual_state.py modules for all validation features used
     actual_state_modules = {}
     all_features = glob("feature_templates/*/*.py")
@@ -140,7 +112,7 @@ def task_load_input_data(task: Task, input_data: str) -> Dict[str, Any]:
 # ----------------------------------------------------------------------------
 def return_feature_desired_data(validations: str) -> Dict[str, Any]:
     """
-    > This function takes a dictionary of validations and returns a dictionary of feature data
+    > This function takes a dictionary of validations and returns a dictionary of desired state data
 
     :param validations: This is the dictionary that contains the validations that you want to run
     :type validations: str
@@ -213,8 +185,8 @@ def strip_empty_feat(desired_state: Dict[str, Dict]) -> Dict[str, Dict]:
 # ----------------------------------------------------------------------------
 def remove_cmds_desired_state(desired_state: Dict[str, Dict]) -> Dict[str, Dict]:
     """
-    > It takes a dictionary of dictionaries of dictionaries and returns a dictionary of dictionaries of
-    dictionaries with all sub_feature commands removed
+    > It takes a dictionary of dictionaries and returns a dictionary of dictionaries
+    with all sub_feature commands removed
 
     :param desired_state: The desired state of the device
     :type desired_state: Dict[str, Dict]
@@ -225,14 +197,12 @@ def remove_cmds_desired_state(desired_state: Dict[str, Dict]) -> Dict[str, Dict]
         for sub_feat_name, sub_feat_cmds in sub_feature.items():
             clean_desired_state[feature][sub_feat_name] = {}
             for cmd_ds in sub_feat_cmds.values():
-                # !!!! for any commands that are combined, so dont have a validation - check if it breask htings, used for OSPF
-                if isinstance(cmd_ds, str):
+                if cmd_ds == "SUB_FEATURE_COMBINED_CMD":
                     pass
                 elif isinstance(cmd_ds, dict):
                     clean_desired_state[feature][sub_feat_name].update(cmd_ds)
                 else:
                     clean_desired_state[feature][sub_feat_name] = cmd_ds
-
     return dict(clean_desired_state)
 
 
@@ -279,15 +249,12 @@ def task_desired_state(
     :return: A dictionary of the desired state for the host
     """
     desired_state: Dict[str, Any] = {}
-    # 1a. PATH: Get the path to the feature templates
-    tmpl_path = return_template_path()
-
-    # 1b. TMPL: Create the desired_state for each feature to be validated (double 'if' to stop error if top level dict not exist)
+    # 1a. TMPL: Create the desired_state for each feature to be validated (double 'if' to stop error if top level dict not exist)
     if validations.get("hosts") != None:
         if validations["hosts"].get(str(task.host)) != None:
             task.run(
                 task=task_template,
-                tmpl_path=tmpl_path,
+                tmpl_path="feature_templates/",
                 validations=validations["hosts"][str(task.host)],
                 desired_state=desired_state,
             )
@@ -295,19 +262,19 @@ def task_desired_state(
         if validations["groups"].get(str(task.host.groups[0])) != None:
             task.run(
                 task=task_template,
-                tmpl_path=tmpl_path,
+                tmpl_path="feature_templates/",
                 validations=validations["groups"][str(task.host.groups[0])],
                 desired_state=desired_state,
             )
     if validations.get("all") != None:
         task.run(
             task=task_template,
-            tmpl_path=tmpl_path,
+            tmpl_path="feature_templates/",
             validations=validations["all"],
             desired_state=desired_state,
         )
 
-    # 1c. VAR: Create host_var of combined desired states or exits if nothing to be validated
+    # 1b. VAR: Create host_var of combined desired states or exits if nothing to be validated
     if len(desired_state) == 0:
         result_text = "\u26A0\uFE0F  No validations were performed as no desired_state was generated, check input file and template"
         return Result(host=task.host, failed=True, result=result_text)
@@ -323,7 +290,7 @@ def task_template(
 ) -> str:
     """
     > The function takes a task, a template path, a list of validations and a dictionary of desired
-    state. It then creates a dictionary of desired state from the jinja2 templates
+    state. Uses nornir-jinja to create a dictionary of desired state from the jinja2 templates
 
     :param task: The task object that is passed to the plugin
     :type task: Task
@@ -340,7 +307,7 @@ def task_template(
     feat_desired_data = return_feature_desired_data(validations)
 
     # 2b. TMPL: Create the desired state from the jinja2 template
-    for (feature, values) in feat_desired_data.items():
+    for feature, values in feat_desired_data.items():
         str_desired_state = task.run(
             task=template_file,
             template=values["file"],
@@ -359,6 +326,16 @@ def task_template(
 def actual_state_engine(
     os_type: List, feat_actual_data: Dict[str, List]
 ) -> Dict[str, Dict]:
+    """
+    It takes a list of OS types and a dictionary of features and sub-features and formatting the cmd output
+    to return actual state as a dictionary of features and sub-features with the output of the sub-features formatted
+
+    :param os_type: List
+    :type os_type: List
+    :param feat_actual_data: This is the output of the actual_state_engine function
+    :type feat_actual_data: Dict[str, List]
+    :return: A dictionary of dictionaries.
+    """
     actual_state: Dict[str, Any] = defaultdict(dict)
 
     for feature, sub_feat_dict in feat_actual_data.items():
@@ -374,40 +351,6 @@ def actual_state_engine(
             actual_state[feature][sub_feature] = result
     return dict(actual_state)
 
-    # # todo - how do i handle these in a more dynmaic way??? - if string is converted to list (done under task_engine when do the cmd)
-    # # NO_NTC: Catch all if no NTC template. Either return dummy to not error or converts string to a list
-    # non_ntc_tmpl_cmds = [
-    #     "show bgp all summary",
-    #     "show run ssh",
-    #     "show run http",
-    #     "show ip ospf database database-summary | in Total",
-    #     "show ip eigrp interfaces",
-    #     "show switch",
-    #     "show  redundancy state | in state",
-    #     "show nve vni",
-    #     "show nve peers",
-    #     "show crypto session brief",
-    #     "show authentication sessions | count mab",
-    #     "show authentication sessions | count dot1x",
-    #     "show ip ospf database database-summary vrf all | in Total|VRF",
-    #     "show conn count",
-    #     "show  route summary | in Total",
-    #     "show ospf database database-summary | in Process|Total",
-    # ]
-    # non_ntc_tmpl_regex_cmds = r"(show ip route .* summary \| in Total)|(show ip  route.*)|(show mac address-table .*)|(show client .*)"
-    # if isinstance(output, str):
-    #     if cmd in non_ntc_tmpl_cmds:
-    #         output = output.lstrip().rstrip().splitlines()
-    #     elif re.match(non_ntc_tmpl_regex_cmds, cmd):
-    #         output = output.lstrip().rstrip().splitlines()
-    #     # Converts NXOS "| json" cmds from string to JSON
-    #     elif "json" in cmd:
-    #         output = json.loads(output)
-    #     # All other cmd outputs that are string are ignored to stop errors
-    #     else:
-    #         actual_state[cmd] = defaultdict(dict)
-    #         return actual_state
-
 
 # ----------------------------------------------------------------------------
 # 4. ENGINE: Formats gathered output as actual state and runs compliance report - Only one that prints (logging debug)
@@ -415,10 +358,23 @@ def actual_state_engine(
 def task_engine(
     task: Task, input_data: str = INPUT_DATA, directory: str = REPORT_DIRECTORY
 ) -> str:
-    # 4a. Load the input file of validations
+    """
+    Engine that runs all nornir and non-nornir (formatting) tasks
+
+    :param task: The task object that is passed to the task engine
+    :type task: Task
+    :param input_data: The input data file that contains the desired state of the device
+    :type input_data: str
+    :param directory: The directory where the compliance report will be saved
+    :type directory: str
+    :return: The result of the task_engine function is a Result object.
+    """
+    # 4a, Import the actual state modulues
+    import_actual_state_modules(input_data)
+    # 4b. Load the input file of validations
     validations = task_load_input_data(task, input_data)
 
-    # 4b. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
+    # 4c. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
     task.run(
         task=task_desired_state,
         validations=validations,
@@ -426,7 +382,7 @@ def task_engine(
         severity_level=logging.DEBUG,
     )
 
-    # 4c. CMD: Using commands crunched from the desired output gathers pre-feature/sub-feature actual config of the device
+    # 4d. CMD: Using commands crunched from the desired output gathers pre-feature/sub-feature actual config of the device
     feat_actual_data = defaultdict(dict)
     for feature, sub_feature in task.host["desired_state"].items():
         for sub_feat_name, sub_feat_cmds in sub_feature.items():
@@ -438,25 +394,26 @@ def task_engine(
                     use_textfsm=True,
                     severity_level=logging.DEBUG,
                 ).result
+                # Converts NXOS "| json" cmds from string to JSON
+                if "json" in cmd:
+                    tmp_cmd_output = [json.loads(tmp_cmd_output)]
                 # Required for non-formatted data (no NTC template)
-                if isinstance(tmp_cmd_output, str):
+                elif isinstance(tmp_cmd_output, str):
                     tmp_cmd_output = tmp_cmd_output.lstrip().rstrip().splitlines()
-
                 cmd_output.extend(tmp_cmd_output)
             feat_actual_data[feature][sub_feat_name] = cmd_output
 
-    # 4c. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
+    # 4e. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
     os_type = merge_os_types(task.host)
-
     actual_state = actual_state_engine(os_type, feat_actual_data)
 
-    # 4d. VAL: Uses Napalm_validate validate method to generate a compliance report
+    # 4f. VAL: Uses Napalm_validate validate method to generate a compliance report
     desired_state = remove_cmds_desired_state(task.host["desired_state"])
 
     comp_result = generate_validate_report(
         desired_state, actual_state, str(task.host), directory
     )
-    # # 4e. RSLT: Nornir returns compliance result or if fails the compliance report
+    # 4g. RSLT: Nornir returns compliance result or if fails the compliance report
     return Result(
         host=task.host,
         failed=comp_result["failed"],
@@ -471,19 +428,11 @@ def task_engine(
 # ----------------------------------------------------------------------------
 def main():
     args = _create_parser()
-    import_actual_state_modules(args["filename"])
     nr = InitNornir(config_file="config.yml")
     result = nr.run(
         task=task_engine, input_data=args["filename"], directory=args["directory"]
     )
-
     print_result(result, vars=["result", "report_text"])
-
-    # !
-    # * aaa
-    # todo
-    # //
-    # ?
 
 
 if __name__ == "__main__":

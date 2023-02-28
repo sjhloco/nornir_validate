@@ -1,0 +1,27 @@
+{# ####### Set commands on a per-OS basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set mab_count_cmd = "show authentication sessions | count mab" %}
+{% set dot1x_count_cmd = "show authentication sessions | count dot1x" %}
+{% elif 'nxos' in os_type |string %}
+{% elif 'asa' in os_type |string %}
+{% set conn_count_cmd = "show conn count" %}
+{% elif 'wlc' in os_type |string %}
+{% set wifi_total_count_cmd = "show client summary" %}
+{% set wifi_wlan_count_cmd = "show client wlan xxx" %}
+{% endif %}
+
+{# ##### Build feature template ##### #}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### MAB_COUNT: {cmd: xx} ### #}
+{% if sub_feat == 'mab_count' %}
+    mab_count: 
+      {{ mab_count_cmd }}: 
+        {{ input_vars }}
+{# ### DOT1X_COUNT: {cmd: xx} ### #}
+{% elif sub_feat == 'dot1x_count' %}
+    dot1x_count: 
+      {{ dot1x_count_cmd }}: 
+        {{ input_vars }}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}

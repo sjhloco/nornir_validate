@@ -63,6 +63,8 @@ def save_report_to_file(
             existing_report = json.load(file_content)
         if list(report.values())[0].get("skipped"):
             existing_report["skipped"].extend(skipped)
+        elif len(skipped) == 0:
+            existing_report["skipped"] = skipped
         # Only adds if is no already failing compliance
         if existing_report.get("complies") == True:
             existing_report["complies"] = complies
@@ -70,12 +72,15 @@ def save_report_to_file(
     else:
         existing_report = {}
         existing_report["complies"] = complies
-        existing_report["skipped"] = skipped
+        if len(skipped) == 0:
+            existing_report["skipped"] = skipped
+
     # Writes to file the full napalm_validate result (including an existing report)
     existing_report.update(report)
     with open(filename, "w") as file_content:
         json.dump(existing_report, file_content)
-    return f" The report can be viewed using:  \n \33[3m\033[1;37m\33[30m  cat {filename} | python -m json.tool \033[0;0m"
+    # return f" The report can be viewed using:  \n \33[3m\033[1;37m\33[30m  cat {filename} | python -m json.tool \033[0;0m"
+    return f" The report can be viewed using:  \ncat {filename} | python -m json.tool"
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -105,13 +110,23 @@ def generate_validate_report(
     """
 
     report: Dict[str, Any] = {}
-    for feature in d_state.keys():
-        # napalm_validate compare method produces report based on desired and actual state
-        try:
-            report[feature] = validate.compare(d_state[feature], a_state[feature])
-        # If validation couldn't be run on a command adds skipped key to the cmd dictionary
-        except NotImplementedError:
-            report[feature] = {"skipped": True, "reason": "NotImplemented"}
+    for feature, sub_feat in d_state.items():
+        for each_sub_feat in sub_feat:
+            try:
+                name = f"{feature}.{each_sub_feat}"
+                # napalm_validate compare method produces report based on desired and actual state
+                d_state_sub_feat = d_state[feature][each_sub_feat]
+                a_state_sub_feat = a_state[feature][each_sub_feat]
+                if isinstance(d_state_sub_feat, dict):
+                    report[name] = validate.compare(d_state_sub_feat, a_state_sub_feat)
+                else:
+                    report[name] = validate.compare(
+                        {each_sub_feat: d_state_sub_feat},
+                        {each_sub_feat: a_state_sub_feat},
+                    )
+            # If validation couldn't be run on a command adds skipped key to the cmd dictionary
+            except NotImplementedError:
+                report[feature] = {"skipped": True, "reason": "NotImplemented"}
 
     # RESULT: Results of compliance report (complies = validation result, skipped (list of skipped cmds) = validation didn't run)
     complies = all([each_cmpl.get("complies", True) for each_cmpl in report.values()])
@@ -127,7 +142,8 @@ def generate_validate_report(
         report_text = ""
     # These must be added after the report
     report["complies"] = complies
-    report["skipped"] = skipped
+    if len(skipped) != 0:
+        report["skipped"] = skipped
     # RETURN_RESULT: If compliance fails set state failed (used by Nornir). report dict is used in validation builder
     if complies == True:
         return dict(

@@ -1,6 +1,6 @@
 fhr:
   hsrp:
-    show hsrp all:
+    show hsrp | json:
       Vlan11:
         priority: 100
         state: Standby

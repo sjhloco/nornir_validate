@@ -1,0 +1,20 @@
+{# ####### Set commands on a per-OS basis ####### #}
+{% if 'ios' in os_type |string %}
+{% elif 'nxos' in os_type |string %}
+{% elif 'asa' in os_type |string %}
+{% set conn_count_cmd = "show conn count" %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+{# ##### Build feature template ##### #}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### FW_CONN_COUNT: {cmd: xx} ### #}
+{% if sub_feat == 'conn_count' %}
+    conn_count: 
+      {{ conn_count_cmd }}: 
+        {{ input_vars }}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+

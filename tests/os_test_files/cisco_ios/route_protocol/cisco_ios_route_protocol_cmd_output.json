@@ -44,15 +44,6 @@
                 "neighbors_fc": "1/1"
             },
             {
-                "interface": "Gi1/1",
-                "process": "3",
-                "area": "1",
-                "ip_address_mask": "192.168.210.1/24",
-                "cost": "1",
-                "state": "BDR",
-                "neighbors_fc": "1/1"
-            },
-            {
                 "interface": "Vl120",
                 "process": "2",
                 "area": "0",

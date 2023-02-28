@@ -39,11 +39,11 @@ layer2:
   mac_table:
     show mac address-table count dynamic:
       total_mac_count: 681
-    show mac address-table static vlan 6 | last 1:
+    show mac  address-table static vlan 6 | last 1:
       vl6_mac_count: 26
     show mac address-table count dynamic vlan 6:
       vl6_mac_count: 26
-    show mac address-table static vlan 24 | last 1:
+    show mac  address-table static vlan 24 | last 1:
       vl24_mac_count: 306
     show mac address-table count dynamic vlan 24:
       vl24_mac_count: 306

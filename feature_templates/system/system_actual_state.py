@@ -161,10 +161,10 @@ def format_output(
         image_version = "product_version"
 
     # ----------------------------------------------------------------------------
-    # IMAGE: {version: code_number}
+    # IMAGE: {image: code_number}
     # ----------------------------------------------------------------------------
     if sub_feature == "image":
-        tmp_dict["version"] = output[0][image_version]
+        tmp_dict = output[0][image_version]
 
     # ----------------------------------------------------------------------------
     # MGMT_ACL: {acl_name: seq_num: {protocol: ip/tcp/udp, src: src_ip (or as intf - src_ip), dst: dst_ip, dst_port: port}}
@@ -191,6 +191,7 @@ def format_output(
                 except:
                     tmp_dict[name][seq]["src"] = _acl_scr_dst(each_ace, "src")
             tmp_dict[name] = dict(tmp_dict[name])
+        tmp_dict = dict(tmp_dict)
 
     # ----------------------------------------------------------------------------
     # MODULE: {module_num: {model: xxx, status, ok}}
@@ -199,6 +200,10 @@ def format_output(
         for each_mod in output:
             mod = _make_int(each_mod["module"])
             tmp_dict[mod]["model"] = each_mod["model"]
-            tmp_dict[mod]["status"] = each_mod["status"].lower()
+            if len(each_mod["status"]) == 0:
+                tmp_dict[mod]["status"] = "ok"
+            else:
+                tmp_dict[mod]["status"] = each_mod["status"].lower()
+        tmp_dict = dict(tmp_dict)
 
-    return dict(tmp_dict)
+    return tmp_dict

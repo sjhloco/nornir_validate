@@ -1,7 +1,6 @@
 system:
   image:
-    show version:
-      version: 9.12(4)37
+    show version: 9.12(4)37
   mgmt_acl:
     show run http:
       http:

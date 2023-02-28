@@ -1,6 +1,6 @@
 route_protocol:
   ospf_intf_nbr:
-    show ospf interface brief: filler_for_combined_cmd
+    show ospf interface brief: SUB_FEATURE_COMBINED_CMD
     show ospf neighbor:
       Outside:
         pid: 101
@@ -23,11 +23,10 @@ route_protocol:
           10.23.1.19: FULL
   ospf_lsdb_count:
     show ospf database database-summary | in Process ID|Total:
-      list:
-      - process: 101
-        lsdb_count: 10
-      - process: 100
-        lsdb_count: 306
+      101:
+        total_lsa: 10
+      100:
+        total_lsa: 306
   bgp_peer:
     show bgp summary:
       _mode: strict

@@ -21,8 +21,8 @@ def _make_int(input_data: str) -> int:
 
 def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> List:
     """
-    Fixes issues due to NXOS JSON making dict rather than list if only 1 item. If the child_dict is a dictionary,
-    convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
+    Fixes issues due to NXOS JSON making dict rather than list if only 1 item.
+    If the child_dict is a dictionary, convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
 
     :param main_dict: The dictionary that contains the parent dictionary
     :param parent_dict: The parent dictionary key
@@ -106,6 +106,7 @@ def format_output(
     #       peer-link-port-state": 1, peer-link-vlans": x,y,z, PoX: {vpc-id: x, port-state: 1, consistency-status: SUCCESS, vlans: x,y,z}
     # ----------------------------------------------------------------------------
     elif sub_feature == "vpc":
+        output = output[0]
         tmp_dict["role"] = output["vpc-role"]
         tmp_dict["peer_status"] = output["vpc-peer-status"]
         tmp_dict["keepalive_status"] = output["vpc-peer-keepalive-status"]
@@ -117,7 +118,8 @@ def format_output(
         tmp_dict["peerlink_port_state"] = _make_int(
             peer_link[0]["peer-link-port-state"]
         )
-        tmp_dict["peerlink_vlans"] = _make_int(peer_link[0]["peer-up-vlan-bitset"])
+        trunk_vl = peer_link[0]["peer-up-vlan-bitset"]
+        tmp_dict["peerlink_vlans"] = [_make_int(vl) for vl in trunk_vl.split(",")]
         # TABLE_vpc is only present if are vPCs configured
         if output.get("TABLE_vpc") != None:
             output = _fix_nxos(output, "TABLE_vpc", "ROW_vpc")
@@ -127,7 +129,8 @@ def format_output(
                 tmp_vpc[vpc_id]["po"] = vpc["vpc-ifindex"]
                 tmp_vpc[vpc_id]["port_state"] = _make_int(vpc["vpc-port-state"])
                 tmp_vpc[vpc_id]["consistency_status"] = vpc["vpc-consistency-status"]
-                tmp_vpc[vpc_id]["vlans"] = _make_int(vpc["up-vlan-bitset"])
+                trunk_vl = vpc["up-vlan-bitset"]
+                tmp_vpc[vpc_id]["vlans"] = [_make_int(vl) for vl in trunk_vl.split(",")]
             tmp_dict["vpcs"] = dict(tmp_vpc)
 
     return dict(tmp_dict)
