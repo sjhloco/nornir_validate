@@ -13,7 +13,7 @@ In short the script works in the following manner:
 
 Validations are split up into *features* which each contain the *sub-features* that can be validated.
 
-| Feature | Sub-feature | Description | Strict | IOS/IOS-XE | NXOS | ASA | WLC | Palo |
+| Feature | Sub-feature | Description | Strict | IOS-XE | NXOS | ASA | WLC | Palo |
 | ------- | ----------- | ----------- | ------ | ----------- | ---- | --- | --- | ---- |
 | system | image | Software version | ❌ | ✅ | ✅ | ✅ | ✅  | ❌
 | system | mgmt_acl | Management ACLs | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
