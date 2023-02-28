@@ -74,6 +74,13 @@ cd nornir_validate/
 pip install -r requirements.txt
 ```
 
+Still waiting on the following NTC-template PRs to be approved before the following validations will work properly, will update *requirements.txt* once they have been merged.
+
+- IOS: vpn.sts_peer - [#1308](https://github.com/networktocode/ntc-templates/pull/1308) to fix *show crpto detail* by adding support for IKEv2 parameters 
+- IOS: show nve vni and nve peers - [#1304](https://github.com/networktocode/ntc-templates/pull/1304) to add *show nve vni* & *nve peers*
+- NXOS: evpn.nve_vni & evpn.nve_peer - [#1303](https://github.com/networktocode/ntc-templates/pull/1303) to add *show nve vni* & *nve peers*
+- NXOS: route_protocol.bgp_peer - [#xxx](xx) to fix show ip bgp all summary vrf all* to show all address families
+
 ## Input Data
 
 A compliance report is generated based on a YAML formatted file (default *input_data.yml*) describing the desired state of the network. The input data is structured around three dictionaries which can each hold all or a sub-section of features.
@@ -146,7 +153,7 @@ python nr_val.py -f my_validations.yml
 
 If the validation fails a full compliance report will be printed to screen and the nornir task marked as failed.
 
-<img src=https://user-images.githubusercontent.com/33333983/143948220-65f6745c-a67b-46ca-8791-39131f82ca32.gif  width="750" height="500">
+![run_example_config](https://user-images.githubusercontent.com/33333983/222000867-84f2042f-902a-4697-9ec3-16425a667867.gif)
 
 ### Imported
 
