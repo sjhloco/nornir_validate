@@ -116,9 +116,9 @@ Examples of validation the formatting for all of the features can be found in th
 
 The *desired_state* (from input file) and *actual_state* (from device) are iterated through ***napalm_validate*** to produces a per-feature compliance report. The features are grouped into an overall compliance report with the reports compliance status set to *false* if any of the individual features (and therefore sub-features) failed compliance.
 
-In this example compliance report the image and port-channel passed but the report failed due to BGP peer 10.10.254.3 not being defined (is strict, no more or no less peers).
+In this example compliance report the image and port-channel passed but the report failed due to BGP peer 10.10.100.100 not being defined (is strict, no more or no less peers).
 
-!!!!!! amy use image instead (saved to desktop)
+<img width="1552" alt="Screenshot 2023-02-28 at 22 03 40" src="https://user-images.githubusercontent.com/33333983/221991852-ed706526-51c0-4ae0-b286-a8441600b654.png">
 
 ## Running nornir_validate
 
