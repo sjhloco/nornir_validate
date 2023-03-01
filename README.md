@@ -79,7 +79,7 @@ Still waiting on the following NTC-template PRs to be approved before the follow
 - IOS: vpn.sts_peer - [#1308](https://github.com/networktocode/ntc-templates/pull/1308) to fix *show crpto detail* by adding support for IKEv2 parameters 
 - IOS: show nve vni and nve peers - [#1304](https://github.com/networktocode/ntc-templates/pull/1304) to add *show nve vni* & *nve peers*
 - NXOS: evpn.nve_vni & evpn.nve_peer - [#1303](https://github.com/networktocode/ntc-templates/pull/1303) to add *show nve vni* & *nve peers*
-- NXOS: route_protocol.bgp_peer - [#xxx](xx) to fix show ip bgp all summary vrf all* to show all address families
+- NXOS: route_protocol.bgp_peer - [#1310](https://github.com/networktocode/ntc-templates/pull/1310) to fix *show ip bgp all summary vrf all* to show all address families
 
 ## Input Data
 
