@@ -110,7 +110,7 @@ def task_load_input_data(task: Task, input_data: str) -> Dict[str, Any]:
 # ----------------------------------------------------------------------------
 # CRUNCH: Combines features, sub-features and feature_path into a structured dictionary
 # ----------------------------------------------------------------------------
-def return_feature_desired_data(validations: str) -> Dict[str, Any]:
+def return_feature_desired_data(validations: Dict[str, Any]) -> Dict[str, Any]:
     """
     > This function takes a dictionary of validations and returns a dictionary of desired state data
 
@@ -305,7 +305,6 @@ def task_template(
     # 2a. CRUNCH: Formulate data to be used in templates to create desired state
     os_type = merge_os_types(task.host)
     feat_desired_data = return_feature_desired_data(validations)
-
     # 2b. TMPL: Create the desired state from the jinja2 template
     for feature, values in feat_desired_data.items():
         str_desired_state = task.run(
@@ -318,6 +317,7 @@ def task_template(
         ).result
         # 2c. SERIALISE: Convert Jinja string into yaml and list of dicts [cmd: {seq: ket:val}] into a dict of cmds {cmd: {seq: key:val}}
         desired_state.update(return_yaml_desired_state(str_desired_state))
+    return desired_state
 
 
 # ----------------------------------------------------------------------------
