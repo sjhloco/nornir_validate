@@ -21,14 +21,15 @@ from ntc_templates.parse import parse_output
 # Variables and information about running the script
 # ----------------------------------------------------------------------------
 """ Can be running using any for the following flags:
-! python feature_builder.py -cf <os_type>_<feature_name>                                  Generate the feature and test feature file structure
-! python feature_builder.py -di <netmiko_ostype> <command> <ip address or filename>       Generate the data structured cmd_output
-! python new_val_builder.py -ds <os_type> <feature>                                       Generate the desired state (saved to <os_type>_<feature>_desired_state.yml)  
-! python new_val_builder.py -as <os_type> <feature>                                       Generate the desired state (saved to <os_type>_<feature>_actual_state.yml) 
+! python feature_builder.py -cf <os_type>_<feature_name>                                Creates the feature and test feature file structure (folders and files)
+! python feature_builder.py -di <netmiko_ostype> <command> <ip address or filename>     Generates the cmd_output data structure (prints to screen)
+! python new_val_builder.py -ds <os_type> <feature>                                     Generates the desired_state data structure (saved to <os_type>_<feature>_desired_state.yml) 
+! python new_val_builder.py -as <os_type> <feature>                                     Generates the actual_state data structure (saved to <os_type>_<feature>_actual_state.yml)
 """
 
 USERNAME = "test_user"
 PASSWORD = "L00K_pa$$w0rd_github!"
+
 
 # ----------------------------------------------------------------------------
 # Flags to define what is run, all take 2 arguments except -di that takes 3

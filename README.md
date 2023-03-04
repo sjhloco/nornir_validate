@@ -4,10 +4,10 @@ Uses Nornir (with ***nornir-netmiko***) to gather and format device output befor
 
 In short the script works in the following manner:
 
-1. The *desired state* is defined in YAML format and fed into the script at runtime
-2. The *desired state* is rendered by Jinja adding the commands required for validation and saved as a *Nornir host_var*
-3. *Netmiko* runs the commands against the devices parsing the outputs through *ntc-templates* before creating an *actual state* in the same format as the desired state
-4. The *desired state* and *actual state* are fed into *napalm_validate* compared creating a *compliance report* of the differences
+- **Input file:** The *desired state* is defined in YAML format and fed into the script at runtime
+- **Desired state:** The *desired state* is rendered by Jinja adding the commands required for validation and saved as a *Nornir host_var*
+- **Actual state:** *Netmiko* runs the commands against the devices parsing the outputs through *ntc-templates* before creating an *actual state* in the same format as the desired state
+- **Compliance report:** The *desired state* and *actual state* are fed into *napalm_validate* compared creating a *compliance report* of the differences
 
 ## Current Validations
 
@@ -142,7 +142,7 @@ INPUT_DATA = "input_data.yml"
 REPORT_DIRECTORY = None
 ```
 
-| flag           | Description |
+| Flag           | Description |
 | -------------- | ----------- |
 | `-f` or `--filename` | Override value set in *INPUT_DATA* variable to manually define the input data file |
 | `-d` or `--directory` | Override value set in *REPORT_DIRECTORY* variable to save compliance reports to file |
@@ -184,8 +184,6 @@ result = nr.run(task=task_engine, input_data=my_input_data)
 
 This project is still a work in progress, am planning on doing the following over the coming months:
 
-- Redo unit tests *test_nr_val.py* as the recent remodelling will have broken a lot of them
-- Tidy up *ADD_NEW_FEATURE.md* which documents the process for anyone wishing to add new validations
 - Add an input_data builder with the idea being that it is run against a device to automatically create the desired state validation file based off the current actual state.
 - Package it up using poetry and add all relevant testing
 - Move the documentation into [readthedocs](https://docs.readthedocs.io/en/stable/tutorial/#)
