@@ -2,6 +2,7 @@
 {% if 'ios' in os_type |string %}
 {% set vpn_sts_cmd = "show crypto session detail" %}
 {% set sts_count_cmd = "show crypto session brief | count UA" %}
+{% set ac_count_cmd = "empty" %}
 {% elif 'nxos' in os_type |string %}
 {% elif 'asa' in os_type |string %}
 {% set vpn_sts_cmd = "show vpn-sessiondb detail l2l" %}
@@ -10,6 +11,28 @@
 {% set ac_count_cmd = "show vpn-session" %}
 {% elif 'wlc' in os_type |string %}
 {% endif %}
+
+
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'sts_peer' %}
+    sts_peer:
+      {{ vpn_sts_cmd }}: VAL
+{% elif sub_feat == 'ac_client' %}
+    ac_client:
+      {{ vpn_ac_cmd }}: VAL
+{% elif sub_feat == 'ip_brief' %}
+    ip_brief: 
+      {{ ip_brief_cmd }}: VAL
+{% elif sub_feat == 'vpn_count' %}
+    vpn_count:
+      {{ sts_count_cmd }}: VAL
+      {{ ac_count_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
 
 {# ##### Build feature template ##### #}
 - {{ feature }}:
@@ -44,3 +67,5 @@
 {% endif %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+{% endif %}

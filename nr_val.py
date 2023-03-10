@@ -121,8 +121,12 @@ def return_feature_desired_data(validations: Dict[str, Any]) -> Dict[str, Any]:
     feat_desired_data = defaultdict(dict)
     for feature, sub_feature in validations.items():
         feat_desired_data[feature]["file"] = f"{feature}_desired_state.j2"
-        feat_desired_data[feature]["sub_features"] = {}
-        feat_desired_data[feature]["sub_features"].update(sub_feature)
+        # !!! Added for val file builder
+        if isinstance(sub_feature, list):
+            feat_desired_data[feature]["sub_features"] = sub_feature
+        else:
+            feat_desired_data[feature]["sub_features"] = {}
+            feat_desired_data[feature]["sub_features"].update(sub_feature)
     return feat_desired_data
 
 
@@ -305,6 +309,7 @@ def task_template(
     # 2a. CRUNCH: Formulate data to be used in templates to create desired state
     os_type = merge_os_types(task.host)
     feat_desired_data = return_feature_desired_data(validations)
+
     # 2b. TMPL: Create the desired state from the jinja2 template
     for feature, values in feat_desired_data.items():
         str_desired_state = task.run(
@@ -324,7 +329,7 @@ def task_template(
 # 3. ACTUAL_STATE: Creates actual state by formatting cmd outputs
 # ----------------------------------------------------------------------------
 def actual_state_engine(
-    os_type: List, feat_actual_data: Dict[str, List]
+    method: str, os_type: List, feat_actual_data: Dict[str, List]
 ) -> Dict[str, Dict]:
     """
     It takes a list of OS types and a dictionary of features and sub-features and formatting the cmd output
@@ -345,9 +350,12 @@ def actual_state_engine(
             if output == None or len(output) == 0:
                 result = tmp_dict
             else:
-                result = eval(feature).format_output(
+                result = getattr(eval(feature), method)(
                     str(os_type), sub_feature, output, tmp_dict
                 )
+                # result = eval(feature).format_actual_state(
+                #     str(os_type), sub_feature, output, tmp_dict
+                # )
             actual_state[feature][sub_feature] = result
     return dict(actual_state)
 
@@ -405,7 +413,7 @@ def task_engine(
 
     # 4e. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
     os_type = merge_os_types(task.host)
-    actual_state = actual_state_engine(os_type, feat_actual_data)
+    actual_state = actual_state_engine("format_actual_state", os_type, feat_actual_data)
 
     # 4f. VAL: Uses Napalm_validate validate method to generate a compliance report
     desired_state = remove_cmds_desired_state(task.host["desired_state"])
@@ -424,15 +432,105 @@ def task_engine(
 
 
 # ----------------------------------------------------------------------------
+# 5. VAL_FILE_BULDER: Formats gathered output as actual state and runs compliance report - Only one that prints (logging debug)
+# ----------------------------------------------------------------------------
+def val_file_builder(task: Task, input_data: str = INPUT_DATA):
+    #     , input_data: str = INPUT_DATA, directory: str = REPORT_DIRECTORY
+    # ) -> str:
+    validations = task_load_input_data(task, input_data)
+
+    # all:
+    #   system:
+    #     - image
+    #     - mgmt_acl
+    #     - module:
+
+    # 4a, Import the actual state modulues
+    import_actual_state_modules(input_data)
+
+    # 4c. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
+    task.run(
+        task=task_desired_state,
+        validations=validations,
+        task_template=task_template,
+        severity_level=logging.DEBUG,
+    )
+    # breakpoint()
+    # 4d. CMD: Using commands crunched from the desired output gathers pre-feature/sub-feature actual config of the device
+    feat_actual_data = defaultdict(dict)
+    for feature, sub_feature in task.host["desired_state"].items():
+        for sub_feat_name, sub_feat_cmds in sub_feature.items():
+            #! Get the commands output
+            cmd_output = []
+            for cmd in sub_feat_cmds.keys():
+                try:
+                    tmp_cmd_output = task.run(
+                        task=netmiko_send_command,
+                        command_string=cmd,
+                        use_textfsm=True,
+                        severity_level=logging.DEBUG,
+                    ).result
+                except:
+                    tmp_cmd_output = task.run(
+                        task=netmiko_send_command,
+                        command_string=cmd,
+                        severity_level=logging.DEBUG,
+                    ).result
+
+                # ! Command out put errors, likely due to trying command on os_type that deosnt support that feature
+                error = [
+                    "% Invalid input detected at '^' marker.",
+                    "is not enabled",
+                    "Translating",
+                ]
+
+                # !Add command output to dict of commands and outputs
+                for err in error:
+                    if err in str(tmp_cmd_output):
+                        tmp_cmd_output = []
+                # Converts NXOS "| json" cmds from string to JSON
+                if "json" in cmd:
+                    tmp_cmd_output = [json.loads(tmp_cmd_output)]
+                # Required for non-formatted data (no NTC template)
+                elif isinstance(tmp_cmd_output, str):
+                    tmp_cmd_output = tmp_cmd_output.lstrip().rstrip().splitlines()
+                cmd_output.extend(tmp_cmd_output)
+            if len(tmp_cmd_output) != 0:
+                feat_actual_data[feature][sub_feat_name] = cmd_output
+
+    #  ! Format the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
+    os_type = merge_os_types(task.host)
+    actual_state = actual_state_engine("create_validation", os_type, feat_actual_data)
+
+    # ! Save to yaml file
+    # val_file = os.path.join(TEST_PATH, f"{os_type}_{feature}_vals.yml")
+    val_file = f"{str(task.host)}_vals.yml"
+    with open(val_file, "w") as yaml_file:
+        yaml.dump({"hosts": {str(task.host): actual_state}}, yaml_file, sort_keys=False)
+    # Saves need to have rich in pytest
+    # try:
+    #     rc.print(f"✅ Created the file '{ds_file}'")
+    # except:
+    #     print(f"✅ Created the file '{ds_file}'")
+
+    # breakpoint()
+    return Result(host=task.host, result=actual_state, failed=False)
+
+
+# ----------------------------------------------------------------------------
 # MAIN: Runs the script
 # ----------------------------------------------------------------------------
 def main():
     args = _create_parser()
     nr = InitNornir(config_file="config.yml")
-    result = nr.run(
-        task=task_engine, input_data=args["filename"], directory=args["directory"]
-    )
-    print_result(result, vars=["result", "report_text"])
+    # result = nr.run(
+    #     task=task_engine, input_data=args["filename"], directory=args["directory"]
+    # )
+    # print_result(result, vars=["result", "report_text"])
+
+    a = nr.run(task=val_file_builder, input_data=args["filename"])
+    # breakpoint()
+    print_result(a)
 
 
 if __name__ == "__main__":

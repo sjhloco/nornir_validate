@@ -2,6 +2,7 @@ from typing import Dict, List
 from collections import defaultdict
 import re
 
+
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
@@ -21,7 +22,7 @@ def _make_int(input_data: str) -> int:
 
 def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> List:
     """
-    Fixes issues due to NXOS JSON making dict rather than list if only 1 item. 
+    Fixes issues due to NXOS JSON making dict rather than list if only 1 item.
     If the child_dict is a dictionary, convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
 
     :param main_dict: The dictionary that contains the parent dictionary
@@ -37,7 +38,7 @@ def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> 
 # ----------------------------------------------------------------------------
 # Engine that runs the actual state sub-feature formatting for all os types
 # ----------------------------------------------------------------------------
-def format_output(
+def format_actual_state(
     os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """

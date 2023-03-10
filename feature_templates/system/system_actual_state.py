@@ -3,8 +3,36 @@ from collections import defaultdict
 import ipaddress
 import re
 
+
 # ----------------------------------------------------------------------------
-# Mini-functions used by the main function
+# KEY: Set dictionary keys on a per-os_type basis
+# ----------------------------------------------------------------------------
+def _set_keys(os_type: List) -> Dict[str, Dict]:
+    """
+    Based on the OS type set the set the dictionary keys when gleaning data from NTC data structures
+
+    :param os_type: This is a list of strings that are the OS types of the devices in the inventory
+    :type os_type: List
+    """
+    global image_version, mgmt_acl_name, mgmt_acl_seq
+    if bool(re.search("ios", os_type)):
+        image_version = "version"
+        mgmt_acl_name = "acl_name"
+        mgmt_acl_seq = "line_num"
+    elif bool(re.search("nxos", os_type)):
+        image_version = "os"
+        mgmt_acl_name = "name"
+        mgmt_acl_seq = "sn"
+    elif bool(re.search("asa", os_type)):
+        image_version = "version"
+        mgmt_acl_name = "name"
+        mgmt_acl_seq = "sn"
+    elif bool(re.search("wlc", os_type)):
+        image_version = "product_version"
+
+
+# ----------------------------------------------------------------------------
+# DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
 def _make_int(input_data: str) -> int:
     """
@@ -123,10 +151,72 @@ def _acl_asa_format(input_acl: List, name: str) -> Dict[str, Dict]:
 
 
 # ----------------------------------------------------------------------------
-# Engine that runs the actual state sub-feature formatting for all os types
+# VALIDATION: Engine to create the validation file sub-feature validations (for all os-types)
 # ----------------------------------------------------------------------------
-def format_output(
-    os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
+def generate_val_file(
+    os_type: List, sub_feature: str, output: List, tmp_dict: Dict[str, None]
+) -> Dict[str, Dict]:
+    """
+    > The function takes the command output and formats it into a dictionary that can be used
+    in the validation file to validate features
+
+    :param os_type: List
+    :type os_type: List
+    :param sub_feature: This is the sub-feature that you want to validate
+    :type sub_feature: str
+    :param output: the output of the command
+    :type output: List
+    :param tmp_dict: This is the dictionary that will be returned by the function
+    :type tmp_dict: Dict[str, None]
+    :return: A dictionary with the following keys:
+        - image
+        - mgmt_acl
+        - module
+    """
+    _set_keys(os_type)
+    ### IMAGE: {image: code_number}
+    if sub_feature == "image":
+        tmp_dict = output[0][image_version]
+
+    ### MGMT_ACL: {acl_name: ace: [{permit: ip/pfx}, {deny: ip/pfx}]}
+    elif "mgmt_acl" in sub_feature:
+        # tmp_dict = []
+        if bool(re.search("asa", os_type)):
+            asa_output = _acl_asa_format(output, "ssh")
+            asa_output.extend(_acl_asa_format(output, "http"))
+            output = asa_output
+        acl = _acl_format_into_dict(output, mgmt_acl_name)
+        acl = _acl_remove_remark(acl)
+
+        for name, ace in acl.items():
+            tmp_ace = []
+            for each_ace in ace:
+                try:
+                    tmp_ace.append({each_ace["action"]: each_ace["source"]})
+                except:
+                    tmp_ace.append({each_ace["action"]: _acl_scr_dst(each_ace, "src")})
+            tmp_dict[name] = {"ace": tmp_ace}
+            tmp_dict = dict(tmp_dict)
+
+    ### MODULE: {module_num: {model: xxx}}
+    elif sub_feature == "module":
+        for each_mod in output:
+            mod = _make_int(each_mod["module"])
+            tmp_dict[mod]["model"] = each_mod["model"]
+            status = each_mod.get("status", "x").lower()
+            if "active" in status or "standby" in status:
+                tmp_dict[mod]["status"] = each_mod["status"].lower()
+
+        tmp_dict = dict(tmp_dict)
+
+    return tmp_dict
+
+
+# ----------------------------------------------------------------------------
+# ACTUAL_STATE: Engine that runs the actual state sub-feature formatting for all os types
+# ----------------------------------------------------------------------------
+def format_actual_state(
+    os_type: List, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """
     > The function takes the command output and formats it into a dictionary that can be used
@@ -144,38 +234,17 @@ def format_output(
     :return: A dictionary of dictionaries.
     """
 
-    ### KEY: Set the dictionary keys to use on a per-OS basis
-    if bool(re.search("ios", os_type)):
-        image_version = "version"
-        mgmt_acl_name = "acl_name"
-        mgmt_acl_seq = "line_num"
-    elif bool(re.search("nxos", os_type)):
-        image_version = "os"
-        mgmt_acl_name = "name"
-        mgmt_acl_seq = "sn"
-    elif bool(re.search("asa", os_type)):
-        image_version = "version"
-        mgmt_acl_name = "name"
-        mgmt_acl_seq = "sn"
-    elif bool(re.search("wlc", os_type)):
-        image_version = "product_version"
-
-    # ----------------------------------------------------------------------------
-    # IMAGE: {image: code_number}
-    # ----------------------------------------------------------------------------
+    _set_keys(os_type)
+    ### IMAGE: {image: code_number}
     if sub_feature == "image":
         tmp_dict = output[0][image_version]
 
-    # ----------------------------------------------------------------------------
-    # MGMT_ACL: {acl_name: seq_num: {protocol: ip/tcp/udp, src: src_ip (or as intf - src_ip), dst: dst_ip, dst_port: port}}
-    # ----------------------------------------------------------------------------
+    ### MGMT_ACL: {acl_name: seq_num: {protocol: ip/tcp/udp, src: src_ip (or as intf - src_ip), dst: dst_ip, dst_port: port}}
     elif sub_feature == "mgmt_acl":
-
         if bool(re.search("asa", os_type)):
             asa_output = _acl_asa_format(output, "ssh")
             asa_output.extend(_acl_asa_format(output, "http"))
             output = asa_output
-
         acl = _acl_format_into_dict(output, mgmt_acl_name)
         acl = _acl_remove_remark(acl)
         for name, ace in acl.items():
@@ -193,9 +262,7 @@ def format_output(
             tmp_dict[name] = dict(tmp_dict[name])
         tmp_dict = dict(tmp_dict)
 
-    # ----------------------------------------------------------------------------
-    # MODULE: {module_num: {model: xxx, status, ok}}
-    # ----------------------------------------------------------------------------
+    ### MODULE: {module_num: {model: xxx, status, ok}}
     elif sub_feature == "module":
         for each_mod in output:
             mod = _make_int(each_mod["module"])

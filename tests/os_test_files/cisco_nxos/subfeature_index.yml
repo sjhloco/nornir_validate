@@ -1,0 +1,5 @@
+all:
+  system:
+    - image
+    - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SSH_ACCESS1"]
+    - module

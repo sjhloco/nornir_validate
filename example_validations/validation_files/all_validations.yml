@@ -17,25 +17,25 @@ all:
     mgmt_acl:
       - name: TEST_SSH_ACCESS
         ace:
-          - { remark: MGMT Access - VLAN10 }
-          - { permit: 10.17.10.0/24 }
-          - { remark: Citrix Access }
-          - { permit: 10.10.10.10/32 }
-          - { deny: any }
+          - remark: MGMT Access - VLAN10
+          - permit: 10.17.10.0/24
+          - remark: Citrix Access
+          - permit: 10.10.10.10/32
+          - deny: any
     # ASA example: Uses either ssh or http for name and can optionally add interface in the source section
       # - name: ssh
       #   ace:
-      #     - { permit: mgmt - 10.17.10.0/24 }
-      #     - { permit: mgmt - 10.10.10.10/32 }
+      #     - permit: mgmt - 10.17.10.0/24
+      #     - permit: mgmt - 10.10.10.10/32
       # - name: http
       #   ace:
-      #     - { permit: inside - any }
+      #     - permit: inside - any
     ## MODULE: Module status is optional, if not defined is assumed to be "ok" (NXOS sups may have an active or standby)
     module:
-      - module_num: 1
+      1:
         model: N7K-SUP1
         status: active *
-      - module_num: 3
+      3:
         model: N7K-F248XP-25
 
   # ----------------------------------------------------------------------------

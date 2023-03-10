@@ -10,6 +10,19 @@
 {% set wifi_wlan_count_cmd = "show client wlan xxx" %}
 {% endif %}
 
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'mab_count' %}
+    mab_count: 
+      {{ mab_count_cmd }}: VAL
+{% elif sub_feat == 'dot1x_count' %}
+    dot1x_count: 
+      {{ dot1x_count_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
@@ -25,3 +38,5 @@
         {{ input_vars }}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+{% endif %}

@@ -2,6 +2,7 @@ from typing import Dict, List
 import re
 import ipaddress
 
+
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
@@ -37,7 +38,7 @@ def _get_pfxlen(network: str, mask: str) -> str:
 # ----------------------------------------------------------------------------
 # Engine that runs the actual state sub-feature formatting for all os types
 # ----------------------------------------------------------------------------
-def format_output(
+def format_actual_state(
     os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """

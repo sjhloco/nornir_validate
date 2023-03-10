@@ -1,4 +1,4 @@
-{# ####### Set commands on a per-OS basis ####### #}
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
 {% if 'ios' in os_type |string %}
 {% set new_subfeat1_cmd = "show x" %}
 {% set new_subfeat2_cmd = "show y" %}
@@ -13,7 +13,29 @@
 {% set new_subfeat2_cmd = "show y" %}
 {% endif %}
 
-{# ##### Build feature template ##### #}
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'new_subfeat1' and image_cmd is defined %}
+    new_subfeat1: 
+      {{ new_subfeat1_cmd }}: VALIDATE
+{% elif 'new_subfeat2' in sub_feat and mgmt_acl_cmd is defined %}
+    new_subfeat2:
+{% if sub_feat.new_subfeat2.__class__.__name__ == 'list' %}
+{% for each_x in sub_feat.new_subfeat2 %}
+      {{ new_subfeat2_cmd }} {{ each_x }}: VALIDATE
+{% endfor %}
+{% else %}
+      {{ new_subfeat2 }}: VALIDATE
+{% endif %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### SUB_FEATURE1_NAME: {cmd: {version: xx}} ### #}
@@ -32,3 +54,4 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+{% endif %}

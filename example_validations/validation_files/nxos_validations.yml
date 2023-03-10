@@ -17,14 +17,14 @@ all:
     mgmt_acl:
       - name: ACL_SSH_ACCESS
         ace:
-          - { remark: MGMT Access - VLAN10 }
-          - { permit: 10.17.10.0/24 }
-          - { remark: Citrix Access }
-          - { permit: 10.10.10.10/32 }
-          - { deny: any }
+          - remark: MGMT Access - VLAN10
+          - permit: 10.17.10.0/24
+          - remark: Citrix Access
+          - permit: 10.10.10.10/32
+          - deny: any
     ## MODULE: Module status is optional, if not defined is assumed to be "ok" (NXOS sups may have an active or standby)
     module:
-      - module_num: 1
+      1:
         model: N9K-C93180YC-FX
         status: active *
 

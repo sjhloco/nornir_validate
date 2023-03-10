@@ -2,17 +2,16 @@ all:
   system:
     image: 15.2(7)E2
     mgmt_acl:
-      - name: TEST_SSH_ACCESS
+      TEST_SSH_ACCESS:
         ace:
-          - { permit: 10.17.10.0/24 }
-          - { permit: 10.10.10.10/32 }
-          - { deny: any }
-      - name: TEST_SNMP_ACCESS
+        - permit: 10.17.10.0/24
+        - permit: 10.10.10.10/32
+        - deny: any
+      TEST_SNMP_ACCESS:
         ace:
-          - { permit: 10.17.10.0/24 }
+        - permit: 10.17.10.0/24
     module:
-      - module_num: 1
+      1:
         model: WS-X6816-10GE
-      - module_num: 5
+      5:
         model: VS-SUP2T-10G
-

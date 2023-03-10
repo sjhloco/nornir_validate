@@ -2,6 +2,7 @@ from typing import Dict, List
 from collections import defaultdict
 import re
 
+
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
@@ -22,7 +23,7 @@ def _make_int(input_data: str) -> int:
 # ----------------------------------------------------------------------------
 # Engine that runs the actual state sub-feature formatting for all os types
 # ----------------------------------------------------------------------------
-def format_output(
+def format_actual_state(
     os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """

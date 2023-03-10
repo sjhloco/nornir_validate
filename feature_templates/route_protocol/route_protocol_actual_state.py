@@ -4,6 +4,7 @@ import re
 from copy import copy
 from pprint import pprint
 
+
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
@@ -65,7 +66,7 @@ def _remove_dup_peers(input_data: List, bgp_addr_fam: str) -> List:
 # ----------------------------------------------------------------------------
 # Engine that runs the actual state sub-feature formatting for all os types
 # ----------------------------------------------------------------------------
-def format_output(
+def format_actual_state(
     os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """

@@ -1,0 +1,5 @@
+all:
+  new_feature:
+    - sub_feature1
+    - sub_feature2
+    - sub_feature3: ["xxx", "yyy"]

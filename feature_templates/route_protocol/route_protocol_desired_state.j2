@@ -18,6 +18,26 @@
 {% elif 'wlc' in os_type |string %}
 {% endif %}
 
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'eigrp_intf_nbr' %}
+    eigrp_intf_nbr:
+      {{ eigrp_nbr_cmd }}: VAL
+{% elif sub_feat == 'ospf_intf_nbr' %}
+    ospf_intf_nbr:
+      {{ ospf_intf_cmd }}: SUB_FEATURE_COMBINED_CMD
+      {{ ospf_nbr_cmd }}: VAL
+{% elif sub_feat == 'ospf_lsdb_count' %}
+    ospf_lsdb_count:
+      {{ ospf_lsdb_cmd }}: VAL
+{% elif sub_feat == 'bgp_peer' %}
+    bgp_peer:
+      {{ bgp_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
 
 {# ###### Macro of nbr used multiple times ###### #}
 {%- macro def_nbr(intf_info, state) -%}
@@ -78,6 +98,6 @@
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
 
-
+{% endif %}
 
 

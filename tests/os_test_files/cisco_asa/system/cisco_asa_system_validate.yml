@@ -2,14 +2,12 @@ all:
   system:
     image: 9.12(4)37
     mgmt_acl:
-      - name: http
+      ssh:
         ace:
-          - { permit: inside - 10.17.10.0/24 }
-          - { permit: inside - 10.10.10.10/32 }
-      - name: ssh
+        - permit: mgmt - 10.17.10.0/24
+        - permit: mgmt - 10.10.10.10/32
+        - permit: mgmt - any
+      http:
         ace:
-          - { remark: MGMT Access - VLAN10 }
-          - { permit: mgmt - 10.17.10.0/24 }
-          - { remark: Citrix Access }
-          - { permit: mgmt - 10.10.10.10/32 }
-          - { permit: mgmt - any }
+        - permit: inside - 10.17.10.0/24
+        - permit: inside - 10.10.10.10/32

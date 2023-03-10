@@ -17,36 +17,36 @@ Validations are split up into *features* which each contain the *sub-features* t
 | ------- | ----------- | ----------- | ------ | ----------- | ---- | --- | --- | ---- |
 | system | image | Software version | ❌ | ✅ | ✅ | ✅ | ✅  | ❌
 | system | mgmt_acl | Management ACLs | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| system | module | Model & status (explicit) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| system | module | Model & status (implicit) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
 | redundancy | ha_state | Local & peer state | ❌ | ✅ | ❌ | ✅ | ✅ | ❌
-| redundancy | sw_stack | Switch, role, priority & state (explicit) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| redundancy | sw_stack | Switch, role, priority & state (implicit) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
 | neighbor | cdp | Neighbor name & port | ❌ | ✅ | ✅ | ❌ | ✅ | ❌
 | neighbor | lldp | Neighbor name & port | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
-| intf_bonded | port-channel | Interface members (strict) & status (explicit) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| intf_bonded | vpc | VPC status (explicit), port-channels and VLANs (strict) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌
-| interface | intf | Port speed, duplex, type & status (explicit) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| intf_bonded | port-channel | Interface members (strict) & status (implicit) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| intf_bonded | vpc | VPC status (implicit), port-channels and VLANs (strict) | ✅ | ❌ | ✅ | ❌ | ❌ | ❌
+| interface | intf | Port speed, duplex, type & status (implicit) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
 | interface | switchport | Switchport mode & VLANs | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
-| interface | ip_brief | IP address & status (explicit) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
+| interface | ip_brief | IP address & status (implicit) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌
 | layer2 | vlan | VLAN interfaces | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
-| layer2 | stp_vlan | Per-VLAN interfaces STP state (explicit FWD) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| layer2 | stp_vlan | Per-VLAN interfaces STP state (implicit FWD) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
 | layer2 | mac_table | Total & per-VLAN MAC count | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
 | fhr | hsrp | Interface, priority & state | ❌ | ✅ | ✅ | ❌ | ❌ | ❌
 | route_table | vrf | VRF interfaces | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
 | route_table | route_count | Per-VRF RT subnet count | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
 | route_table | route | Per-VRF route type and next-hops | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
-| route_protocol | eigrp_intf_nbr | Interfaces, neighbors of & state (explicit) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
-| route_protocol | ospf_intf_nbr | Interfaces, neighbors of & state (explicit) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
+| route_protocol | eigrp_intf_nbr | Interfaces, neighbors of & state (implicit) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌
+| route_protocol | ospf_intf_nbr | Interfaces, neighbors of & state (implicit) | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 | route_protocol | ospf_lsdb_count | Total LSAs per-OSPF process | ❌ | ✅ | ✅ | ✅ | ❌ | ❌
 | route_protocol | bgp_peer | BGP peer, ASN and rcv_pfx | ✅ | ✅ | ✅ | ✅ | ❌ | ❌
 | fw | conn_count | Total conns | ❌ | ❌ | ❌ | ✅ | ❌ | ❌
 | auth_session | mab_count| Total MAB Sessions | ❌ | ✅ | ❌ | ❌ | ❌ | ❌
 | auth_session | dot1x_count| Total DOT1x Sessions | ❌ | ✅ | ❌ | ❌ | ❌ | ❌
-| evpn | nve_vni | NVE L3VNI/ VRF or L2VNI/ BDI & state (explicit) |  ❌ | ✅ | ✅ | ❌ | ❌ | ❌
-| evpn | nve_peer | NVE peers & state (explicit) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
-| vpn | sts_peer | VPN peers & state (explicit) | ✅ | ✅ | ❌ | ✅ | ❌ | ❌
+| evpn | nve_vni | NVE L3VNI/ VRF or L2VNI/ BDI & state (implicit) |  ❌ | ✅ | ✅ | ❌ | ❌ | ❌
+| evpn | nve_peer | NVE peers & state (implicit) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
+| vpn | sts_peer | VPN peers & state (implicit) | ✅ | ✅ | ❌ | ✅ | ❌ | ❌
 | vpn | ac_client | AnyConnect users, group-policy & tunnel-group | ❌ | ❌ | ❌ | ✅ | ❌ | ❌
 | vpn | vpn_count | Total StS VPNs and/or AnyConnect users | ❌ | ✅ | ❌ | ✅ | ❌ | ❌
-| wifi | wlan | WLAN ID, SSID, interface & status (explicit) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
+| wifi | wlan | WLAN ID, SSID, interface & status (implicit) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | wifi | ap | APs, model, IP & client count on each | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | wifi | client_count | Total clients per-WLAN | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | wifi | flexconnect | AP count per-flexconn groups | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
@@ -54,9 +54,9 @@ Validations are split up into *features* which each contain the *sub-features* t
 
 - **Integers (count):** Any output that is a numerical value (route table summary, MAC count, BGP prefixes, etc) can use an exact value (must be an integer), less than a value (*<15*), more than a value (*>15*), between a range (*10<->20*) or a tolerance percentage either side of a value (*10%15*)
 - **Strict:** Strict validations (dict or list) must be of an exact match, no more, no less (like exact BGP peers)
-- **Explicit state:** Is expecting a certain state (like interfaces Up) rather than being manually defined in the validation file
+- **implicit state:** Is expecting a certain state (like interfaces Up) rather than being manually defined in the validation file
 - **Management ACL:** Allowed addresses for SSH and HTTP on ASA or an extended ACL on other platforms (assumes seq is 10, 20, etc)
-- **Module:** Assumes an explicit status of *ok*, this can be overridden such as for *active* or *standby* on a nxos sup
+- **Module:** Assumes an implicit status of *ok*, this can be overridden such as for *active* or *standby* on a nxos sup
 - **Interface:* The speed and duplex don't need to be defined if a port doesn't have these properties (like a sub-interface)
 - **Route table:** Next-hop can be a single address, strict list of multiple next-hops or the interface name for directly connected interfaces
 - **OSPF:** A dictionary of interfaces with an optional strict list of neigbors (address not RID) off each interface (expected to be FULL, doesn't care about DR, BDR)

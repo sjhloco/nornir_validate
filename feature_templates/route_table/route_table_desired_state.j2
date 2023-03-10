@@ -15,6 +15,22 @@
 {% elif 'wlc' in os_type |string %}
 {% endif %}
 
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'vrf' %}
+    vrf:
+      {{ vrf_cmd }}: VAL
+{% elif sub_feat == 'route_count' %}
+    route_count:
+      {{ route_count_cmd }}: VAL
+{% elif sub_feat == 'route' %}
+    route:
+      {{ route_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
 
 {# ###### Macro of templating used multiple times ###### #}
 {%- macro def_route(rte_tab, rte) -%}
@@ -82,4 +98,4 @@
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
 
-
+{% endif %}

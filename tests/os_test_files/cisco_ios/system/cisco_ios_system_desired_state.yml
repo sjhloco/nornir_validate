@@ -2,6 +2,14 @@ system:
   image:
     show version: 15.2(7)E2
   mgmt_acl:
+    show ip access-lists TEST_SNMP_ACCESS:
+      TEST_SNMP_ACCESS:
+        _mode: strict
+        10:
+          action: permit
+          protocol: ip
+          src: 10.17.10.0/24
+          dst: any
     show ip access-lists TEST_SSH_ACCESS:
       TEST_SSH_ACCESS:
         _mode: strict
@@ -19,14 +27,6 @@ system:
           action: deny
           protocol: ip
           src: any
-          dst: any
-    show ip access-lists TEST_SNMP_ACCESS:
-      TEST_SNMP_ACCESS:
-        _mode: strict
-        10:
-          action: permit
-          protocol: ip
-          src: 10.17.10.0/24
           dst: any
   module:
     show module:

@@ -17,11 +17,11 @@ all:
     mgmt_acl:
       - name: ssh
         ace:
-          - { permit: mgmt - 10.17.10.0/24 }
-          - { permit: mgmt - 10.10.10.10/32 }
+          - permit: mgmt - 10.17.10.0/24
+          - permit: mgmt - 10.10.10.10/32
       - name: http
         ace:
-          - { permit: inside - any }
+          - permit: inside - any
 
   # ----------------------------------------------------------------------------
   # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC

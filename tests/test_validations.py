@@ -1,6 +1,7 @@
 """
-These unittests test the different os_type command validations using desired_actual_cmd.py
-which holds the desired_state, cmd_output and actual_state which have per-os_type child dictionaires
+These unittests test the different os_type command validations using the files from within the os_type test folder
+desired_state.j2 is used for generating the desired_state and commands to be run
+actual_state.py is used for formatting the actual_state and the validation file
 """
 
 import pytest
@@ -13,8 +14,6 @@ from nornir import InitNornir
 from nornir.core.task import Result
 from nornir.core.filter import F
 
-from feature_builder import create_desired_state
-from feature_builder import create_actual_state
 from nr_val import merge_os_types
 from nr_val import task_template
 from nr_val import task_desired_state
@@ -45,10 +44,11 @@ def form_file_names(dvc_os, feature):
     except:
         input_data["os_type"] = dvc_os.name
     os_feat_name = os.path.join(feature.path, f"{dvc_os.name}_{feature.name}")
+    input_data["cmd_output_file"] = f"{os_feat_name}_cmd_output.json"
+    input_data["cmd_file"] = f"{os_feat_name}_commands.yml"
     input_data["val_file"] = f"{os_feat_name}_validate.yml"
     input_data["ds_file"] = f"{os_feat_name}_desired_state.yml"
     input_data["as_file"] = f"{os_feat_name}_actual_state.yml"
-    input_data["cmd_file"] = f"{os_feat_name}_cmd_output.json"
     input_data["vendor_os"] = dvc_os.name.upper()
     input_data["feature"] = feature.name.upper()
     return input_data
@@ -168,27 +168,83 @@ def sub_feature_test(feature, state, expected_state, true_state):
         assert true_state[sub_feat] == expected_state[sub_feat], err_msg
 
 
-# ----------------------------------------------------------------------------
-# 1. DESIRED_STATE: Tests the templated input_vars (desired_state) are formatted correctly
-# ----------------------------------------------------------------------------
-class TestDesiredState:
+def task_get_desired_state(task, validations):
+    """Return the actual desired state structured data by rendering the template with nornir and assigning as a host_var"""
+    task.run(
+        task=task_desired_state,
+        validations=validations,
+        task_template=task_template,
+    )
 
-    # ----------------------------------------------------------------------------
-    # PRE_TASKS: Methods to get all the elements required to test desired state
-    # ----------------------------------------------------------------------------
-    def task_get_desired_state(self, task, validations):
-        """Return the actual desired state structured data by rendering the template with nornir and assigning as a host_var"""
-        task.run(
-            task=task_desired_state,
-            validations=validations,
-            task_template=task_template,
+    return Result(host=task.host, result=task.host["desired_state"])
+
+
+# ----------------------------------------------------------------------------
+# 1. COMMANDS: Renders "subfeature_index.yml" with "desired_state.j2" and compares result against the file "commands.yml"
+# ----------------------------------------------------------------------------
+class TestCommands:
+    def test_command_templating(self, return_os_feature_name):
+        """Uses other methods to load all the files, then does a per-subfeat command assertion"""
+        all_features = get_test_file_info(return_os_feature_name)
+        feature = all_features[return_os_feature_name]
+        cmd_file = feature["cmd_file"]
+        os_type = feature["os_type"]
+        vendor_os = feature["vendor_os"].lower()
+        index_file = os.path.join(OS_TEST_FILES, vendor_os, "subfeature_index.yml")
+
+        # Load all the files needed for the validation
+        expected_cmd = load_yaml_file(cmd_file)
+        # index_file = os.path.join(os.path.split(TEST_PATH)[0], "subfeature_index.yml")
+        sub_features = load_yaml_file(index_file)["all"][feature["feature"].lower()]
+        validations = {"all": {feature["feature"].lower(): sub_features}}
+
+        # Runs the templating to create the actual result
+        task_nr = nr.filter(F(has_parent_group=os_type))
+        output = task_nr.run(task=task_get_desired_state, validations=validations)
+        true_cmd = output[f"{os_type}_host"][0].result
+
+        # Assertion checks that keys are the same for feature and sub-feature before testing each sub-feature
+        have_same_keys(feature, "Commands", expected_cmd, true_cmd)
+        f_name = feature["feature"].lower()
+        have_same_keys(feature, "Commands", expected_cmd[f_name], true_cmd[f_name])
+        sub_feature_test(feature, "Commands", expected_cmd[f_name], true_cmd[f_name])
+
+
+# ----------------------------------------------------------------------------
+# 2. VAL_FILE: Formats "cmd_output.json" with "actual_state.create_validation" and compares result against the file "validate.yml"
+# ----------------------------------------------------------------------------
+@pytest.mark.usefixtures("import_modules")
+class TestValFile:
+    def test_create_validation_file(self, return_os_feature_name):
+        """Uses other methods to load all the files and then run per-feature validation file assertion"""
+        all_features = get_test_file_info(return_os_feature_name)
+        feature = all_features[return_os_feature_name]
+        cmd_output = feature["cmd_output_file"]
+        validate_file = feature["val_file"]
+        os_type = feature["os_type"]
+
+        # Load all the files needed for the validation
+        expect_val = load_yaml_file(validate_file)["all"]
+        cmd_output = load_json_file(cmd_output)
+
+        # Merge all OS types and then get the actual result
+        os_type = merge_os_types(nr.inventory.hosts[f"{os_type}_host"])
+        true_val = actual_state_engine("generate_val_file", os_type, cmd_output)
+
+        # Assertion checks that keys are the same for feature and sub-feature before testing each sub-feature
+        have_same_keys(feature, "Create Val File", expect_val, true_val)
+        f_name = feature["feature"].lower()
+        have_same_keys(feature, "Create Val File", expect_val[f_name], true_val[f_name])
+        sub_feature_test(
+            feature, "Create Val File", expect_val[f_name], true_val[f_name]
         )
 
-        return Result(host=task.host, result=task.host["desired_state"])
 
-    # ----------------------------------------------------------------------------
-    # ASSERT: Calls other class methods and then runs the assertion
-    # ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# 3. DESIRED_STATE: Renders "validate.yml" with "desired_state.j2" and compares result against the file "desired_state.yml"
+# ----------------------------------------------------------------------------
+class TestDesiredState:
+    # USES val file, desired state and compares against the result of desired_state_templating
     def test_desired_state_templating(self, return_os_feature_name):
         """Uses other methods to load all the files and then per-feature desired state assertion"""
         all_features = get_test_file_info(return_os_feature_name)
@@ -196,32 +252,25 @@ class TestDesiredState:
         validate_file = feature["val_file"]
         desired_state_file = feature["ds_file"]
         os_type = feature["os_type"]
-        vendor_os = feature["vendor_os"].lower()
-
-        # Generates a new testbed desired state (from validate file) to run test against
-        TEST_PATH = os.path.join(OS_TEST_FILES, vendor_os, feature["feature"].lower())
-        TMPL_PATH = os.path.join(TEMPLATE_DIR, feature["feature"].lower())
-        create_desired_state(
-            vendor_os, feature["feature"].lower(), TEST_PATH, TMPL_PATH
-        )
 
         # Load all the files needed for the validation
         validations = load_yaml_file(validate_file)
         expected_ds = load_yaml_file(desired_state_file)
 
-        # Filter inventory on OS type amd then get true desired state
+        # Filter inventory on OS type runs the templating to create the actual result
         task_nr = nr.filter(F(has_parent_group=os_type))
-        output = task_nr.run(task=self.task_get_desired_state, validations=validations)
+        output = task_nr.run(task=task_get_desired_state, validations=validations)
         true_ds = output[f"{os_type}_host"][0].result
 
-        # Make sure keys are the same and then run unittest of each sub-feature within the feature
+        # Assertion checks that keys are the same for feature and sub-feature before testing each sub-feature
         have_same_keys(feature, "Desired State", expected_ds, true_ds)
         f_name = feature["feature"].lower()
+        have_same_keys(feature, "Desired State", expected_ds[f_name], true_ds[f_name])
         sub_feature_test(feature, "Desired State", expected_ds[f_name], true_ds[f_name])
 
 
 # ----------------------------------------------------------------------------
-# 2. ACTUAL_STATE: Per-os_type testing that actual state is formatting commands properly
+# 4. ACTUAL_STATE: Formats "cmd_output.json" with "actual_state.format_actual_state" and compares result against the file "actual_state.yml"
 # ----------------------------------------------------------------------------
 @pytest.mark.usefixtures("import_modules")
 class TestActualState:
@@ -229,14 +278,9 @@ class TestActualState:
         """Uses other methods to load all the files and then run per-feature actual state assertion"""
         all_features = get_test_file_info(return_os_feature_name)
         feature = all_features[return_os_feature_name]
-        cmd_output = feature["cmd_file"]
+        cmd_output = feature["cmd_output_file"]
         actual_state_file = feature["as_file"]
         os_type = feature["os_type"]
-        vendor_os = feature["vendor_os"].lower()
-
-        # Generates a new testbed desired state (from validate file) to run test against
-        TEST_PATH = os.path.join(OS_TEST_FILES, vendor_os, feature["feature"].lower())
-        create_actual_state(vendor_os, feature["feature"].lower(), TEST_PATH)
 
         # Load all the files needed for the validation
         expected_as = load_yaml_file(actual_state_file)
@@ -244,9 +288,9 @@ class TestActualState:
 
         # Merge all OS types and then get the true actual state
         os_type = merge_os_types(nr.inventory.hosts[f"{os_type}_host"])
-        true_as = actual_state_engine(os_type, cmd_output)
+        true_as = actual_state_engine("format_actual_state", os_type, cmd_output)
 
-        # Make sure keys are the same and then run unittest of each sub-feature within the feature
+        # Assertion checks that keys are the same for feature and sub-feature before testing each sub-feature
         have_same_keys(feature, "Actual State", expected_as, true_as)
         f_name = feature["feature"].lower()
         have_same_keys(feature, "Actual State", expected_as[f_name], true_as[f_name])
@@ -254,7 +298,7 @@ class TestActualState:
 
 
 # ----------------------------------------------------------------------------
-# 3. REPORT: Tests that  teh compliance report passes
+# 5. REPORT: Vlidates a compliance report comparing the files "desired_state.yml" and "actual_state.yml" passes
 # ----------------------------------------------------------------------------
 class TestComplianceReport:
     def test_report_passes(self, return_os_feature_name):
@@ -295,10 +339,12 @@ class TestComplianceReport:
             "result": "✅ Validation report complies, desired_state and actual_state match.",
             "report_text": "",
         }
+
         # Create the actual compliance report
         true_report = generate_validate_report(desired_state, actual_state, "hst", None)
         ex_report = expected_report["report"]
         tr_report = true_report["report"]
+
         # Validate all the features are there (keys)
         have_same_keys(feature, "Compliance Report", ex_report, tr_report)
         for sub_feat in all_sub_feat:

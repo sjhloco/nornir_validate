@@ -10,6 +10,21 @@
 {% set cdp_cmd = "show cdp neighbors detail" %}
 {% endif %}
 
+
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'cdp' %}
+    cdp:
+      {{ cdp_cmd }}: VAL
+{% elif sub_feat == 'lldp' %}
+    lldp:
+      {{ lldp_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
+
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
@@ -31,3 +46,5 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+{% endif %}

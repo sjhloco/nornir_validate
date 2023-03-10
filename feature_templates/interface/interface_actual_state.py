@@ -3,6 +3,7 @@ from collections import defaultdict
 import re
 import ipdb
 
+
 # ----------------------------------------------------------------------------
 # Mini-functions used by the main function
 # ----------------------------------------------------------------------------
@@ -24,7 +25,7 @@ def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> 
     """
     Fixes issues due to NXOS JSON making dict rather than list if only 1 item.
     If the child_dict is a dictionary, convert it to a list. Feed in cmd specific TABLE_xx and ROW_xx keywords
-    
+
     :param main_dict: The dictionary that contains the parent dictionary
     :param parent_dict: The parent dictionary key
     :param child_dict: The key of the dictionary that you want to fix
@@ -66,7 +67,7 @@ def _wlc_duplex_speed(intf: Dict[str, str]) -> None:
 # ----------------------------------------------------------------------------
 # Engine that runs the actual state sub-feature formatting for all os types
 # ----------------------------------------------------------------------------
-def format_output(
+def format_actual_state(
     os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """

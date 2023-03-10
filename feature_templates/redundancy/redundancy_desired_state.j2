@@ -9,6 +9,20 @@
 {% set ha_state_cmd = "show redundancy summary" %}
 {% endif %}
 
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'ha_state' %}
+    ha_state:
+      {{ ha_state_cmd }}: VAL
+{% elif sub_feat == 'sw_stack' %}
+    sw_stack:
+      {{ sw_stack_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
+
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
@@ -31,3 +45,5 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+{% endif %}

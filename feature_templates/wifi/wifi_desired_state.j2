@@ -10,6 +10,28 @@
 {% set intf_grp_cmd = "show interface group summary" %}
 {% endif %}
 
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'wlan' %}
+    wlan: 
+      {{ wlan_cmd }}: VAL
+{% elif sub_feat == 'ap' %}
+    ap: 
+      {{ ap_cmd }}: VAL
+{% elif sub_feat == 'client_count' %}
+    client_count:
+      {{ client_count_cmd }}: VAL
+{% elif sub_feat == 'flexconnect' %}
+    flexconnect: 
+      {{ flexconn_cmd }}: VAL
+{% elif sub_feat == 'intf_grp' %}
+    intf_grp: 
+      {{ intf_grp_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
 
 {# ##### Build feature template ##### #}
 - {{ feature }}:
@@ -67,3 +89,5 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+{% endif %}

@@ -12,6 +12,28 @@
 {% elif 'wlc' in os_type |string %}
 {% endif %}
 
+
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'vlan' %}
+    vlan: 
+      {{ vlan_cmd }}: VAL
+{% elif sub_feat == 'stp_vlan' %}
+    stp_vlan: 
+      {{ stp_cmd }}: VAL
+{% elif sub_feat == 'ip_brief' %}
+    ip_brief: 
+      {{ ip_brief_cmd }}: VAL
+{% elif sub_feat == 'mac_table' %}
+    mac_table:
+      {{ mac_table_all_cmd }}: VAL
+      {{ mac_table_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
+
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
@@ -58,4 +80,4 @@
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
 
-
+{% endif %}

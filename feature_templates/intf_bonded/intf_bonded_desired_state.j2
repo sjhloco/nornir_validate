@@ -9,6 +9,21 @@
 {% elif 'wlc' in os_type |string %}
 {% endif %}
 
+
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'port_channel' %}
+    port_channel:
+      {{ port_channel_cmd }}: VAL
+{% elif sub_feat == 'vpc' and vpc_cmd is defined %}
+    vpc:
+      {{ vpc_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
+
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
@@ -53,3 +68,5 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+{% endif %}

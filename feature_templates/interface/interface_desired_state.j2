@@ -15,6 +15,23 @@
 {% set ip_brief_cmd = "show interface summary" %}
 {% endif %}
 
+{#!!! added for val file builder ##### For the validation file builder ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'intf' %}
+    intf: 
+      {{ intf_cmd }}: VAL
+{% elif sub_feat == 'switchport' %}
+    switchport: 
+      {{ switchport_cmd }}: VAL
+{% elif sub_feat == 'ip_brief' %}
+    ip_brief: 
+      {{ ip_brief_cmd }}: VAL
+{% endif %}{% endfor %}
+{% else %}
+
+
 {# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
@@ -54,3 +71,5 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+{% endif %}
