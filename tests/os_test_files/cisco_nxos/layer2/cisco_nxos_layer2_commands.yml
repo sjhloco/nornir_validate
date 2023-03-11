@@ -1,0 +1,7 @@
+layer2:
+  vlan:
+    show vlan brief: VALIDATE
+  mac_table:
+    show mac address-table count dynamic: VALIDATE
+    show mac  address-table static vlan 6 | last 1: VALIDATE
+    show mac  address-table static vlan 24 | last 1: VALIDATE

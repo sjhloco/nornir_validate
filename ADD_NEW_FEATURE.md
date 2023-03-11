@@ -374,3 +374,15 @@ In order to use multiple commands to form a sub-feature as the validations are m
 {% endif %}
 {% endfor %}
 ```
+
+
+
+
+Add bit about if subfeature index may use a dict (mgmt acl, route count, routes, macs table and wlans) then the desited state commands but slightly diff as need to add info to cmds
+
+{% elif 'mgmt_acl' in sub_feat and mgmt_acl_cmd is defined %}
+    mgmt_acl:
+{% if sub_feat.mgmt_acl.__class__.__name__ == 'list' %}
+{% for each_acl in sub_feat.mgmt_acl %}
+      {{ mgmt_acl_cmd }} {{ each_acl }}: VALIDATE
+{% endfor %}

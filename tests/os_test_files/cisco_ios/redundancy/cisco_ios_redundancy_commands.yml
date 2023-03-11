@@ -1,0 +1,5 @@
+redundancy:
+  ha_state:
+    show redundancy: VALIDATE
+  sw_stack:
+    show switch detail: VALIDATE

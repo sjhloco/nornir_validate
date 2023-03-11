@@ -1,4 +1,4 @@
-{# ####### Set commands on a per-OS basis ####### #}
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
 {% if 'ios' in os_type |string %}
 {% set vpn_sts_cmd = "show crypto session detail" %}
 {% set sts_count_cmd = "show crypto session brief | count UA" %}
@@ -13,28 +13,30 @@
 {% endif %}
 
 
-{#!!! added for val file builder ##### For the validation file builder ##### #}
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
 {% if sub_features.__class__.__name__ == 'list' %}
 - {{ feature }}:
 {% for sub_feat in sub_features %}
-{% if sub_feat == 'sts_peer' %}
+{% if sub_feat == 'sts_peer' and vpn_sts_cmd is defined %}
     sts_peer:
-      {{ vpn_sts_cmd }}: VAL
-{% elif sub_feat == 'ac_client' %}
+      {{ vpn_sts_cmd }}: VALIDATE
+{% elif sub_feat == 'ac_client' and vpn_ac_cmd is defined %}
     ac_client:
-      {{ vpn_ac_cmd }}: VAL
-{% elif sub_feat == 'ip_brief' %}
-    ip_brief: 
-      {{ ip_brief_cmd }}: VAL
-{% elif sub_feat == 'vpn_count' %}
+      {{ vpn_ac_cmd }}: VALIDATE
+{% elif sub_feat == 'vpn_count' and (vpn_sts_cmd is defined or vpn_ac_cmd is defined) %}
     vpn_count:
-      {{ sts_count_cmd }}: VAL
-      {{ ac_count_cmd }}: VAL
+{% if vpn_sts_cmd is defined %}
+      {{ sts_count_cmd }}: VALIDATE
+{% endif %}
+{% if vpn_ac_cmd is defined %}
+      {{ ac_count_cmd }}: VALIDATE
+{% endif %} 
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
 {% else %}
-
-
-{# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### STS_PEER: {cmd: {peer_ip: UP-ACTIVE, peer_ip: UP-ACTIVE}} ### #}
@@ -67,5 +69,4 @@
 {% endif %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-
 {% endif %}

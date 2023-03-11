@@ -1,0 +1,5 @@
+route_table:
+  route_count:
+    show route summary | in maximum-paths|Total: VALIDATE
+  route:
+    show route: VALIDATE

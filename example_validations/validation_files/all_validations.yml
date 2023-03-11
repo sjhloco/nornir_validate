@@ -39,7 +39,7 @@ all:
         model: N7K-F248XP-25
 
   # ----------------------------------------------------------------------------
-  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Redundancy Validations - IOS/IOS-XE, ASA, WLC
   # ----------------------------------------------------------------------------
   redundancy:
     ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
@@ -170,8 +170,8 @@ all:
   # ----------------------------------------------------------------------------
   # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
   # ----------------------------------------------------------------------------
-  ## HSRP: For each HSRP interface the priority and state
   fhr:
+    ## HSRP: For each HSRP interface the priority and state
     hsrp:
       - intf: Vlan11
         priority: 100
@@ -184,12 +184,12 @@ all:
   # Route Table Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_table:
-    ## VRF member interfaces (strict): List of member interfaces for each VRF - Not ASA
+    ## VRF (strict): List of member interfaces for each VRF - Not ASA
     vrf:
       BLU: [BD2001,Lo111]
       AMB: [BD2003,Gi0/1, Gi0/2]
       GRY: [BD2006, Vl20]
-    ## Total number of subnets: Either the global (default) RT or the name of the vrf
+    ## Route Table count: Total number of subnets either in global (default) RT or the name of the vrf
     route_count:
       global: 21
       BLU: 4
@@ -317,6 +317,7 @@ all:
   # ----------------------------------------------------------------------------
   # WIFI Validations - WLC
   # ----------------------------------------------------------------------------
+  wifi:
     wlan: 
       ## WLAN: List of WLANs, the SSID, associated interface and expected status of Enabled
       - wlan_id: 11

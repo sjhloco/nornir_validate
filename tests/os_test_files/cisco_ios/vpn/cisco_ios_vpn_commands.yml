@@ -1,0 +1,5 @@
+vpn:
+  sts_peer:
+    show crypto session detail: VALIDATE
+  vpn_count:
+    show crypto session brief | count UA: VALIDATE

@@ -3,6 +3,6 @@ system:
     show version: VALIDATE
   mgmt_acl:
     show access-lists TEST_SSH_ACCESS: VALIDATE
-    show access-lists TEST_SSH_ACCESS1: VALIDATE
+    show access-lists TEST_SNMP_ACCESS: VALIDATE
   module:
     show module: VALIDATE

@@ -1,335 +1,87 @@
 all:
-  # ----------------------------------------------------------------------------
-  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
-  # ----------------------------------------------------------------------------
   system:
-    ## Software image: Current image
+    # Software image: Current image
     - image
-    ## Management ACL: SSH access and SNMP ACLs
+    # Management ACL: SSH access and SNMP ACLs
     - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
-    ## MODULE: Multi-chassis modules
+    # MODULE: Multi-chassis modules
     - module
-
-
-
-  # # ----------------------------------------------------------------------------
-  # # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
-  # # ----------------------------------------------------------------------------
-  # redundancy:
-  #   ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
-  #   ha_state:
-  #     local: ACTIVE
-  #     peer: STANDBY HOT
-  #   ## Switch Stack (strict): Each stacked switch number, priority, role and state - Not NXOS, ASA, WLC
-  #   sw_stack:
-  #     - sw_number: 1
-  #       priority: 15
-  #       role: Active
-  #     - sw_number: 2
-  #       priority: 1
-  #       role: Member
-  #     - sw_number: 3
-  #       priority: 14
-  #       role: Standby
-
-  # # ----------------------------------------------------------------------------
-  # # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
-  # # ----------------------------------------------------------------------------
-  # neighbor:
-  #   ## CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
-  #   cdp:
-  #     Ten 2/1/1:
-  #       nbr_name: LN-6500-VSS01
-  #       nbr_intf: Ten 2/5/15
-  #     Gi0/2:
-  #       nbr_name: Switch02
-  #       nbr_intf: Gi0/3
-  # ## LLDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
-  #   lldp:
-  #     Te2/1/1:
-  #       nbr_name: LN-6500-VSS01
-  #       nbr_intf: Te2/5/15
-  #     Gi2:
-  #       nbr_name: Router01
-  #       nbr_intf: Gi0/1
-
-  # # ----------------------------------------------------------------------------
-  # # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
-  # # ----------------------------------------------------------------------------
-  # intf_bonded:
-  # ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
-  #   port_channel:
-  #     Po1:
-  #       protocol: LACP
-  #       members: [Te1/1/1]
-  #     Po101:
-  #       protocol: LACP
-  #       members: [Te1/1/8, Te2/1/8]
-  # ## VPC: The overall VPC state and list of strict VLANs over the peer link as well as each VPC member interfaces and vlans (strict list)
-  #   vpc:
-  #     role: primary-secondary
-  #     peerlink_vlans: [110-111,113-116,200,1100,1102,1110-1111]
-  #     vpcs:
-  #       21:
-  #         po: Po21
-  #         vlans: [113-116,200]
-  #       25:
-  #         po: Po25
-  #         vlans: [110-111,1100,1102,1110-1111]
-  #       32:
-  #         po: Po32
-  #         vlans: [1102]
-
-  # # ----------------------------------------------------------------------------
-  # # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
-  # # ----------------------------------------------------------------------------
-  # interface:
-  # ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined for virtual interface)
-  #   intf:
-  #     Gi0/1:
-  #       duplex: a-full
-  #       speed: a-1000
-  #       type: access
-  #     Gi0/2:
-  #       duplex: full
-  #       speed: 10G
-  #       type: trunk
-  #     Gi0/3:
-  #       duplex: auto
-  #       speed: auto
-  #       type: routed
-  #     Port-channel1.144:
-  #       type: HME_GST_ACCESS
-  # ## SWITCH: L2 interface mode of access and VLAN or trunk and strict list of VLANs over that port
-  #   switchport:
-  #     Po1:
-  #       mode: trunk
-  #       vlan: [11-16,200,1001]
-  #     Po2:
-  #       mode: trunk
-  #       vlan: [1001]
-  #     Gi0/1:
-  #       mode: access
-  #       vlan: 17
-  # ## IP_BRIEF: L3 interface and IP address, status is expected to be up (only checks for the specified interfaces)
-  #   ip_brief: 
-  #     Lo1: 192.168.1.41
-  #     Eth1/1: loopback1
-  #     Vlan6: 172.20.6.1
-  
-  # # ----------------------------------------------------------------------------
-  # # Layer2 Validations - IOS/IOS-XE, NXOS
-  # # ----------------------------------------------------------------------------
-  # layer2:
-  #   ## VLANs (strict intf): VLAN name and list of interfaces in that VLAN (strict interfaces, so those exact interfaces)
-  #   vlan:
-  #     701:
-  #       name: TEST_VL701
-  #       intf: [Gi1/0/4]
-  #     1:
-  #       name: default
-  #       intf: [Te1/1/2,Te1/1/4,Te1/1/7,Te2/1/2,Te2/1/4,Te2/1/7]
-  #   ## Spanning-tree VLAN: List of forwarding (FWD) interfaces per-VLAN (access and trunk) - Not NXOS
-  #   stp_vlan:
-  #     - vlan: 701
-  #       intf: [Po11,Po201,Gi1/0/4]
-  #     - vlan: 20
-  #       intf: [Gi0/3]
-  #   ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN
-  #   mac_table:
-  #     total_mac_count: 1100
-  #     vl52_mac_count: 6
-  #     vl10_mac_count: 21
-
-  # # ----------------------------------------------------------------------------
-  # # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
-  # # ----------------------------------------------------------------------------
-  # ## HSRP: For each HSRP interface the priority and state
-  # fhr:
-  #   hsrp:
-  #     - intf: Vlan11
-  #       priority: 100
-  #       state: Standby
-  #     - intf: Vlan200
-  #       priority: 110
-  #       state: Active
-
-  # # ----------------------------------------------------------------------------
-  # # Route Table Validations - IOS/IOS-XE, NXOS, ASA
-  # # ----------------------------------------------------------------------------
-  # route_table:
-  #   ## VRF member interfaces (strict): List of member interfaces for each VRF - Not ASA
-  #   vrf:
-  #     BLU: [BD2001,Lo111]
-  #     AMB: [BD2003,Gi0/1, Gi0/2]
-  #     GRY: [BD2006, Vl20]
-  #   ## Total number of subnets: Either the global (default) RT or the name of the vrf
-  #   route_count:
-  #     global: 21
-  #     BLU: 4
-  #     AMB: 15
-  #   ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
-  #   route:
-  #     global:
-  #       0.0.0.0/0: 
-  #         rtype: S
-  #         nh: 10.30.20.1
-  #       2.2.2.2/32: 
-  #         rtype: B
-  #         nh: 10.10.10.2
-  #       6.6.6.6/32: 
-  #         rtype: O E2
-  #         nh: 10.10.10.2
-  #       10.30.20.0/24: 
-  #         rtype: C
-  #         nh: GigabitEthernet1
-  #       10.30.20.102/32: 
-  #         rtype: L
-  #         nh: GigabitEthernet1
-  #       192.168.25.42/32: 
-  #         rtype: O
-  #         nh: [192.168.14.10, 192.168.14.2]
-  #     BLU:
-  #       172.16.10.0/24: 
-  #         rtype: B
-  #         nh: 10.80.10.2
-  #       10.12.242.64/28: 
-  #         rtype: B
-  #         nh: [192.168.12.1, 192.168.12.5]
-
-  # # ----------------------------------------------------------------------------
-  # # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
-  # # ----------------------------------------------------------------------------
-  # route_protocol:
-  #   ## EIGRP Interface/Neighbor (strict): List of EIGRP enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
-  #   eigrp_intf_nbr:
-  #     Gi3:
-  #       asn: 1
-  #       nbr: 10.10.10.2
-  #     Vl10:
-  #       asn: 545
-  #       nbr: 10.230.205.27
-  #   ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces (short name) and optional strict peers (address not RID) off them (no need for nbr dict if no neighbors)
-  #   ospf_intf_nbr: 
-  #     Gi0/3:
-  #       pid: 3
-  #       area: 1
-  #       nbr: 192.168.230.2
-  #     Vl120:
-  #       pid: 2
-  #       area: 0
-  #       nbr: [192.168.10.2, 192.168.10.3]
-  #     Po1:
-  #       pid: 1
-  #       area: 0
-  #       nbr: 10.90.10.1
-  #     Vl110:
-  #       pid: 1
-  #       area: 1
-  #   ## OSPF database count: The total number of LSAs (all types) in the LSDB per-OSPF process
-  #   ospf_lsdb_count:
-  #     1:
-  #       total_lsa: 11
-  #   ## BGP Peers/Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of received prefixes
-  #   bgp_peer:
-  #     192.168.67.149:
-  #       asn: 65111
-  #       rcv_pfx: 55
-  #     192.168.167.9:
-  #       asn: 65112
-  #       rcv_pfx: 6
-
-  # # ----------------------------------------------------------------------------
-  # # Firewall Validations - ASA
-  # # ----------------------------------------------------------------------------
-  # fw:
-  #   # CONN_COUNT: Total number of connections
-  #   conn_count: 23835
-
-  # # ----------------------------------------------------------------------------
-  # # Switchport authentication Validations - IOS/IOS-XE
-  # # ----------------------------------------------------------------------------
-  # auth_session:
-  #   ## MAB auth sessions -  Total number of MAB authenticated sessions
-  #   mab_count: 21
-  #   ## DOT1X auth sessions -  Total number of DOT1X authenticated sessions
-  #   dot1x_count: 22
-
-  # # ----------------------------------------------------------------------------
-  # # EVPN/VXLAN Validations - IOS/IOS-XE, NXOS
-  # # ----------------------------------------------------------------------------
-  # evpn:
-  #   ## NVE VNIs - Dictionary of L2/L3VNIs and the associated BDI/VRF, state is expected top be Up
-  #   nve_vni:
-  #     10006:
-  #       bd_vrf: 6
-  #     10301:
-  #       bd_vrf: BLU
-  #   ## NVE Peers (strict): Single  peer or list of peers, state is expected top be UP 
-  #   nve_peer: [192.168.111.41, 192.168.111.47, 192.168.111.81]
-
-  # # ----------------------------------------------------------------------------
-  # # VPN Validations - IOS/IOS-XE, ASA
-  # # ----------------------------------------------------------------------------
-  # vpn:
-  #   ## StS VPN PEERS (strict): List of VPN peers, status is expected to be UP-ACTIVE on IOS or ASA to have tx/rx
-  #   sts_peer:
-  #     [21.16.9.23, 21.16.9.24]
-  #   ## AC_VPN CLIENTS: AnyConnect username with the group policy and tunnel group it is using - ASA only
-  #   ac_client: 
-  #     ssmith:
-  #       tunnel_group: TUN_VPN_PROD
-  #       group_policy: GRP_VPN_PROD
-  #     ssmith1:
-  #       tunnel_group: TUN_VPN_NPE
-  #       group_policy: GRP_VPN_NPE
-  #   ## NUM_VPN: Total number of StS VPN peers and AnyConnect users (ASA only)
-  #   vpn_count:
-  #     sts: 4
-  #     ac: 3
-
-  # # ----------------------------------------------------------------------------
-  # # WIFI Validations - WLC
-  # # ----------------------------------------------------------------------------
-  #   wlan: 
-  #     ## WLAN: List of WLANs, the SSID, associated interface and expected status of Enabled
-  #     - wlan_id: 11
-  #       interface: intgrp_gst_guest_hotspot
-  #       ssid: wifi-guest
-  #     - wlan_id: 12
-  #       interface: intgrp_blu
-  #       ssid: corp
-  #   ## AP_SUMMARY: List of APs, model, IP and the number of clients on each
-  #   ap:
-  #     - ap_name: DC-AP-01
-  #       ap_model: AIR-AP2802I-E-K9
-  #       ip: 10.20.10.12
-  #       client_count: 4
-  #     - ap_name: DC-AP-02
-  #       ap_model: AIR-AP2802I-E-K9
-  #       ip: 10.20.10.14
-  #       client_count: 14
-  #   ## NUM_CLIENTS: Total number of clients and number of clients per WLAN
-  #   client_count:
-  #     total_count: 4
-  #     wl22_count: 2
-  #   ## FLEX_CONN: Number of APs per flexconnect group
-  #   flexconnect:
-  #     - grp_name: FlexCon Group - Grp1
-  #       ap_count: 44
-  #     - grp_name: default-flex-group-1826280552
-  #       ap_count: 4
-  #   ## INTF_GROUP: Number of interfaces, WLANs and APs per interface group
-  #   intf_grp:
-  #     - grp_name: intgrp_guest
-  #       ap_grp_count: 2
-  #       intf_count: 1
-  #       wlan_count: 1
-  #     - grp_name: intgrp_prod
-  #       ap_grp_count: 6
-  #       intf_count: 1
-  #       wlan_count: 1
-  #     - grp_name: intgrp_byod
-  #       ap_grp_count: 11
-  #       intf_count: 1
-  #       wlan_count: 2
+  redundancy:
+    # High Availability state: The redundancy state of the local and peered devices
+    - ha_state
+    # Switch Stack (strict): Stacked switch members
+    - sw_stack
+  neighbor:
+    # CDP neighbors: Connected neighbors
+    - cdp
+    # LLDP neighbors: Connected neighbors
+    - lldp
+  intf_bonded:
+    # Port-channels (strict members): Port-channel and member interfaces
+    - port_channel
+    # VPC: VPC state and member interfaces
+    - vpc
+  interface:
+    # INTF: Physical interface attributes
+    - intf
+    # SWITCH: L2 interface
+    - switchport
+    # IP_BRIEF: L3 interface
+    - ip_brief
+  layer2:
+    # VLANs (strict intf): VLAN and list of interfaces
+    - vlan
+    # Spanning-tree VLAN: Per-VLAN forwarding (FWD) interfaces
+    - stp_vlan
+    # MAC address count: Number of pre-VLAN dynamic MAC addresses (total all VLANs implicit)
+    - mac_table: [vl52, vl10]
+  fhr:
+    # HSRP: HSRP interfaces
+    - hsrp
+  route_table:
+    # VRF (strict): Member interfaces
+    - vrf
+    # Route Table count: Total number of subnets (global implicit)
+    - route_count: [BLU, AMB]
+    # Routing table entires: Route and next-hop (global implicit)
+    - route: [BLU]
+  route_protocol:
+    # EIGRP Interface/Neighbor (strict): EIGRP enabled interfaces and optional peers off them
+    - eigrp_intf_nbr
+    # OSPF Interface/Neighbor (strict): OSPF enabled interfaces (short name) and optional strict peers (address not RID)
+    - ospf_intf_nbr
+    # OSPF database count: Total per-OSPF process LSAs
+    - ospf_lsdb_count
+    # BGP Peers/Neighbors (strict): BGP peers
+    - bgp_peer
+  fw:
+    # CONN_COUNT: Total connections
+    - conn_count
+  auth_session:
+    # MAB auth sessions: Total MAB authenticated sessions
+    - mab_count
+    # DOT1X auth sessions: Total DOT1X authenticated sessions
+    - dot1x_count
+  evpn:
+    # NVE VNIs - L2/L3VNIs and the associated BDI/VRF
+    - nve_vni
+    # NVE Peers (strict): List of NVE peers
+    - nve_peer
+  vpn:
+    # StS VPN PEERS (strict): List of VPN peers
+    - sts_peer
+    # AC_VPN CLIENTS: AnyConnect users and policies
+    - ac_client
+    # NUM_VPN: Total StS VPN peers and AnyConnect users
+    - vpn_count
+  wifi:
+    # WLAN: List of WLANs and SSID
+    - wlan
+    # AP_SUMMARY: List of APs
+    - ap
+    # NUM_CLIENTS: Number of per-WLAN clients (total is implicit)
+    - client_count: [wl22]
+    # FLEX_CONN: Number of APs per flexconnect group
+    - flexconnect
+    # INTF_GROUP: Number of interfaces, WLANs and APs per interface group
+    - intf_grp

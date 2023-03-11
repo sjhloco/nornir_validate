@@ -137,7 +137,7 @@ all:
       3001:
         name: DC1_BLU_L3VNI_VL3001
         intf: [Po1, Eth1/24]
-  #   ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN
+    ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN
     mac_table:
       total_mac_count: 646
       vl14_mac_count: 6
@@ -147,8 +147,8 @@ all:
   # ----------------------------------------------------------------------------
   # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
   # ----------------------------------------------------------------------------
-  # HSRP: For each HSRP interface the priority and state
   fhr:
+    ## HSRP: For each HSRP interface the priority and state
     hsrp:
       - intf: Vlan11
         priority: 100
@@ -161,16 +161,16 @@ all:
   # Route Table Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_table:
-    # VRF member interfaces (strict): List of member interfaces for each VRF - Not ASA
+    ## VRF (strict): List of member interfaces for each VRF - Not ASA
     vrf:
       BLU: [Vlan6,Vlan18,loopback11]
       TRI: [Vlan94,Vlan3007,loopback72]
-    # Total number of subnets: Either the global (default) RT or the name of the vrf
+    ## Total number of subnets: Either the global (default) RT or the name of the vrf
     route_count:
       global: 21
       BLU: 4
       AMB: 15
-    # Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
     route:
       global:
         192.168.121.81/32: 
@@ -204,7 +204,7 @@ all:
   # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_protocol:
-    # OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
     ospf_intf_nbr: 
       Vlan2:
         pid: DC_UNDERLAY
@@ -221,7 +221,7 @@ all:
         pid: BLU10
         area: 0.0.0.10
         nbr: [192.168.120.3, 192.168.121.38]
-    # OSPF database count: The total number of LSAs (all types) in the LSDB per OSPF process
+    ## OSPF database count: The total number of LSAs (all types) in the LSDB per OSPF process
     ospf_lsdb_count:
       DC_UNDERLAY:
         total_lsa: 6

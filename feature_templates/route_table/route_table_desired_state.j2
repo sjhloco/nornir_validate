@@ -1,4 +1,4 @@
-{# ####### Set commands on a per-OS basis ####### #}
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
 {% if 'ios' in os_type |string %}
 {% set vrf_cmd = "show vrf" %}
 {% set route_count_cmd = "show ip  route summary | in name|Total" %}
@@ -15,22 +15,6 @@
 {% elif 'wlc' in os_type |string %}
 {% endif %}
 
-{#!!! added for val file builder ##### For the validation file builder ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
-- {{ feature }}:
-{% for sub_feat in sub_features %}
-{% if sub_feat == 'vrf' %}
-    vrf:
-      {{ vrf_cmd }}: VAL
-{% elif sub_feat == 'route_count' %}
-    route_count:
-      {{ route_count_cmd }}: VAL
-{% elif sub_feat == 'route' %}
-    route:
-      {{ route_cmd }}: VAL
-{% endif %}{% endfor %}
-{% else %}
-
 
 {# ###### Macro of templating used multiple times ###### #}
 {%- macro def_route(rte_tab, rte) -%}
@@ -46,7 +30,6 @@
             nh: {{ rte_info.nh }}
 {% endif %}{% endfor %}
 {%- endmacro -%}
-
 {%- macro def_route1(rte_tab, rte) -%}
 {% for rte, rte_info in rte.items() %}
           {{ rte }}:
@@ -60,8 +43,34 @@
 {% endif %}{% endfor %}
 {%- endmacro -%}
 
-{# ##### Build feature template ##### #}
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
 - {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'vrf' and vrf_cmd is defined %}
+    vrf:
+      {{ vrf_cmd }}: VALIDATE
+{% elif 'route_count' in sub_feat and route_count_cmd is defined %}
+    route_count:
+      {{ route_count_cmd }}: VALIDATE
+{% if sub_feat.route_count.__class__.__name__ == 'list' and route_vrf_count_cmd is defined %}
+{% for each_vrf in sub_feat.route_count %}
+      {{ route_vrf_count_cmd.split('x') | first }}{{ each_vrf }}{{ route_vrf_count_cmd.split('x') | last }}: VALIDATE
+{% endfor %}{% endif %}
+{% elif 'route' in sub_feat and route_cmd is defined %}
+    route:
+      {{ route_cmd }}: VALIDATE
+{% if sub_feat.route.__class__.__name__ == 'list' %}
+{% for each_vrf in sub_feat.route %}
+      {{ route_cmd }} vrf {{ each_vrf }}: VALIDATE
+{% endfor %}{% endif %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### VRF: {cmd: {vrf: [intfx, intfy]}} ### #}
 {% if sub_feat == 'vrf' %}
@@ -97,5 +106,4 @@
 {% endif %}{% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-
 {% endif %}

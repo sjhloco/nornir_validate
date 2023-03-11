@@ -1,4 +1,4 @@
-{# ####### Set commands on a per-OS basis ####### #}
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
 {% if 'ios' in os_type |string %}
 {% set cdp_cmd = "show cdp neighbors" %}
 {% set lldp_cmd = "show lldp neighbors" %}
@@ -11,21 +11,22 @@
 {% endif %}
 
 
-{#!!! added for val file builder ##### For the validation file builder ##### #}
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
 {% if sub_features.__class__.__name__ == 'list' %}
 - {{ feature }}:
 {% for sub_feat in sub_features %}
-{% if sub_feat == 'cdp' %}
+{% if sub_feat == 'cdp' and cdp_cmd is defined %}
     cdp:
-      {{ cdp_cmd }}: VAL
-{% elif sub_feat == 'lldp' %}
+      {{ cdp_cmd }}: VALIDATE
+{% elif sub_feat == 'lldp' and lldp_cmd is defined %}
     lldp:
-      {{ lldp_cmd }}: VAL
+      {{ lldp_cmd }}:  VALIDATE
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
 {% else %}
-
-
-{# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### CDP: {intf: {neighbor: neighbor_interface}} ### #}
@@ -46,5 +47,4 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-
 {% endif %}

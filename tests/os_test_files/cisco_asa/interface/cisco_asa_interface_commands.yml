@@ -1,0 +1,5 @@
+interface:
+  intf:
+    show interface: VALIDATE
+  ip_brief:
+    show interface ip brief: VALIDATE

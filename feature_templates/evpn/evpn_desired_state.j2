@@ -1,4 +1,4 @@
-{# ####### Set commands on a per-OS basis ####### #}
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
 {% if 'ios' in os_type |string %}
 {% set nve_vni_cmd = "show nve vni" %}
 {% set nve_peer_cmd = "show nve peers" %}
@@ -10,21 +10,22 @@
 {% endif %}
 
 
-{#!!! added for val file builder ##### For the validation file builder ##### #}
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
 {% if sub_features.__class__.__name__ == 'list' %}
 - {{ feature }}:
 {% for sub_feat in sub_features %}
-{% if sub_feat == 'nve_vni' %}
+{% if sub_feat == 'nve_vni' and nve_vni_cmd is defined %}
     nve_vni:
-      {{ nve_vni_cmd }}: VAL
-{% elif sub_feat == 'nve_peer' %}
+      {{ nve_vni_cmd }}: VALIDATE
+{% elif sub_feat == 'nve_peer' and nve_peer_cmd is defined %}
     nve_peer:
-      {{ nve_peer_cmd }}: VAL
+      {{ nve_peer_cmd }}: VALIDATE
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
 {% else %}
-
-
-{# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### NVE_VNI: {cmd: {l3vni: {bd_vrf: z, state: Up}}} ### #}
@@ -49,5 +50,4 @@
 {% endfor %}{% endif %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-
 {% endif %}

@@ -1,0 +1,3 @@
+fhr:
+  hsrp:
+    show hsrp | json: VALIDATE

@@ -1,0 +1,3 @@
+redundancy:
+  ha_state:
+    show failover: VALIDATE

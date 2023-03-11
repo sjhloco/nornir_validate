@@ -1,0 +1,11 @@
+route_table:
+  vrf:
+    show vrf interface: VALIDATE
+  route_count:
+    show ip  route summary | in VRF|routes: VALIDATE
+    show ip  route summary vrf BLU | in VRF|routes: VALIDATE
+    show ip  route summary vrf TRI | in VRF|routes: VALIDATE
+  route:
+    show ip route: VALIDATE
+    show ip route vrf BLU: VALIDATE
+    show ip route vrf TRI: VALIDATE

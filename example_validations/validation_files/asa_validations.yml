@@ -81,7 +81,7 @@ all:
   # Route Table Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_table:
-    ## Total number of subnets: Either the global (default) RT or the name of the vrf
+    ## Route Table count: Total number of subnets either in global (default) RT or the name of the vrf
     route_count:
       global: 138
     ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 

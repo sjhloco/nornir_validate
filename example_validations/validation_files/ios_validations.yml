@@ -166,8 +166,8 @@ all:
   # ----------------------------------------------------------------------------
   # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
   # ----------------------------------------------------------------------------
-  ## HSRP: For each HSRP interface the priority and state
   fhr:
+    ## HSRP: For each HSRP interface the priority and state
     hsrp:
       - intf: Vlan11
         priority: 100
@@ -180,12 +180,12 @@ all:
   # Route Table Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_table:
-    ## VRF member interfaces (strict): List of member interfaces for each VRF - Not ASA
+    ## VRF (strict): List of member interfaces for each VRF - Not ASA
     vrf:
       BLU: [Lo111]
       AMB: [Gi0/1, Gi0/2, Vl1000, Vl110, Vl120]
       GRY: [Vl2000, Vl2100]
-    ## Total number of subnets: Either the global (default) RT or the name of the vrf
+    ## Route Table count: Total number of subnets either in global (default) RT or the name of the vrf
     route_count:
       global: 21
       BLU: 4
@@ -261,9 +261,9 @@ all:
   # Switchport authentication Validations - IOS/IOS-XE
   # ----------------------------------------------------------------------------
   auth_session:
-    ## MAB auth sessions -  Total number of MAB authenticated sessions
+    ## MAB auth sessions: Total number of MAB authenticated sessions
     mab_count: 27
-    ## DOT1X auth sessions -  Total number of DOT1X authenticated sessions
+    ## DOT1X auth sessions:  Total number of DOT1X authenticated sessions
     dot1x_count: 22
 
   # ----------------------------------------------------------------------------
@@ -279,9 +279,9 @@ all:
     ## NVE Peers (strict): Single  peer or list of peers, state is expected top be UP 
     nve_peer: [192.168.11.41, 192.168.11.47, 192.168.11.81]
 
-#   # ----------------------------------------------------------------------------
-#   # VPN Validations - IOS/IOS-XE, ASA
-#   # ----------------------------------------------------------------------------
+  # ----------------------------------------------------------------------------
+  # VPN Validations - IOS/IOS-XE, ASA
+  # ----------------------------------------------------------------------------
   vpn:
     # StS VPN PEERS (strict): List of VPN peers, status is expected to be UP-ACTIVE on IOS or ASA to have tx/rx
     sts_peer: [212.61.5.23, 1.2.3.4]

@@ -1,4 +1,4 @@
-{# ####### Set commands on a per-OS basis ####### #}
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
 {% if 'ios' in os_type |string %}
 {% elif 'nxos' in os_type |string %}
 {% elif 'asa' in os_type |string %}
@@ -10,30 +10,36 @@
 {% set intf_grp_cmd = "show interface group summary" %}
 {% endif %}
 
-{#!!! added for val file builder ##### For the validation file builder ##### #}
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
 {% if sub_features.__class__.__name__ == 'list' %}
 - {{ feature }}:
 {% for sub_feat in sub_features %}
-{% if sub_feat == 'wlan' %}
+{% if sub_feat == 'wlan' and wlan_cmd is defined %}
     wlan: 
-      {{ wlan_cmd }}: VAL
-{% elif sub_feat == 'ap' %}
+      {{ wlan_cmd }}: VALIDATE
+{% elif sub_feat == 'ap' and ap_cmd is defined %}
     ap: 
-      {{ ap_cmd }}: VAL
-{% elif sub_feat == 'client_count' %}
+      {{ ap_cmd }}: VALIDATE
+{% elif 'client_count' in sub_feat and client_count_cmd is defined %}
     client_count:
-      {{ client_count_cmd }}: VAL
-{% elif sub_feat == 'flexconnect' %}
+      {{ client_count_cmd }}: VALIDATE
+{% if sub_feat.client_count.__class__.__name__ == 'list' %}
+{% for each_wlan in sub_feat.client_count %}
+      {{ client_count_cmd }} wlan {{ each_wlan.replace("wl", "999").replace("_count", "") }}: VALIDATE
+{% endfor %}{% endif %}
+{% elif sub_feat == 'flexconnect' and flexconn_cmd is defined %}
     flexconnect: 
-      {{ flexconn_cmd }}: VAL
-{% elif sub_feat == 'intf_grp' %}
+      {{ flexconn_cmd }}: VALIDATE
+{% elif sub_feat == 'intf_grp' and intf_grp_cmd is defined %}
     intf_grp: 
-      {{ intf_grp_cmd }}: VAL
+      {{ intf_grp_cmd }}: VALIDATE
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
 {% else %}
-
-
-{# ##### Build feature template ##### #}
 - {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### WLAN: {cmd: {wlan_id: {intf: x, ssid: xy, status: Enabled}}} #}
@@ -89,5 +95,4 @@
 {% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-
 {% endif %}
