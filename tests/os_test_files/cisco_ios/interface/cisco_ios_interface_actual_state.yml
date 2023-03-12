@@ -20,7 +20,7 @@ interface:
       mode: access
       vlan: 999
     Po1:
-      mode: trunk (member of bundle Po1)
+      mode: trunk
       vlan:
       - 144
       - 3101

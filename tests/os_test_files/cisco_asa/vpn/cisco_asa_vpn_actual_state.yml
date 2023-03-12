@@ -2,7 +2,7 @@ vpn:
   sts_peer:
     169.254.107.100: UP-ACTIVE
     169.254.107.101: UP-ACTIVE
-  ac_client:
+  ac_user:
     smithj:
       group_policy: GRP_VPN_PROD
       tunnel_group: TUN_VPN_PROD

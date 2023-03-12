@@ -1,4 +1,4 @@
-all:  
+all:
   neighbor:
     cdp:
       TenGigabitEthernet0/0/1:

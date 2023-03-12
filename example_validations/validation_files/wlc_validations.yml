@@ -61,23 +61,23 @@ all:
   wifi:
     wlan: 
       ## WLAN: List of WLANs, the SSID, associated interface and expected status of Enabled
-      - wlan_id: 22
+      22:
         interface: intgrp_blu
         ssid: wifi_blu
-      - wlan_id: 99
+      99:
         interface: intgrp_amb_guest
         ssid: wifi_guest
-      - wlan_id: 91
+      91:
         interface: intgrp_grn_nprd
         ssid: wifi_nprd
     # AP_SUMMARY: List of APs, model, IP and the number of clients on each
     ap:
-      - ap_name: AP-0301
-        ap_model: AIR-AP2802I-E-K9
+      AP-0301:
+        model: AIR-AP2802I-E-K9
         ip: 172.1.2.21
         client_count: 17
-      - ap_name: FG-0307
-        ap_model: AIR-AP2802I-E-K9
+      FG-0307:
+        model: AIR-AP2802I-E-K9
         ip: 172.1.2.27
         client_count: 12
 
@@ -87,17 +87,17 @@ all:
       wl31_count: 1
     ## FLEX_CONN: Number of APs per flexconnect group
     flexconnect:
-      - grp_name: FlexCon Group - Grp1
+      FlexCon Group - Grp1:
         ap_count: 44
-      - grp_name: default-flex-group-1826280552
+      default-flex-group-1826280552:
         ap_count: 4
     ## INTF_GROUP: Number of interfaces, WLANs and APs per interface group
     intf_grp:
-      - grp_name: intgrp_amb_guest
+      intgrp_prodt:
         ap_grp_count: 2
         intf_count: 1
         wlan_count: 1
-      - grp_name: intgrp_amb_guest
+      intgrp_amb_guest:
         ap_grp_count: 11
         intf_count: 1
         wlan_count: 2

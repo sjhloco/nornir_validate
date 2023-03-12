@@ -20,8 +20,8 @@
 {% if sub_feat == 'sts_peer' and vpn_sts_cmd is defined %}
     sts_peer:
       {{ vpn_sts_cmd }}: VALIDATE
-{% elif sub_feat == 'ac_client' and vpn_ac_cmd is defined %}
-    ac_client:
+{% elif sub_feat == 'ac_user' and vpn_ac_cmd is defined %}
+    ac_user:
       {{ vpn_ac_cmd }}: VALIDATE
 {% elif sub_feat == 'vpn_count' and (vpn_sts_cmd is defined or vpn_ac_cmd is defined) %}
     vpn_count:
@@ -47,9 +47,9 @@
 {% for each_peer in input_vars %}
           {{ each_peer }}: UP-ACTIVE
 {% endfor %}
-{# ### AC_CLIENT: {cmd: {user: tunnel_group: x, group_policy:y }} ### #}
-{% elif sub_feat == 'ac_client' %}
-    ac_client:
+{# ### AC_USER: {cmd: {user: tunnel_group: x, group_policy:y }} ### #}
+{% elif sub_feat == 'ac_user' %}
+    ac_user:
       {{ vpn_ac_cmd }}:
 {% for each_user, user_info in input_vars.items() %}
         {{ each_user }}:

@@ -7,24 +7,28 @@ all:
       Vl10:
         asn: 545
         nbr: 10.230.205.27
-    ospf_intf_nbr: 
+    ospf_intf_nbr:
       Gi0/3:
         pid: 3
         area: 1
-        nbr: 192.168.230.2
+        nbr:
+        - 192.168.230.2
       Gi1/2:
         pid: 3
         area: 1
-        nbr: 192.168.220.2
+        nbr:
+        - 192.168.220.2
       Vl120:
         pid: 2
         area: 0
-        nbr: [192.168.10.2, 192.168.10.3]
+        nbr:
+        - 192.168.10.2
+        - 192.168.10.3
       Po1:
         pid: 1
         area: 0
-        nbr: 10.90.10.1
-      # Done need a dict neigbor if none
+        nbr:
+        - 10.90.10.1
       Vl110:
         pid: 1
         area: 1

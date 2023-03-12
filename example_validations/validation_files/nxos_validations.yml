@@ -15,7 +15,7 @@ all:
     image: 9.3(5)
     # Management ACL (strict): ACL defining SSH access to the device (extended ACLs with 'IP' protocol destination 'any') - Not WLC
     mgmt_acl:
-      - name: ACL_SSH_ACCESS
+      ACL_SSH_ACCESS:
         ace:
           - remark: MGMT Access - VLAN10
           - permit: 10.17.10.0/24
@@ -150,10 +150,10 @@ all:
   fhr:
     ## HSRP: For each HSRP interface the priority and state
     hsrp:
-      - intf: Vlan11
+      Vlan11:
         priority: 100
         state: Standby
-      - intf: Vlan200
+      Vlan200:
         priority: 110
         state: Active
 

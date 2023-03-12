@@ -19,6 +19,11 @@ layer2:
           - Gi0/1
   stp_vlan:
     show spanning-tree:
+      96:
+        _mode: strict
+        Gi0/6: FWD
+        Gi0/8: FWD
+        Gi0/11: FWD
       144:
         _mode: strict
         Gi0/6: FWD
@@ -28,15 +33,10 @@ layer2:
       3102:
         _mode: strict
         Po1: FWD
-      96:
-        _mode: strict
-        Gi0/6: FWD
-        Gi0/8: FWD
-        Gi0/11: FWD
   mac_table:
-    show mac address-table dynamic | count dynamic|DYNAMIC:
-      total_mac_count: 19
     show mac address-table count Vlan 10 | in Dynamic|Vlan:
       vl10_mac_count: 6
     show mac address-table count Vlan 64 | in Dynamic|Vlan:
       vl64_mac_count: 5
+    show mac address-table dynamic | count dynamic|DYNAMIC:
+      total_mac_count: 19

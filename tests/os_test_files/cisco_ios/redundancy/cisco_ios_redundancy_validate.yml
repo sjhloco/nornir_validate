@@ -4,12 +4,12 @@ all:
       local: ACTIVE
       peer: STANDBY HOT
     sw_stack:
-      - sw_number: 1
-        priority: 15
+      switch1:
         role: Active
-      - sw_number: 2
-        priority: 14
+        priority: 15
+      switch2:
         role: Standby
-      - sw_number: 3
-        priority: 1
+        priority: 14
+      switch3:
         role: Member
+        priority: 1

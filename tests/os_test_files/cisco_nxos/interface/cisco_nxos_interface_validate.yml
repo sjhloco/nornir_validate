@@ -16,12 +16,14 @@ all:
     switchport:
       Ethernet3/1:
         mode: trunk
-        vlan: [11-16,200,1001]
+        vlan:
+        - 11-16
+        - 200
+        - 1001
       port-channel5:
         mode: access
         vlan: 17
-    ip_brief: 
+    ip_brief:
       Lo1: 192.168.1.41
       Eth1/1: loopback1
       Vlan6: 172.20.6.1
-

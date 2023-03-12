@@ -342,7 +342,7 @@
                 "udp_src_port": ""
             }
         ],
-        "ac_client": [
+        "ac_user": [
             {
                 "assigned_ip": "10.1.8.12",
                 "assigned_ipv6": "",

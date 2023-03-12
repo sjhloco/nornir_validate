@@ -1,25 +1,22 @@
 route_table:
   vrf:
     show vrf:
-      BLU:
-        intf:
-          _mode: strict
-          list:
-          - Lo12
-          - Vl5
-          - Vl10
-          - Vl20
       AMB:
-        intf:
-          _mode: strict
-          list:
-          - Vl96
-          - Vl3102
+        _mode: strict
+        list:
+        - Vl96
+        - Vl3102
+      BLU:
+        _mode: strict
+        list:
+        - Lo12
+        - Vl5
+        - Vl10
+        - Vl20
       GRN:
-        intf:
-          _mode: strict
-          list:
-          - Gi0/1
+        _mode: strict
+        list:
+        - Gi0/1
   route_count:
     show ip  route summary | in name|Total:
       global: 20
@@ -37,15 +34,21 @@ route_table:
         2.2.2.2/32:
           rtype: B
           nh: 10.10.10.2
-        192.168.25.43/32:
+        4.4.4.4/32:
           rtype: O
-          nh: 192.168.14.2
+          nh: 10.10.10.2
         5.5.5.5/32:
           rtype: O IA
           nh: 10.10.10.2
         6.6.6.6/32:
           rtype: O E2
           nh: 10.10.10.2
+        10.10.10.0/24:
+          rtype: C
+          nh: GigabitEthernet3
+        10.10.10.1/32:
+          rtype: L
+          nh: GigabitEthernet3
         10.30.20.0/24:
           rtype: C
           nh: GigabitEthernet1
@@ -61,6 +64,9 @@ route_table:
         192.168.14.4/30:
           rtype: O
           nh: 192.168.14.2
+        192.168.25.41/32:
+          rtype: C
+          nh: Loopback1
         192.168.25.42/32:
           rtype: O
           nh:
@@ -68,6 +74,15 @@ route_table:
             list:
             - 192.168.14.10
             - 192.168.14.2
+        192.168.25.43/32:
+          rtype: O
+          nh: 192.168.14.2
+        192.168.25.45/32:
+          rtype: C
+          nh: Loopback2
+        192.168.25.47/32:
+          rtype: C
+          nh: Loopback3
     show ip route vrf BLU:
       BLU:
         50.1.1.1/32:
@@ -80,21 +95,27 @@ route_table:
             list:
             - 192.168.12.5
             - 192.168.12.1
-        172.16.10.0/24:
-          rtype: B
-          nh: 10.80.10.2
         10.12.242.64/28:
           rtype: B
           nh:
             _mode: strict
             list:
-            - 192.168.12.1
             - 192.168.12.5
+            - 192.168.12.1
+        172.16.10.0/24:
+          rtype: B
+          nh: 10.80.10.2
+        172.16.20.0/24:
+          rtype: B
+          nh: 10.80.10.2
     show ip route vrf AMB:
       AMB:
         0.0.0.0/0:
           rtype: B
           nh: 10.10.254.10
+        10.0.0.0/8:
+          rtype: B
+          nh: 10.10.254.3
         10.10.96.0/19:
           rtype: B
           nh: Null0
@@ -104,6 +125,24 @@ route_table:
         10.10.96.1/32:
           rtype: L
           nh: Vlan96
+        10.10.254.0/29:
+          rtype: B
+          nh: Vlan3101
+        10.10.254.1/32:
+          rtype: L
+          nh: Vlan3101
+        10.10.254.8/29:
+          rtype: C
+          nh: Vlan3102
+        10.10.254.9/32:
+          rtype: L
+          nh: Vlan3102
+        10.20.0.0/16:
+          rtype: B
+          nh: 10.10.254.10
         172.16.0.0/12:
+          rtype: B
+          nh: 10.10.254.3
+        192.168.0.0/16:
           rtype: B
           nh: 10.10.254.3

@@ -1,4 +1,4 @@
 redundancy:
   ha_state:
-    local_state: ACTIVE
-    peer_state: STANDBY HOT
+    local: ACTIVE
+    peer: STANDBY HOT

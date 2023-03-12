@@ -33,18 +33,12 @@
 {% if sub_feat == 'cdp' %}
     cdp:
       {{ cdp_cmd }}:
-{% for each_intf, each_nbr in input_vars.items() %}
-        {{ each_intf }}:
-          {{ each_nbr.nbr_name }}: {{ each_nbr.nbr_intf }}
-{% endfor %}
+        {{ input_vars }}
 {# ### LLDP: {intf: {neighbor: neighbor_interface}} ### #}
 {% elif sub_feat == 'lldp' %}
     lldp:
       {{ lldp_cmd }}:
-{% for each_intf, each_nbr in input_vars.items() %}
-        {{ each_intf }}:
-          {{ each_nbr.nbr_name }}: {{ each_nbr.nbr_intf }}
-{% endfor %}
+        {{ input_vars }}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
 {% endif %}

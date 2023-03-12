@@ -3,4 +3,6 @@ all:
     port_channel:
       Po3:
         protocol: LACP
-        members: [Gi0/15, Gi0/16]
+        members:
+        - Gi0/15
+        - Gi0/16

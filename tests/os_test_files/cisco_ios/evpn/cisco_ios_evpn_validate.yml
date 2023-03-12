@@ -9,4 +9,5 @@ all:
         bd_vrf: GRN
       10301:
         bd_vrf: BLU
-    nve_peer: 192.168.111.81
+    nve_peer:
+    - 192.168.111.81

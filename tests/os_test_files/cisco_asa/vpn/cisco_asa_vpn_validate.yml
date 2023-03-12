@@ -1,8 +1,10 @@
 all:
   vpn:
     sts_peer:
-      [169.254.107.100, 169.254.107.101]
-    ac_client: 
+    - 169.254.107.100
+    - 169.254.107.101
+    - 169.254.107.101
+    ac_user:
       smithj:
         group_policy: GRP_VPN_PROD
         tunnel_group: TUN_VPN_PROD
@@ -15,4 +17,3 @@ all:
     vpn_count:
       sts: 8
       ac: 685
-

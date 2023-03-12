@@ -1,18 +1,15 @@
 route_table:
   vrf:
     AMB:
-      intf:
-      - Vl96
-      - Vl3102
+    - Vl96
+    - Vl3102
     BLU:
-      intf:
-      - Lo12
-      - Vl5
-      - Vl10
-      - Vl20
+    - Lo12
+    - Vl5
+    - Vl10
+    - Vl20
     GRN:
-      intf:
-      - Gi0/1
+    - Gi0/1
   route_count:
     global: 20
     BLU: 113

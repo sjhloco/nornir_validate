@@ -4,7 +4,32 @@ import re
 
 
 # ----------------------------------------------------------------------------
-# Mini-functions used by the main function
+# KEY: Set dictionary keys on a per-os_type basis
+# ----------------------------------------------------------------------------
+def _set_keys(os_type: List) -> Dict[str, Dict]:
+    """
+    Based on the OS type set the set the dictionary keys when gleaning data from NTC data structures
+
+    :param os_type: This is a list of strings that are the OS types of the devices in the inventory
+    :type os_type: List
+    """
+    global hsrp_intf, hsrp_prio, hsrp_state
+    if bool(re.search("ios", os_type)):
+        hsrp_intf = "iface"
+        hsrp_prio = "priority"
+        hsrp_state = "state"
+    elif bool(re.search("nxos", os_type)):
+        hsrp_intf = "sh_if_index"
+        hsrp_prio = "sh_prio"
+        hsrp_state = "sh_group_state"
+    elif bool(re.search("asa", os_type)):
+        pass
+    elif bool(re.search("wlc", os_type)):
+        pass
+
+
+# ----------------------------------------------------------------------------
+# DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
 def _make_int(input_data: str) -> int:
     """
@@ -35,11 +60,52 @@ def _fix_nxos(main_dict: Dict[str, Dict], parent_dict: str, child_dict: str) -> 
     return main_dict[parent_dict][child_dict]
 
 
+def _format_hsrp(os_type: List, output: List, tmp_dict: Dict[str, None]) -> None:
+    """Format HSRP and return data structure in tmp_dict"""
+    if bool(re.search("nxos", os_type)):
+        output = _fix_nxos(output[0], "TABLE_grp_detail", "ROW_grp_detail")
+    for each_nbr in output:
+        tmp_dict[each_nbr[hsrp_intf]]["priority"] = _make_int(each_nbr[hsrp_prio])
+        tmp_dict[each_nbr[hsrp_intf]]["state"] = each_nbr[hsrp_state]
+
+
 # ----------------------------------------------------------------------------
-# Engine that runs the actual state sub-feature formatting for all os types
+# VALIDATION: Engine to create the validation file sub-feature validations (for all os-types)
+# ----------------------------------------------------------------------------
+def generate_val_file(
+    os_type: List, sub_feature: str, output: List, tmp_dict: Dict[str, None]
+) -> Dict[str, Dict]:
+    """
+    > The function takes the command output and formats it into a dictionary that can be used
+    in the validation file to validate features
+
+    :param os_type: List
+    :type os_type: List
+    :param sub_feature: This is the sub-feature that you want to validate
+    :type sub_feature: str
+    :param output: the output of the command
+    :type output: List
+    :param tmp_dict: This is the dictionary that will be returned by the function
+    :type tmp_dict: Dict[str, None]
+    :return: A dictionary with the following keys:
+        - image
+        - mgmt_acl
+        - module
+    """
+    _set_keys(os_type)
+
+    ### HSRP: {intf: {priority: x, state: y}}
+    if sub_feature == "hsrp":
+        _format_hsrp(os_type, output, tmp_dict)
+
+    return dict(tmp_dict)
+
+
+# ----------------------------------------------------------------------------
+# ACTUAL_STATE: Engine that runs the actual state sub-feature formatting for all os types
 # ----------------------------------------------------------------------------
 def format_actual_state(
-    os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
+    os_type: List, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """
     > The function takes the command output and formats it into a dictionary that can be used
@@ -56,29 +122,10 @@ def format_actual_state(
     :type tmp_dict: Dict[str, None]
     :return: A dictionary of dictionaries.
     """
+    _set_keys(os_type)
 
-    ### KEY: Set the dictionary keys to use on a per-OS basis
-    if bool(re.search("ios", os_type)):
-        hsrp_intf = "iface"
-        hsrp_prio = "priority"
-        hsrp_state = "state"
-    elif bool(re.search("nxos", os_type)):
-        hsrp_intf = "sh_if_index"
-        hsrp_prio = "sh_prio"
-        hsrp_state = "sh_group_state"
-    elif bool(re.search("asa", os_type)):
-        pass
-    elif bool(re.search("wlc", os_type)):
-        pass
-
-    # ----------------------------------------------------------------------------
-    # HSRP: {intf: {state: x, priority: x}
-    # ----------------------------------------------------------------------------
+    ### HSRP: {intf: {priority: x, state: y})
     if sub_feature == "hsrp":
-        if bool(re.search("nxos", os_type)):
-            output = _fix_nxos(output[0], "TABLE_grp_detail", "ROW_grp_detail")
-        for each_nbr in output:
-            tmp_dict[each_nbr[hsrp_intf]]["priority"] = _make_int(each_nbr[hsrp_prio])
-            tmp_dict[each_nbr[hsrp_intf]]["state"] = each_nbr[hsrp_state]
+        _format_hsrp(os_type, output, tmp_dict)
 
     return dict(tmp_dict)

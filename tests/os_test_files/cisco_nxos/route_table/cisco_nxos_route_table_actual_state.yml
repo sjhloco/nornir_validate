@@ -1,25 +1,22 @@
 route_table:
   vrf:
     AMB:
-      intf:
-      - Vlan3003
+    - Vlan3003
     BLU:
-      intf:
-      - Vlan108
-      - Vlan109
-      - Vlan110
-      - Vlan111
-      - Vlan112
-      - Vlan113
-      - Vlan3001
-      - loopback21
+    - Vlan108
+    - Vlan109
+    - Vlan110
+    - Vlan111
+    - Vlan112
+    - Vlan113
+    - Vlan3001
+    - loopback21
     default:
-      intf:
-      - Vlan1
-      - loopback1
-      - loopback2
-      - Ethernet1/1
-      - Ethernet1/2
+    - Vlan1
+    - loopback1
+    - loopback2
+    - Ethernet1/1
+    - Ethernet1/2
   route_count:
     BLU: 925
     global: 21

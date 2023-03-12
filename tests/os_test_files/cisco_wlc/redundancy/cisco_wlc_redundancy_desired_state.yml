@@ -1,5 +1,5 @@
 redundancy:
   ha_state:
     show redundancy summary:
-      local_state: ACTIVE
-      peer_state: STANDBY HOT
+      local: ACTIVE
+      peer: STANDBY HOT

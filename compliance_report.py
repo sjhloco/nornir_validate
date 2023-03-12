@@ -6,6 +6,7 @@ import os
 import re
 from datetime import datetime
 
+
 # ----------------------------------------------------------------------------
 # FIX: napalm_validate doesn't recognize ~/ for home drive
 # ----------------------------------------------------------------------------

@@ -1,10 +1,37 @@
 from typing import Dict, List
-import re
 from collections import defaultdict
+import re
 
 
 # ----------------------------------------------------------------------------
-# Mini-functions used by the main function
+# KEY: Set dictionary keys on a per-os_type basis
+# ----------------------------------------------------------------------------
+def _set_keys(os_type: List) -> Dict[str, Dict]:
+    """
+    Based on the OS type set the set the dictionary keys when gleaning data from NTC data structures
+
+    :param os_type: This is a list of strings that are the OS types of the devices in the inventory
+    :type os_type: List
+    """
+    global po_name, po_status, po_protocol, po_intf
+    if bool(re.search("ios", os_type)) or bool(re.search("asa", os_type)):
+        po_name = "po_name"
+        po_status = "po_status"
+        po_protocol = "protocol"
+        po_intf = "interfaces"
+    elif bool(re.search("nxos", os_type)):
+        po_name = "bundle_iface"
+        po_status = "bundle_status"
+        po_protocol = "bundle_proto"
+        po_intf = "phys_iface"
+    elif bool(re.search("asa", os_type)):
+        pass
+    elif bool(re.search("wlc", os_type)):
+        pass
+
+
+# ----------------------------------------------------------------------------
+# DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
 def _make_int(input_data: str) -> int:
     """
@@ -49,10 +76,65 @@ def _format_status(status: str) -> str:
 
 
 # ----------------------------------------------------------------------------
-# Engine that runs the actual state sub-feature formatting for all os types
+# VALIDATION: Engine to create the validation file sub-feature validations (for all os-types)
+# ----------------------------------------------------------------------------
+def generate_val_file(
+    os_type: List, sub_feature: str, output: List, tmp_dict: Dict[str, None]
+) -> Dict[str, Dict]:
+    """
+    > The function takes the command output and formats it into a dictionary that can be used
+    in the validation file to validate features
+
+    :param os_type: List
+    :type os_type: List
+    :param sub_feature: This is the sub-feature that you want to validate
+    :type sub_feature: str
+    :param output: the output of the command
+    :type output: List
+    :param tmp_dict: This is the dictionary that will be returned by the function
+    :type tmp_dict: Dict[str, None]
+    :return: A dictionary with the following keys:
+        - image
+        - mgmt_acl
+        - module
+    """
+    _set_keys(os_type)
+
+    ### PORT_CHANNEL: {po_name: {protocol: type, members: [intf_x, intf_y]}}
+    if sub_feature == "port_channel":
+        for each_po in output:
+            if each_po[po_protocol] == "-":
+                each_po[po_protocol] = "NONE"
+            tmp_dict[each_po[po_name]]["protocol"] = each_po[po_protocol].upper()
+            tmp_dict[each_po[po_name]]["members"] = each_po[po_intf]
+
+    ### VPC: {role: x, peer-link-vlans": x,y,z, PoX: {vpc-id: x, vlans: x,y,z}
+    elif sub_feature == "vpc":
+        output = output[0]
+        tmp_dict["role"] = output["vpc-role"]
+        _fix_nxos(output, "TABLE_peerlink", "ROW_peerlink")
+        peer_link = output["TABLE_peerlink"]["ROW_peerlink"]
+        trunk_vl = peer_link[0]["peer-up-vlan-bitset"]
+        tmp_dict["peerlink_vlans"] = [_make_int(vl) for vl in trunk_vl.split(",")]
+        # TABLE_vpc is only present if are vPCs configured
+        if output.get("TABLE_vpc") != None:
+            output = _fix_nxos(output, "TABLE_vpc", "ROW_vpc")
+            tmp_vpc = defaultdict(dict)
+            for vpc in output:
+                vpc_id = _make_int(vpc["vpc-id"])
+                tmp_vpc[vpc_id]["po"] = vpc["vpc-ifindex"]
+                trunk_vl = vpc["up-vlan-bitset"]
+                tmp_vpc[vpc_id]["vlans"] = [_make_int(vl) for vl in trunk_vl.split(",")]
+            tmp_dict["vpcs"] = dict(tmp_vpc)
+
+    return dict(tmp_dict)
+
+
+# ----------------------------------------------------------------------------
+# ACTUAL_STATE: Engine that runs the actual state sub-feature formatting for all os types
 # ----------------------------------------------------------------------------
 def format_actual_state(
-    os_type: str, sub_feature: str, output: List, tmp_dict: Dict[str, None]
+    os_type: List, sub_feature: str, output: List, tmp_dict: Dict[str, None]
 ) -> Dict[str, Dict]:
     """
     > The function takes the command output and formats it into a dictionary that can be used
@@ -69,22 +151,9 @@ def format_actual_state(
     :type tmp_dict: Dict[str, None]
     :return: A dictionary of dictionaries.
     """
+    _set_keys(os_type)
 
-    ### KEY: Set the dictionary keys to use on a per-OS basis
-    if bool(re.search("ios", os_type)) or bool(re.search("asa", os_type)):
-        po_name = "po_name"
-        po_status = "po_status"
-        po_protocol = "protocol"
-        po_intf = "interfaces"
-    elif bool(re.search("nxos", os_type)):
-        po_name = "bundle_iface"
-        po_status = "bundle_status"
-        po_protocol = "bundle_proto"
-        po_intf = "phys_iface"
-
-    # ----------------------------------------------------------------------------
-    # PORT_CHANNEL: {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}
-    # ----------------------------------------------------------------------------
+    ### PORT_CHANNEL: {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}
     if sub_feature == "port_channel":
         for each_po in output:
             tmp_dict[each_po[po_name]]["status"] = _format_status(each_po[po_status])
@@ -102,10 +171,8 @@ def format_actual_state(
                 po_mbrs[mbr_intf] = {"mbr_status": _format_status(mbr_status)}
             tmp_dict[each_po[po_name]]["members"] = po_mbrs
 
-    # ----------------------------------------------------------------------------
-    # VPC: {role: x, peer-status: peer-ok, keepalive-status: peer-alive, vlan-consistency: consistent, peer-consistency: SUCCESS, type2-consistency: SUCCESS,
-    #       peer-link-port-state": 1, peer-link-vlans": x,y,z, PoX: {vpc-id: x, port-state: 1, consistency-status: SUCCESS, vlans: x,y,z}
-    # ----------------------------------------------------------------------------
+    ### VPC: {role: x, peer-status: peer-ok, keepalive-status: peer-alive, vlan-consistency: consistent, peer-consistency: SUCCESS, type2-consistency: SUCCESS,
+    ###       peer-link-port-state": 1, peer-link-vlans": x,y,z, PoX: {vpc-id: x, port-state: 1, consistency-status: SUCCESS, vlans: x,y,z}
     elif sub_feature == "vpc":
         output = output[0]
         tmp_dict["role"] = output["vpc-role"]

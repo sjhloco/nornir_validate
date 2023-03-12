@@ -1,5 +1,5 @@
 redundancy:
   ha_state:
     show failover:
-      local_state: Active
-      peer_state: Standby Ready
+      local: Active
+      peer: Standby Ready

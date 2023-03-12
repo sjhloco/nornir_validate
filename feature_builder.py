@@ -112,14 +112,14 @@ def _render_tmpl(
     )
     tmpl = env.get_template(f"{feature}_desired_state.j2")
     sub_feat = input_data["all"][feature]
-    cmds = tmpl.render(os_type=os_type, feature=feature, sub_features=sub_feat)
+    output = tmpl.render(os_type=os_type, feature=feature, sub_features=sub_feat)
 
     # Convert Jinja string into yaml and list of dicts
-    if re.search(r":\ >\d+", cmds):
-        x = yaml.load(cmds.replace(">", "->"), Loader=yaml.Loader)
+    if re.search(r":\ >\d+", output):
+        x = yaml.load(output.replace(">", "->"), Loader=yaml.Loader)
         return ast.literal_eval(str(x[0]).replace("->", ">"))
     else:
-        return yaml.load(cmds, Loader=yaml.Loader)[0]
+        return yaml.load(output, Loader=yaml.Loader)[0]
 
 
 # ----------------------------------------------------------------------------

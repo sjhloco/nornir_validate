@@ -1,12 +1,6 @@
 system:
   image: 15.2(7)E2
   mgmt_acl:
-    TEST_SNMP_ACCESS:
-      10:
-        action: permit
-        protocol: ip
-        dst: any
-        src: 10.17.10.0/24
     TEST_SSH_ACCESS:
       10:
         action: permit
@@ -23,6 +17,12 @@ system:
         protocol: ip
         dst: any
         src: any
+    TEST_SNMP_ACCESS:
+      10:
+        action: permit
+        protocol: ip
+        dst: any
+        src: 10.17.10.0/24
   module:
     1:
       model: WS-X6816-10GE

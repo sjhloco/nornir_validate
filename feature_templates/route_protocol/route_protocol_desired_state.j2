@@ -55,6 +55,7 @@
 
 {# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
 {% else %}
+- {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### EIGRP_INTF_NBR: {cmd: {intf: {asn: x, nbr: {nbr_ip: up}}} ### #}
 {% if sub_feat == 'eigrp_intf_nbr' %}

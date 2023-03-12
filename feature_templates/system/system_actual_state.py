@@ -1,7 +1,7 @@
 from typing import Dict, List
 from collections import defaultdict
-import ipaddress
 import re
+import ipaddress
 
 
 # ----------------------------------------------------------------------------
@@ -174,6 +174,7 @@ def generate_val_file(
         - module
     """
     _set_keys(os_type)
+
     ### IMAGE: {image: code_number}
     if sub_feature == "image":
         tmp_dict = output[0][image_version]
@@ -233,8 +234,8 @@ def format_actual_state(
     :type tmp_dict: Dict[str, None]
     :return: A dictionary of dictionaries.
     """
-
     _set_keys(os_type)
+
     ### IMAGE: {image: code_number}
     if sub_feature == "image":
         tmp_dict = output[0][image_version]

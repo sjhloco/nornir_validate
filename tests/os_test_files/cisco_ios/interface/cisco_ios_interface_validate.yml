@@ -17,14 +17,17 @@ all:
       Gi0/1:
         mode: access
         vlan: 999
-      Gi0/2:
-        mode: trunk
-        vlan: [144]
       Po1:
         mode: trunk
-        vlan: [144,3101,3102]
-    ip_brief: 
+        vlan:
+        - 144
+        - 3101
+        - 3102
+      Gi0/2:
+        mode: trunk
+        vlan:
+        - 144
+    ip_brief:
       GigabitEthernet0/1: 10.30.20.101
       GigabitEthernet0/2: unassigned
       Vlan10: 10.10.10.1
-

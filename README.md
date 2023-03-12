@@ -44,7 +44,7 @@ Validations are split up into *features* which each contain the *sub-features* t
 | evpn | nve_vni | NVE L3VNI/ VRF or L2VNI/ BDI & state (implicit) |  ❌ | ✅ | ✅ | ❌ | ❌ | ❌
 | evpn | nve_peer | NVE peers & state (implicit) | ✅ | ✅ | ✅ | ❌ | ❌ | ❌
 | vpn | sts_peer | VPN peers & state (implicit) | ✅ | ✅ | ❌ | ✅ | ❌ | ❌
-| vpn | ac_client | AnyConnect users, group-policy & tunnel-group | ❌ | ❌ | ❌ | ✅ | ❌ | ❌
+| vpn | ac_user | AnyConnect users, group-policy & tunnel-group | ❌ | ❌ | ❌ | ✅ | ❌ | ❌
 | vpn | vpn_count | Total StS VPNs and/or AnyConnect users | ❌ | ✅ | ❌ | ✅ | ❌ | ❌
 | wifi | wlan | WLAN ID, SSID, interface & status (implicit) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌
 | wifi | ap | APs, model, IP & client count on each | ❌ | ❌ | ❌ | ❌ | ✅ | ❌

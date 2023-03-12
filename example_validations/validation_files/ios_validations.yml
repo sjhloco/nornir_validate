@@ -9,7 +9,7 @@ all:
     image: 15.5(1)SY7
     ## Management ACL (strict): ACL defining SSH access to the device (extended ACLs with 'IP' protocol destination 'any') - Not WLC
     mgmt_acl:
-      - name: FOS_SSH_ACCESS
+      FOS_SSH_ACCESS:
         ace:
           - remark: MGMT Access - VLAN10
           - permit: 10.17.10.0/24
@@ -33,13 +33,13 @@ all:
       peer: STANDBY HOT
 #     ## Switch Stack (strict): Each stacked switch number, priority, role and state - Not NXOS, ASA, WLC
     sw_stack:
-      - sw_number: 1
+      switch1:
         priority: 15
         role: Active
-      - sw_number: 2
+      switch2:
         priority: 1
         role: Member
-      - sw_number: 3
+      switch3:
         priority: 14
         role: Standby
 
@@ -150,11 +150,11 @@ all:
         intf: [Gi1/1/3, Gi1/1/4]
     ## Spanning-tree VLAN: List of forwarding (FWD) interfaces per-VLAN (access and trunk) - Not NXOS
     stp_vlan:
-      - vlan: 84
+      84:
         intf: [Te1/0/11, Te1/0/12, Te2/0/3, Te2/0/11, Te2/0/12, Po21, Po22, Po103]     
-      - vlan: 87
+      87:
         intf: [Po103]  
-      - vlan: 12
+      12:
         intf: [Po21, Po22, Po33]
     ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN
     mac_table:
@@ -169,10 +169,10 @@ all:
   fhr:
     ## HSRP: For each HSRP interface the priority and state
     hsrp:
-      - intf: Vlan11
+      Vlan11:
         priority: 100
         state: Standby
-      - intf: Vlan200
+      Vlan200:
         priority: 110
         state: Active
 

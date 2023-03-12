@@ -71,16 +71,16 @@
 
 {# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
 {% else %}
+- {{ feature }}:
 {% for sub_feat, input_vars in sub_features.items() %}
 {# ### VRF: {cmd: {vrf: [intfx, intfy]}} ### #}
 {% if sub_feat == 'vrf' %}
     vrf:
       {{ vrf_cmd }}: 
-{% for each_vrf, intf in input_vars.items() %}
+{% for each_vrf, vrf_info in input_vars.items() %}
         {{ each_vrf }}:
-          intf: 
-            _mode: strict
-            list: {{ intf }}
+          _mode: strict
+          list: {{ vrf_info }}
 {% endfor %}
 {# ### RTE_COUNT: {cmd: {global_subnets: x, xx_subnets: x}) ### #}
 {% elif sub_feat == 'route_count' %}

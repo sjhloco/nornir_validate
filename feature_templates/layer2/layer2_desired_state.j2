@@ -50,13 +50,13 @@
             _mode: strict
             list: {{ each_vl_info.intf }}
 {% endfor %}
-{# ### STP: {cmd: {vlan: intf:[x,y]} ### #}
+{# ### STP: {cmd: {vlan: {intfx: FWD, intfy: FWD}}} ### #}
 {% elif sub_feat == 'stp_vlan' %}
     stp_vlan: 
       {{ stp_cmd }}: 
-{% for each_vl in input_vars %}
-        {{ each_vl.vlan }}: 
-{% for each_intf in each_vl.intf %}
+{% for each_vl, vl_info in input_vars.items() %}
+        {{ each_vl }}: 
+{% for each_intf in vl_info.intf %}
           _mode: strict
           {{ each_intf }}: FWD
 {% endfor %}{% endfor %}

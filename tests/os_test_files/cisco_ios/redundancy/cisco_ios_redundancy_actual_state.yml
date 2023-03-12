@@ -1,17 +1,17 @@
 redundancy:
   ha_state:
-    local_state: ACTIVE
-    peer_state: STANDBY HOT
+    local: ACTIVE
+    peer: STANDBY HOT
   sw_stack:
-    1:
+    switch1:
       role: Active
       priority: 15
       state: Ready
-    2:
+    switch2:
       role: Standby
       priority: 14
       state: Ready
-    3:
+    switch3:
       role: Member
       priority: 1
       state: Ready

@@ -71,7 +71,7 @@ all:
     # StS VPN PEERS (strict): List of VPN peers
     - sts_peer
     # AC_VPN CLIENTS: AnyConnect users and policies
-    - ac_client
+    - ac_user
     # NUM_VPN: Total StS VPN peers and AnyConnect users
     - vpn_count
   wifi:

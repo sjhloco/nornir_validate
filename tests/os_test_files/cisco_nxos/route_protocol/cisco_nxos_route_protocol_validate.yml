@@ -1,25 +1,29 @@
 all:
   route_protocol:
-    ospf_intf_nbr: 
+    ospf_intf_nbr:
       Vlan10:
         pid: BLU1
         area: 0.0.0.10
-        nbr: 172.16.101.38
+        nbr:
+        - 172.16.101.38
       Vlan2:
         pid: DC_UNDERLAY
         area: 0.0.0.0
-        nbr: 172.16.101.38
+        nbr:
+        - 172.16.101.38
       Lo1:
         pid: DC_UNDERLAY
         area: 0.0.0.0
       Eth1/1:
         pid: DC_UNDERLAY
         area: 0.0.0.0
-        nbr: 172.16.101.33
+        nbr:
+        - 172.16.101.33
       Eth1/2:
         pid: DC_UNDERLAY
         area: 0.0.0.0
-        nbr: 172.16.101.34
+        nbr:
+        - 172.16.101.34
     ospf_lsdb_count:
       BLU1:
         total_lsa: 20

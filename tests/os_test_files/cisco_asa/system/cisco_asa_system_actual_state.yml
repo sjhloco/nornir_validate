@@ -1,6 +1,17 @@
 system:
   image: 9.12(4)37
   mgmt_acl:
+    http:
+      10:
+        action: permit
+        protocol: ip
+        dst: any
+        src: inside - 10.17.10.0/24
+      20:
+        action: permit
+        protocol: ip
+        dst: any
+        src: inside - 10.10.10.10/32
     ssh:
       10:
         action: permit
@@ -17,14 +28,3 @@ system:
         protocol: ip
         dst: any
         src: mgmt - any
-    http:
-      10:
-        action: permit
-        protocol: ip
-        dst: any
-        src: inside - 10.17.10.0/24
-      20:
-        action: permit
-        protocol: ip
-        dst: any
-        src: inside - 10.10.10.10/32

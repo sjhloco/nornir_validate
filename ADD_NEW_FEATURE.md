@@ -307,7 +307,7 @@ There are 5 sets of unit tests grouped under there own class to allow for runnin
 
 ```none
 pytest 'tests/test_validations.py::TestCommands::test_command_templating[<os_type>_<feature>]' -vv
-pytest 'tests/test_validations.py::TestCommands` -vv
+pytest 'tests/test_validations.py::TestCommands' -vv
 ```
 
 ***test_create_validation:*** Formats *"cmd_output.json"* with *"actual_state.generate_val_file"* and compares result against the file *"validate.yml"*
