@@ -7,6 +7,7 @@ import pytest
 import os
 from nornir import InitNornir
 
+from nr_val import merge_feat_subfeat
 from nr_val import return_feature_desired_data
 from nr_val import return_yaml_desired_state
 from nr_val import strip_empty_feat
@@ -24,6 +25,27 @@ test_inventory = os.path.join(os.path.dirname(__file__), "test_inventory")
 # Tests all the methods within nornir_validate.py
 # ----------------------------------------------------------------------------
 class TestNornirValidate:
+    # MERGE_FEAT: Tests merging
+    def test_merge_feat_subfeat(self):
+        err_msg = "❌ return_merge_feat_subfeat: Function testing failed"
+        desired_output = {
+            "feat1": {"sub_feat1": {"key1": 1, "key2": 2}, "sub_feat3": {"key1": 1}}
+        }
+        tmp_data = {
+            "feat1": {"sub_feat1": {"key3": 3}, "sub_feat2": {"key1": 1}},
+            "feat2": {"sub_feat1": {"key1": 1}},
+        }
+        merge_feat_subfeat(desired_output, tmp_data)
+        actual_output = {
+            "feat1": {
+                "sub_feat1": {"key1": 1, "key2": 2, "key3": 3},
+                "sub_feat3": {"key1": 1},
+                "sub_feat2": {"key1": 1},
+            },
+            "feat2": {"sub_feat1": {"key1": 1}},
+        }
+        assert actual_output == desired_output, err_msg
+
     # DESIRED_STATE_DATA: Tests creating data structure for desired state templating (combines features, sub-features and feature_path)
     def test_return_feature_desired_data(self):
         err_msg = "❌ return_feature_desired_data: Function testing failed"

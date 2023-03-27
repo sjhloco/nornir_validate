@@ -9,11 +9,13 @@ import re
 import ast
 from glob import glob
 import importlib
+from pprint import pprint
 
 from nornir import InitNornir
 from nornir.core.task import Task, Result
 from nornir_jinja2.plugins.tasks import template_file
 from nornir_utils.plugins.tasks.data import load_yaml
+from nornir_utils.plugins.tasks.files import write_file
 from nornir_netmiko.tasks import netmiko_send_command
 from nornir_rich.functions import print_result
 
@@ -22,12 +24,19 @@ from compliance_report import generate_validate_report
 # ----------------------------------------------------------------------------
 # Manually defined variables and user input
 # ----------------------------------------------------------------------------
-# Name of the input variable file (needs its full path)
-INPUT_DATA = "input_data.yml"
-# Enter a directory location to save compliance report to file
-REPORT_DIRECTORY = None
-# REPORT_DIRECTORY = "/Users/user1/Documents/Coding/Nornir/code/nornir_validate"
-# REPORT_DIRECTORY = "C:\\scripts\\nornir_checks\\nornir_validate\\reports"
+# Default directory location to look for validation files and save compliance report and/or generated validation files
+# DATA_DIRECTORY = os.getcwd()
+DATA_DIRECTORY = (
+    "/Users/mucholoco/Documents/Coding/Nornir/code/nornir_validate/hme_val_files"
+)
+# Device error messages used by validation generator to stop failures if a feature is not supported
+ERR_MSG = [
+    "is not enabled",
+    "ERROR:",
+    "INFO:",
+    "No sessions to display.",
+    "Incorrect usage",
+]
 
 
 # ----------------------------------------------------------------------------
@@ -41,18 +50,127 @@ def _create_parser() -> Dict[str, Any]:
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-d",
-        "--directory",
-        default=REPORT_DIRECTORY,
-        help="Directory where to save the compliance report",
+        "-g",
+        "--generate_val_file",
+        action="store_true",
+        help="Generate the validation file from device output",
     )
     parser.add_argument(
-        "-f",
-        "--filename",
-        default=INPUT_DATA,
-        help="Name (with full path) of the input Yaml file of validation variables",
+        "-s",
+        "--save_to_file",
+        action="store_true",
+        help="Save the compliance report to file in the specified directory",
     )
-    return vars(parser.parse_args())
+    parser.add_argument(
+        "-d",
+        "--directory",
+        default=DATA_DIRECTORY,
+        help="Directory to look for validation files and/or to save the compliance reports",
+    )
+    args = parser.parse_known_args()
+    return args
+
+
+# ----------------------------------------------------------------------------
+# INPUT_DATA: Checking data directory/input data file exists and the formatting/merging of multiple files
+# ----------------------------------------------------------------------------
+def check_file_exist(input_file: str, directory: str) -> str:
+    """
+    > If the input file doesn't exist in the current directory, check if it exists in the default data
+    directory. If it doesn't exist in either location returned error message is not None
+
+    :param input_file: The file you want to check if it exists
+    :type input_file: str
+    :param directory: The directory where the data files are stored
+    :type directory: str
+    :return: The input file if it exists, or the input file in the data directory if it exists, or an
+    error message if it doesn't exist.
+    """
+    if os.path.isfile(input_file) == True:
+        return input_file
+    elif os.path.isfile(input_file) == False:
+        err_msg = f"❌ The input file doesn't exist:\n - {input_file}"
+        data_input_file = os.path.join(directory, input_file)
+        if data_input_file != input_file:
+            if os.path.isfile(os.path.join(directory, data_input_file)) == True:
+                return data_input_file
+            else:
+                err_msg = f"❌ The input file doesn't exist:\n - {input_file}\n - {data_input_file}"
+    if err_msg != None:
+        print(err_msg)
+        exit()
+
+
+def merge_feat_subfeat(input_file: Dict[str, Any], tmp_file: Dict[str, Any]) -> None:
+    """
+    Merge the feature and subfeature dictionaries into one dictionary
+
+    :param input_file: A dictionary containing the following keys:
+    :type input_file: Dict[str, Any]
+    :param tmp_file: The temporary file that contains the features and subfeatures
+    :type tmp_file: Dict[str, Any]
+    """
+    for feat in tmp_file.keys():
+        # FEAT: If feature doesn't exist add it
+        if input_file.get(feat) == None:
+            input_file[feat] = tmp_file[feat]
+        elif input_file.get(feat):
+            for subfeat in tmp_file[feat].keys():
+                # SUBFEAT: If feature exist but sub feature not add the subfeat
+                if input_file[feat].get(subfeat) == None:
+                    input_file[feat][subfeat] = tmp_file[feat][subfeat]
+                # MERGE: If feature and sub feature exist but not same merge them
+                elif input_file[feat].get(subfeat):
+                    if input_file[feat][subfeat] == tmp_file[feat][subfeat]:
+                        pass
+                    else:
+                        input_file[feat][subfeat].update(tmp_file[feat][subfeat])
+
+
+def merge_val_input_files(directory: str) -> Dict[str, Any]:
+    """
+    It takes all the .yml files in the data directory and merges the all, groups and hosts
+    dictionaries into the one file of all validations
+
+    :return: None
+    """
+    input_file = dict(all={}, groups={}, hosts={})
+    all_files = glob(f"{directory}/*.yml")
+    if len(all_files) == 0:
+        print(f"❌ There are no .yml validation files in {directory}")
+        exit()
+    for each_file in all_files:
+        with open(each_file) as input_data:
+            input_data = yaml.load(input_data, Loader=yaml.FullLoader)
+            if input_data.get("all"):
+                merge_feat_subfeat(input_file["all"], input_data["all"])
+            if input_data.get("hosts") != None:
+                for grp in input_data["hosts"].keys():
+                    if input_file["hosts"].get(grp) == None:
+                        input_file["hosts"][grp] = input_data["hosts"][grp]
+                    else:
+                        merge_feat_subfeat(
+                            input_file["hosts"][grp], input_data["hosts"][grp]
+                        )
+            if input_data.get("groups") != None:
+                for grp in input_data["groups"].keys():
+                    if input_file["groups"].get(grp) == None:
+                        input_file["groups"][grp] = input_data["groups"][grp]
+                    else:
+                        merge_feat_subfeat(
+                            input_file["groups"][grp], input_data["groups"][grp]
+                        )
+    if (
+        len(input_file["all"]) == 0
+        and len(input_file["groups"]) == 0
+        and len(input_file["hosts"]) == 0
+    ):
+        print(
+            f"❌ None of the validation files in {directory} have all, groups or hosts dictionaries"
+        )
+        exit()
+    else:
+        return input_file
 
 
 # ----------------------------------------------------------------------------
@@ -71,7 +189,6 @@ def import_actual_state_modules(input_data: str) -> None:
             validations = f.read()
     else:
         validations = str(input_data)
-
     # Gather the path of the actual_state.py modules for all validation features used
     actual_state_modules = {}
     all_features = glob("feature_templates/*/*.py")
@@ -121,7 +238,6 @@ def return_feature_desired_data(validations: Dict[str, Any]) -> Dict[str, Any]:
     feat_desired_data = defaultdict(dict)
     for feature, sub_feature in validations.items():
         feat_desired_data[feature]["file"] = f"{feature}_desired_state.j2"
-        # !!! Added for val file builder
         if isinstance(sub_feature, list):
             feat_desired_data[feature]["sub_features"] = sub_feature
         else:
@@ -142,7 +258,7 @@ def return_yaml_desired_state(str_desired_state: str) -> Dict[str, Dict]:
     :return: A dictionary of the desired state
     """
     # Conditional fix as yaml.Loader causes error for ">dd" as swaps a digit for a space
-    if re.search(r":\ >\d+", str_desired_state):
+    if re.search(r" >\d+\n", str_desired_state):
         x = yaml.load(str_desired_state.replace(">", "->"), Loader=yaml.Loader)
         desired_state = ast.literal_eval(str(x[0]).replace("->", ">"))
     else:
@@ -277,7 +393,6 @@ def task_desired_state(
             validations=validations["all"],
             desired_state=desired_state,
         )
-
     # 1b. VAR: Create host_var of combined desired states or exits if nothing to be validated
     if len(desired_state) == 0:
         result_text = "\u26A0\uFE0F  No validations were performed as no desired_state was generated, check input file and template"
@@ -353,9 +468,6 @@ def actual_state_engine(
                 result = getattr(eval(feature), method)(
                     str(os_type), sub_feature, output, tmp_dict
                 )
-                # result = eval(feature).format_actual_state(
-                #     str(os_type), sub_feature, output, tmp_dict
-                # )
             actual_state[feature][sub_feature] = result
     return dict(actual_state)
 
@@ -363,9 +475,7 @@ def actual_state_engine(
 # ----------------------------------------------------------------------------
 # 4. ENGINE: Formats gathered output as actual state and runs compliance report - Only one that prints (logging debug)
 # ----------------------------------------------------------------------------
-def task_engine(
-    task: Task, input_data: str = INPUT_DATA, directory: str = REPORT_DIRECTORY
-) -> str:
+def task_engine(task: Task, input_data: str, directory: str = None) -> Result:
     """
     Engine that runs all nornir and non-nornir (formatting) tasks
 
@@ -377,12 +487,10 @@ def task_engine(
     :type directory: str
     :return: The result of the task_engine function is a Result object.
     """
-    # 4a, Import the actual state modulues
+    # 4a, Import the actual state modules and load the input file of validations
     import_actual_state_modules(input_data)
-    # 4b. Load the input file of validations
     validations = task_load_input_data(task, input_data)
-
-    # 4c. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
+    # 4b. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
     task.run(
         task=task_desired_state,
         validations=validations,
@@ -432,35 +540,49 @@ def task_engine(
 
 
 # ----------------------------------------------------------------------------
-# 5. VAL_FILE_BULDER: Formats gathered output as actual state and runs compliance report - Only one that prints (logging debug)
+# 5. VAL_FILE_BUILDER: Builds validation files based on the actual state
 # ----------------------------------------------------------------------------
-def val_file_builder(task: Task, input_data: str = INPUT_DATA):
-    #     , input_data: str = INPUT_DATA, directory: str = REPORT_DIRECTORY
-    # ) -> str:
-    validations = task_load_input_data(task, input_data)
+def val_file_builder(task: Task, input_data: str, directory: str) -> Result:
+    """
+    It takes indexes of features and based on creates the commands to use to gather the actual state
+    of the device from which it then generates the validation file
 
-    # all:
-    #   system:
-    #     - image
-    #     - mgmt_acl
-    #     - module:
+    :param task: The task object that is passed to the function
+    :type task: Task
+    :param input_data: This is the input file of vals or the empty string if you want to create a val
+    file of all vals
+    :type input_data: str
+    :return: The result of the task is a Result object.
+    """
+    # 5a. Load the input file of vals or create val file of all vals, then import the actual state modules
+    if len(input_data) == 0:
+        all_index_file = os.path.join(
+            "example_validations", "subfeature_index_files", "all_subfeat_index.yml"
+        )
+        with open(all_index_file) as tmp_data:
+            validations = yaml.load(tmp_data, Loader=yaml.FullLoader)
+            for feat in validations["all"]:
+                for idx, sub_feat in enumerate(validations["all"][feat]):
+                    if isinstance(sub_feat, dict):
+                        validations["all"][feat][idx] = list(sub_feat.keys())[0]
+    else:
+        validations = task_load_input_data(task, input_data)
 
-    # 4a, Import the actual state modulues
-    import_actual_state_modules(input_data)
+    import_actual_state_modules(validations)
 
-    # 4c. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
+    # 5b. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
     task.run(
         task=task_desired_state,
         validations=validations,
         task_template=task_template,
         severity_level=logging.DEBUG,
     )
-    # breakpoint()
-    # 4d. CMD: Using commands crunched from the desired output gathers pre-feature/sub-feature actual config of the device
+
+    # 5c. CMD: Using commands crunched from the desired output gathers pre-feature/sub-feature actual config of the device
     feat_actual_data = defaultdict(dict)
+    used_subfeat, not_used_subfeat = ([] for i in range(2))
     for feature, sub_feature in task.host["desired_state"].items():
         for sub_feat_name, sub_feat_cmds in sub_feature.items():
-            #! Get the commands output
             cmd_output = []
             for cmd in sub_feat_cmds.keys():
                 try:
@@ -471,21 +593,13 @@ def val_file_builder(task: Task, input_data: str = INPUT_DATA):
                         severity_level=logging.DEBUG,
                     ).result
                 except:
-                    tmp_cmd_output = task.run(
-                        task=netmiko_send_command,
-                        command_string=cmd,
-                        severity_level=logging.DEBUG,
-                    ).result
-
-                # ! Command out put errors, likely due to trying command on os_type that deosnt support that feature
-                error = [
-                    "% Invalid input detected at '^' marker.",
-                    "is not enabled",
-                    "Translating",
-                ]
-
-                # !Add command output to dict of commands and outputs
-                for err in error:
+                    tmp_cmd_output = []
+                # Catches empty tables as wont be parsed (such as WLC show int grp sum)
+                if isinstance(tmp_cmd_output, str) and len(tmp_cmd_output) != 0:
+                    if "---------" in tmp_cmd_output.splitlines()[-1]:
+                        tmp_cmd_output = []
+                # Catches command output errors likely due to trying a command on an os_type that deosnt support that feature
+                for err in ERR_MSG:
                     if err in str(tmp_cmd_output):
                         tmp_cmd_output = []
                 # Converts NXOS "| json" cmds from string to JSON
@@ -497,40 +611,76 @@ def val_file_builder(task: Task, input_data: str = INPUT_DATA):
                 cmd_output.extend(tmp_cmd_output)
             if len(tmp_cmd_output) != 0:
                 feat_actual_data[feature][sub_feat_name] = cmd_output
+                used_subfeat.append(sub_feat_name)
+            else:
+                not_used_subfeat.append(sub_feat_name)
 
-    #  ! Format the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
+    #  5d. FORMAT: Format the returned data into dict of cmds {cmd: {seq: key:val}} and save to file
     os_type = merge_os_types(task.host)
-    actual_state = actual_state_engine("create_validation", os_type, feat_actual_data)
+    actual_state = actual_state_engine("generate_val_file", os_type, feat_actual_data)
+    val_file = os.path.join(directory, f"{str(task.host)}_vals.yml")
+    task.run(
+        task=write_file,
+        filename=val_file,
+        content=yaml.dump({"hosts": {str(task.host): actual_state}}, sort_keys=False),
+    )
+    info = f"✅ Created the validation file '{val_file}'"
 
-    # ! Save to yaml file
-    # val_file = os.path.join(TEST_PATH, f"{os_type}_{feature}_vals.yml")
-    val_file = f"{str(task.host)}_vals.yml"
-    with open(val_file, "w") as yaml_file:
-        yaml.dump({"hosts": {str(task.host): actual_state}}, yaml_file, sort_keys=False)
-    # Saves need to have rich in pytest
-    # try:
-    #     rc.print(f"✅ Created the file '{ds_file}'")
-    # except:
-    #     print(f"✅ Created the file '{ds_file}'")
-
-    # breakpoint()
-    return Result(host=task.host, result=actual_state, failed=False)
+    return Result(
+        host=task.host,
+        result="",
+        used_subfeat=used_subfeat,
+        not_used_subfeat=not_used_subfeat,
+        file_info=info,
+    )
 
 
 # ----------------------------------------------------------------------------
 # MAIN: Runs the script
 # ----------------------------------------------------------------------------
 def main():
-    args = _create_parser()
+    args, input_file = _create_parser()
+    args = vars(args)
     nr = InitNornir(config_file="config.yml")
-    # result = nr.run(
-    #     task=task_engine, input_data=args["filename"], directory=args["directory"]
-    # )
-    # print_result(result, vars=["result", "report_text"])
+    #  Failfast if input file (full path, DATA_DIRECTORY or specified dir) or DATA_DIRECTORY dont exist
+    if os.path.exists(args["directory"]) == False:
+        print(f"❌ The directory doesn't exist:\n - {args['directory']}")
+    elif len(input_file) >= 1:
+        input_file = check_file_exist(input_file[0], args["directory"])
+    elif len(input_file) == 0 and args["generate_val_file"] == False:
+        input_file = merge_val_input_files(args["directory"])
 
-    a = nr.run(task=val_file_builder, input_data=args["filename"])
-    # breakpoint()
-    print_result(a)
+    # CREATE_VAL_FILE: Runs the validation file generator (method 5)
+    if args["generate_val_file"] == True:
+        result = nr.run(
+            task=val_file_builder,
+            input_data=input_file,
+            directory=args["directory"],
+        )
+        # TSHOOT: Unhash to see output of failed netmiko commands
+        # print_result(result)
+        # RESULT: Print details of which sub-features have/haven't had validations created
+        for each_host in nr.inventory.hosts.keys():
+            print_result(
+                result[each_host][0],
+                vars=[
+                    "host",
+                    "result",
+                    "used_subfeat",
+                    "not_used_subfeat",
+                    "file_info",
+                ],
+            )
+
+    # RUN_VALIDATION: Runs the validation creating compliance report (method 4)
+    else:
+        if args["save_to_file"] == True:
+            result = nr.run(
+                task=task_engine, input_data=input_file, directory=args["directory"]
+            )
+        else:
+            result = nr.run(task=task_engine, input_data=input_file)
+        print_result(result, vars=["result", "report_text"])
 
 
 if __name__ == "__main__":

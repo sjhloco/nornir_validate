@@ -76,6 +76,8 @@ pip install -r requirements.txt
 
 Still waiting on the following NTC-template PRs to be approved before the following validations will work properly, will update *requirements.txt* once they have been merged.
 
+Remove ones fixed, add new ones and update requ to be latest version of ntc
+
 - IOS: vpn.sts_peer - [#1308](https://github.com/networktocode/ntc-templates/pull/1308) to fix *show crpto detail* by adding support for IKEv2 parameters 
 - IOS: show nve vni and nve peers - [#1304](https://github.com/networktocode/ntc-templates/pull/1304) to add *show nve vni* & *nve peers*
 - NXOS: evpn.nve_vni & evpn.nve_peer - [#1303](https://github.com/networktocode/ntc-templates/pull/1303) to add *show nve vni* & *nve peers*

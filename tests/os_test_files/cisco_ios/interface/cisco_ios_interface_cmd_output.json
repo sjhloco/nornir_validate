@@ -78,9 +78,9 @@
                 "status": "up"
             },
             {
-                "intf": "GigabitEthernet0/2",
-                "ipaddr": "unassigned",
-                "proto": "down",
+                "intf": "Loopback1",
+                "ipaddr": "10.10.255.1",
+                "proto": "up",
                 "status": "up"
             },
             {"intf": "Vlan10", "ipaddr": "10.10.10.1", "proto": "up", "status": "up"}

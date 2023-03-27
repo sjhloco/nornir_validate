@@ -50,7 +50,7 @@ def _format_ap(output: List, tmp_dict: Dict[str, None]) -> None:
 
 
 def _format_client_count(output: List, tmp_dict: Dict[str, None]) -> None:
-    """Format cleint count and return data structure in tmp_dict"""
+    """Format client count and return data structure in tmp_dict"""
     if len(output) != 0:
         tmp_output = []
         for each_line in output:

@@ -23,10 +23,11 @@
       {{ ap_cmd }}: VALIDATE
 {% elif 'client_count' in sub_feat and client_count_cmd is defined %}
     client_count:
-      {{ client_count_cmd }}: VALIDATE
+      {{ client_count_cmd }} summary: VALIDATE
 {% if sub_feat.client_count.__class__.__name__ == 'list' %}
 {% for each_wlan in sub_feat.client_count %}
       {{ client_count_cmd }} wlan {{ each_wlan.replace("wl", "999").replace("_count", "") }}: VALIDATE
+      {{ client_count_cmd }} wlan {{ each_wlan.replace("wl", "").replace("_count", "") }}: VALIDATE
 {% endfor %}{% endif %}
 {% elif sub_feat == 'flexconnect' and flexconn_cmd is defined %}
     flexconnect: 

@@ -87,33 +87,34 @@ def _format_rte_count(output: List, tmp_dict: Dict[str, None]) -> None:
 def _format_route(output: List, tmp_dict: Dict[str, None]) -> None:
     """Format route and return data structure in tmp_dict"""
     for each_rte in output:
-        # Creates variables used to create data model
-        vrf = each_rte.get("vrf", "global").replace("default", "global")
-        if len(vrf) == 0:
-            vrf = "global"
-        rte = _get_pfxlen(each_rte["network"], each_rte["mask"])
-        regex = r"^L$|^local$|^C$|^direct$"
-        if re.search(regex, each_rte["protocol"]) or each_rte[route_nhip] == "":
-            nh = each_rte[route_nhif]
-        else:
-            nh = each_rte[route_nhip]
-        if len(each_rte["type"]) == 0:
-            rte_type = each_rte["protocol"]
-        else:
-            rte_type = f"{each_rte['protocol']} {each_rte['type']}"
-        # If VRF doesn't exist add VRF and route
-        if tmp_dict.get(vrf) == None:
-            tmp_dict[vrf] = {rte: {"nh": nh, "rtype": rte_type}}
-        # If route doesn't exist add it, if already exists add additional non-duplicate next-hops
-        else:
-            if tmp_dict[vrf].get(rte) == None:
-                tmp_dict[vrf].update({rte: {"nh": nh, "rtype": rte_type}})
-            elif not isinstance(tmp_dict[vrf][rte]["nh"], list):
-                if tmp_dict[vrf][rte]["nh"] != nh:
-                    tmp_dict[vrf][rte]["nh"] = [tmp_dict[vrf][rte]["nh"]]
-                    tmp_dict[vrf][rte]["nh"].append(nh)
+        if isinstance(each_rte, dict):
+            # Creates variables used to create data model
+            vrf = each_rte.get("vrf", "global").replace("default", "global")
+            if len(vrf) == 0:
+                vrf = "global"
+            rte = _get_pfxlen(each_rte["network"], each_rte["mask"])
+            regex = r"^L$|^local$|^C$|^direct$"
+            if re.search(regex, each_rte["protocol"]) or each_rte[route_nhip] == "":
+                nh = each_rte[route_nhif]
             else:
-                tmp_dict[vrf][rte]["nh"].append(nh)
+                nh = each_rte[route_nhip]
+            if len(each_rte["type"]) == 0:
+                rte_type = each_rte["protocol"]
+            else:
+                rte_type = f"{each_rte['protocol']} {each_rte['type']}"
+            # If VRF doesn't exist add VRF and route
+            if tmp_dict.get(vrf) == None:
+                tmp_dict[vrf] = {rte: {"nh": nh, "rtype": rte_type}}
+            # If route doesn't exist add it, if already exists add additional non-duplicate next-hops
+            else:
+                if tmp_dict[vrf].get(rte) == None:
+                    tmp_dict[vrf].update({rte: {"nh": nh, "rtype": rte_type}})
+                elif not isinstance(tmp_dict[vrf][rte]["nh"], list):
+                    if tmp_dict[vrf][rte]["nh"] != nh:
+                        tmp_dict[vrf][rte]["nh"] = [tmp_dict[vrf][rte]["nh"]]
+                        tmp_dict[vrf][rte]["nh"].append(nh)
+                else:
+                    tmp_dict[vrf][rte]["nh"].append(nh)
 
 
 # ----------------------------------------------------------------------------

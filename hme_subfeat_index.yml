@@ -1,0 +1,41 @@
+# Sub-feature index to create validation file for Home ASA, WLC and switch
+all:
+  system:
+    - image
+  redundancy:
+    - ha_state
+  neighbor:
+    - cdp
+  intf_bonded:
+    - port_channel
+  interface:
+    - intf
+    - switchport
+    - ip_brief
+  route_protocol:
+    - bgp_peer
+
+groups:
+  asa:
+    route_table:
+      - route_count
+      - route
+    fw:
+      - conn_count
+  wlc:
+    wifi:
+      - wlan
+      - ap
+      - client_count: [wl20, wl64, wl96, wl128, wl144]
+  ios:
+    redundancy:
+      - ha_state
+    layer2:
+      - vlan
+      - stp_vlan
+      - mac_table: [vl5, vl10, vl20, vl64, vl96, vl128, vl144, vl999, vl3001, vl3102]
+    route_table:
+      - vrf
+      - route_count: [AMB, BLU, GRN, GRY, RED, TRI]
+      - route: [global, AMB, BLU, GRN, GRY, RED, TRI]
+

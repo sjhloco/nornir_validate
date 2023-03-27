@@ -1,6 +1,8 @@
 ---
 username: test_user
 password: L00K_pa$$w0rd_github!
+
+
 # connection_options:
 #   netmiko:
 #     platform: cisco_ios

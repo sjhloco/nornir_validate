@@ -1,0 +1,47 @@
+hosts:
+  HME-AIR-WLC01:
+    wifi:
+      wlan:
+        20:
+          interface: hme_blu_access_vl20
+          ssid: WIFI_BLU
+        64:
+          interface: hme_grn_access_vl64
+          ssid: WIFI_GRN
+        96:
+          interface: hme_amb_access_vl96
+          ssid: WIFI_AMB
+        128:
+          interface: hme_gry_mgmt_vl128
+          ssid: WIFI_GRY
+        144:
+          interface: hme_gst_access_vl144
+          ssid: WIFI_GST
+      ap:
+        HME-2802-AP01:
+          model: AIR-AP2802I-E-K9
+          ip: 10.10.10.12
+          client_count: ">4"
+      client_count:
+        total_count: ">3"
+        wl64_count: ">3"
+    system:
+      image: 8.10.130.0
+    neighbor:
+      cdp:
+        GigabitEthernet0/0/1:
+          nbr_name: HME-C3560-SWI01.stesworld.com
+          nbr_intf: GigabitEthernet0/8
+    interface:
+      intf:
+        1:
+          duplex: Full
+          speed: 1000
+          type: Forw
+      ip_brief:
+        hme_amb_access_vl96: 10.10.96.11
+        hme_blu_access_vl20: 10.10.20.11
+        hme_grn_access_vl64: 10.10.64.11
+        hme_gry_mgmt_vl128: 10.10.128.11
+        hme_gst_access_vl144: 10.10.144.11
+

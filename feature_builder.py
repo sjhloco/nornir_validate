@@ -22,11 +22,11 @@ from ntc_templates.parse import parse_output
 # ----------------------------------------------------------------------------
 """ Can be running using any for the following flags:
 ! python feature_builder.py -cf <os_type>_<feature>                                     Creates the feature and test feature directory structure (folders and files)
-! python new_val_builder.py -cmd <os_type> <feature>                                    Generates the commands used to generates a validation file (saved to <os_type>_<feature>_cmds.yml)
+! python feature_builder.py -cmd <os_type> <feature>                                    Generates the commands used to generates a validation file (saved to <os_type>_<feature>_cmds.yml)
 ! python feature_builder.py -di <netmiko_ostype> <command> <ip address or filename>     Generates the cmd_output data structure (prints to screen)
-! python new_val_builder.py -val <os_type> <feature>                                    Generates the validate file (saved to <os_type>_<feature>_desired_state.yml)
-! python new_val_builder.py -ds <os_type> <feature>                                     Creates the desired_state data structure (saved to <os_type>_<feature>_desired_state.yml) 
-! python new_val_builder.py -as <os_type> <feature>                                     Creates the actual_state data structure (saved to <os_type>_<feature>_actual_state.yml)
+! python feature_builder.py -val <os_type> <feature>                                    Generates the validate file (saved to <os_type>_<feature>_desired_state.yml)
+! python feature_builder.py -ds <os_type> <feature>                                     Creates the desired_state data structure (saved to <os_type>_<feature>_desired_state.yml) 
+! python feature_builder.py -as <os_type> <feature>                                     Creates the actual_state data structure (saved to <os_type>_<feature>_actual_state.yml)
 """
 
 USERNAME = "test_user"

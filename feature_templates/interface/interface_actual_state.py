@@ -104,26 +104,6 @@ def _wlc_duplex_speed(intf: Dict[str, str]) -> None:
         intf["speed"] = intf["physical_status"]
 
 
-def _format_switchport(output: List, tmp_dict: Dict[str, None]) -> None:
-    """Format switchport and return data structure in tmp_dict"""
-    for each_intf in output:
-        mode = each_intf["mode"].replace("static ", "").split()[0]
-        tmp_dict[each_intf["interface"]]["mode"] = mode
-        if each_intf["mode"] == "static access" or each_intf["mode"] == "access":
-            tmp_dict[each_intf["interface"]]["vlan"] = _make_int(
-                each_intf["access_vlan"]
-            )
-        elif bool(re.search("trunk", each_intf["mode"])):
-            trunk_vl = each_intf["trunking_vlans"]
-            try:
-                trunk_vl = [_make_int(vl) for vl in trunk_vl.split(",")]
-            except:
-                trunk_vl = [_make_int(vl) for vl in trunk_vl[0].split(",")]
-            tmp_dict[each_intf["interface"]]["vlan"] = trunk_vl
-        else:
-            tmp_dict[each_intf["interface"]]["vlan"] = None
-
-
 # ----------------------------------------------------------------------------
 # VALIDATION: Engine to create the validation file sub-feature validations (for all os-types)
 # ----------------------------------------------------------------------------
@@ -152,30 +132,56 @@ def generate_val_file(
     ### INTF: {intf: {duplex: x, speed: x, type:x}}
     if sub_feature == "intf":
         for each_intf in output:
-            intf = _make_int(each_intf[intf_name])
-            if bool(re.search("wlc", os_type)):
-                _wlc_duplex_speed(each_intf)
-            if len(each_intf["duplex"]) != 0:
-                tmp_dict[intf]["duplex"] = each_intf["duplex"]
-            if len(each_intf["speed"]) != 0:
-                tmp_dict[intf]["speed"] = _make_int(each_intf["speed"])
-            if isinstance(_make_int(each_intf.get(intf_type)), int):
-                tmp_dict[intf]["type"] = "access"
-            elif len(each_intf[intf_type]) != 0:
-                tmp_dict[intf]["type"] = _make_none(each_intf, intf_type)
+            if each_intf[intf_status] != "disabled":
+                intf = _make_int(each_intf[intf_name])
+                if bool(re.search("wlc", os_type)):
+                    _wlc_duplex_speed(each_intf)
+                if len(each_intf["duplex"]) != 0:
+                    tmp_dict[intf]["duplex"] = each_intf["duplex"]
+                if len(each_intf["speed"]) != 0:
+                    tmp_dict[intf]["speed"] = _make_int(each_intf["speed"])
+                if isinstance(_make_int(each_intf.get(intf_type)), int):
+                    tmp_dict[intf]["type"] = "access"
+                elif len(each_intf[intf_type]) != 0:
+                    tmp_dict[intf]["type"] = _make_none(each_intf, intf_type)
 
     ### SWITCHPORT: {intf: {mode: access or trunk, vlan: x or [x,y]}}
     elif sub_feature == "switchport":
-        _format_switchport(output, tmp_dict)
+        for each_intf in output:
+            if each_intf["mode"] != "down":
+                mode = each_intf["mode"].replace("static ", "").split()[0]
+                tmp_dict[each_intf["interface"]]["mode"] = mode
+                if (
+                    each_intf["mode"] == "static access"
+                    or each_intf["mode"] == "access"
+                ):
+                    tmp_dict[each_intf["interface"]]["vlan"] = _make_int(
+                        each_intf["access_vlan"]
+                    )
+                elif bool(re.search("trunk", each_intf["mode"])):
+                    trunk_vl = each_intf["trunking_vlans"]
+                    try:
+                        trunk_vl = [_make_int(vl) for vl in trunk_vl.split(",")]
+                    except:
+                        trunk_vl = [_make_int(vl) for vl in trunk_vl[0].split(",")]
+                    tmp_dict[each_intf["interface"]]["vlan"] = trunk_vl
+                else:
+                    tmp_dict[each_intf["interface"]]["vlan"] = None
 
-    ### IP_BRIEF: {intf: {ip:x, status: x}}}
+    ### IP_BRIEF: {intfx: ipx, intfy: ipy}
     elif sub_feature == "ip_brief":
         if bool(re.search("nxos", os_type)):
             output = _fix_nxos(output[0], "TABLE_intf", "ROW_intf")
         for each_intf in output:
-            tmp_dict[each_intf[ip_name]] = each_intf.get(
-                ip_ip, each_intf.get("unnum-intf")
-            )
+            if (
+                each_intf.get(ip_ip) == "unassigned"
+                or each_intf.get(ip_status) == "administratively down"
+            ):
+                pass
+            else:
+                tmp_dict[each_intf[ip_name]] = each_intf.get(
+                    ip_ip, each_intf.get("unnum-intf")
+                )
 
     return dict(tmp_dict)
 
@@ -221,7 +227,22 @@ def format_actual_state(
 
     ### SWITCHPORT: {intf: {mode: access or trunk, vlan: x or [x,y]}}
     elif sub_feature == "switchport":
-        _format_switchport(output, tmp_dict)
+        for each_intf in output:
+            mode = each_intf["mode"].replace("static ", "").split()[0]
+            tmp_dict[each_intf["interface"]]["mode"] = mode
+            if each_intf["mode"] == "static access" or each_intf["mode"] == "access":
+                tmp_dict[each_intf["interface"]]["vlan"] = _make_int(
+                    each_intf["access_vlan"]
+                )
+            elif bool(re.search("trunk", each_intf["mode"])):
+                trunk_vl = each_intf["trunking_vlans"]
+                try:
+                    trunk_vl = [_make_int(vl) for vl in trunk_vl.split(",")]
+                except:
+                    trunk_vl = [_make_int(vl) for vl in trunk_vl[0].split(",")]
+                tmp_dict[each_intf["interface"]]["vlan"] = trunk_vl
+            else:
+                tmp_dict[each_intf["interface"]]["vlan"] = None
 
     ### IP_BRIEF: {intf: {ip:x, status: x}}}
     elif sub_feature == "ip_brief":

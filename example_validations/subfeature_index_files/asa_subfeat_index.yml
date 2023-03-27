@@ -17,9 +17,9 @@ all:
     - ip_brief
   route_table:
     # Route Table count: Total number of subnets (global implicit)
-    - route_count: [BLU, AMB]
+    - route_count
     # Routing table entires: Route and next-hop (global implicit)
-    - route: [BLU]
+    - route
   route_protocol:
     # OSPF Interface/Neighbor (strict): OSPF enabled interfaces (short name) and optional strict peers (address not RID)
     - ospf_intf_nbr
