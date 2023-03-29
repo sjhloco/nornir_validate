@@ -1,0 +1,13 @@
+all:
+  system:
+    image: 16.6.2
+  neighbor:
+    cdp:
+      Gig 0/8:
+        nbr_name: HME-AIR-WLC01
+        nbr_intf: Gig 0/0/1
+  intf_bonded:
+    port_channel:
+      Po1:
+        protocol: LACP
+        members: ['Gi0/2', 'Gi0/3']

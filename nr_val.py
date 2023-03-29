@@ -9,7 +9,6 @@ import re
 import ast
 from glob import glob
 import importlib
-from pprint import pprint
 
 from nornir import InitNornir
 from nornir.core.task import Task, Result
