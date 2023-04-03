@@ -13,15 +13,15 @@ def _set_keys(os_type: List) -> Dict[str, Dict]:
     :param os_type: This is a list of strings that are the OS types of the devices in the inventory
     :type os_type: List
     """
-    global mac_table_match, mac_table_match1, mac_table_element
+    global mac_table_match, mac_table_element, mac_table_idx
     if bool(re.search("ios", os_type)):
         mac_table_match = "Vlan"
-        mac_table_match1 = "Vlan"
         mac_table_element = -1
+        mac_table_idx = 1
     elif bool(re.search("nxos", os_type)):
-        mac_table_match = "static"
-        mac_table_match1 = "Vlan"
+        mac_table_match = "dynamic"
         mac_table_element = 1
+        mac_table_idx = 2
     elif bool(re.search("asa", os_type)):
         pass
     elif bool(re.search("wlc", os_type)):
@@ -59,19 +59,27 @@ def _format_vlan(output: List, tmp_dict: Dict[str, None]) -> None:
 def _format_mac_table(output: List, tmp_dict: Dict[str, None]) -> None:
     """Format vlan and return data structure in tmp_dict"""
     for idx, each_item in enumerate(output):
+        each_item = str(each_item)
         if mac_table_match in each_item:
             name = (
                 f"vl{each_item.split()[mac_table_element].replace(':', '')}_mac_count"
             )
-            tmp_dict[name] = _make_int(output[idx + 1].split()[-1])
+            try:
+                tmp_dict[name] = _make_int(output[idx + mac_table_idx].split()[-1])
+            except:
+                tmp_dict[name] = _make_int(output[idx + mac_table_idx])
             output[idx] = ""
             output[idx + 1] = ""
+            output[idx + 2] = ""
         elif "error" in each_item.lower() or "^" in each_item:
             output[idx] = ""
     # Only lines left will be count of total MACs
     for each_item in output:
-        if len(each_item) != 0:
-            tmp_dict["total_mac_count"] = _make_int(each_item.split()[-1])
+        if len(str(each_item)) != 0:
+            try:
+                tmp_dict["total_mac_count"] = _make_int(each_item.split()[-1])
+            except:
+                tmp_dict["total_mac_count"] = each_item
 
 
 # ----------------------------------------------------------------------------

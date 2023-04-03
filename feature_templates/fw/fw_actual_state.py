@@ -67,7 +67,7 @@ def generate_val_file(
 
     ### FW_CONN_COUNT: {conn_count: xx}
     if sub_feature == "conn_count":
-        tmp_dict = _make_int(output[0].split()[0])
+        tmp_dict = _make_int(output[0].split()[-1])
 
     return tmp_dict
 
@@ -97,6 +97,6 @@ def format_actual_state(
 
     ### FW_CONN_COUNT: {conn_count: xx}
     if sub_feature == "conn_count":
-        tmp_dict = _make_int(output[0].split()[0])
+        tmp_dict = _make_int(output[0].split()[-1])
 
     return tmp_dict

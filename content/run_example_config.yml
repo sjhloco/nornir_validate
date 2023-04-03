@@ -114,7 +114,7 @@ records:
   - delay: 1500
     content: "(nr_val) macoloco:\e[36mnornir_validate\e[32m (main)\e[34m\e(B\e[m$"
   - delay: 1000
-    content: python nr_val.py -f val_input.yml
+    content: python nr_val.py
   - delay: 400
     content: "\r\n"
   - delay: 1000
@@ -126,7 +126,7 @@ records:
   - delay: 25
     content: "(nr_val) macoloco:\e[36mnornir_validate\e[32m (main)\e[34m\e(B\e[m$"
   - delay: 1000
-    content: python nr_val.py -f val_input.yml
+    content: python nr_val.py val_input.yml
   - delay: 400
     content: "\r\n"
   - delay: 1000
@@ -140,7 +140,7 @@ records:
   - delay: 25
     content: "(nr_val) macoloco:\e[36mnornir_validate\e[32m (main)\e[34m\e(B\e[m$"
   - delay: 1000
-    content: python nr_val.py -d '/Users/mucholoco'
+    content: python nr_val.py val_input.yml -s
   - delay: 400
     content: "\r\n"
   - delay: 1000
@@ -149,5 +149,5 @@ records:
     content: "(nr_val) macoloco:\e[36mnornir_validate\e[32m (main)\e[34m\e(B\e[m$"
   - delay: 2000
     content: "\r\n"
-  - delay: 25
-    content: "(nr_val) macoloco:\e[36mnornir_validate\e[32m (main)\e[34m\e(B\e[m$"
+  # - delay: 25
+  #   content: "(nr_val) macoloco:\e[36mnornir_validate\e[32m (main)\e[34m\e(B\e[m$"

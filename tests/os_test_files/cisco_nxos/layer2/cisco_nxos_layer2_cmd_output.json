@@ -37,13 +37,13 @@
             }
         ],
         "mac_table": [
-            "Total MAC Addresses in Use:    681",
-            "G    6     cc7f.76c7.0907   static   -         F      F    sup-eth1(R)",
-            "Total MAC Addresses in Use:     26",
-            "ERROR: Vlan does not exist",
-            "ERROR: Vlan does not exist",
-            "G   24     cc7f.76c7.0907   static   -         F      F    sup-eth1(R)",
-            "Total MAC Addresses in Use:    306"
+            681,
+            "C    6     0050.566e.685d   dynamic  0         F      F    nve1(192.168.201.91)",
+            "C    6     0050.566f.a626   dynamic  0         F      F    nve1(192.168.101.53)",
+            26,
+            "C   24     aeda.9d10.015e   dynamic  0         F      F    nve1(192.168.201.91)",
+            "C   24     aeda.9d10.0162   dynamic  0         F      F    nve1(192.168.201.91)",
+            306
         ]
     }
 }

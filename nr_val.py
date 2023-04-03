@@ -24,18 +24,7 @@ from compliance_report import generate_validate_report
 # Manually defined variables and user input
 # ----------------------------------------------------------------------------
 # Default directory location to look for validation files and save compliance report and/or generated validation files
-# DATA_DIRECTORY = os.getcwd()
-DATA_DIRECTORY = (
-    "/Users/mucholoco/Documents/Coding/Nornir/code/nornir_validate/hme_val_files"
-)
-# Device error messages used by validation generator to stop failures if a feature is not supported
-ERR_MSG = [
-    "is not enabled",
-    "ERROR:",
-    "INFO:",
-    "No sessions to display.",
-    "Incorrect usage",
-]
+DATA_DIRECTORY = os.getcwd()
 
 
 # ----------------------------------------------------------------------------
@@ -295,7 +284,6 @@ def strip_empty_feat(desired_state: Dict[str, Dict]) -> Dict[str, Dict]:
                     tmp_cmd[each_cmd] = cmd_ds
             if len(tmp_cmd) != 0:
                 clean_desired_state[feat][sub_feat_name] = tmp_cmd
-
     return dict(clean_desired_state)
 
 
@@ -346,6 +334,39 @@ def merge_os_types(host: "Host") -> List:
     os_type.remove(None)
     os_type.sort()
     return os_type
+
+
+def cleanup_output(cmd: str, tmp_cmd_output: List) -> List:
+    """
+    It takes a command and cmd output and returns a sanitised version converting JSON and removing all errors
+
+    :param cmd: The command that was run
+    :type cmd: str
+    :param tmp_cmd_output: This is the output of the command that was run
+    :type tmp_cmd_output: List
+    """
+    try:
+        # Converts NXOS "| json" cmds from string to JSON
+        tmp_cmd_output = [json.loads(tmp_cmd_output)]
+    except:
+        # Required for non-formatted data (no NTC template)
+        if isinstance(tmp_cmd_output, str):
+            tmp_cmd_output = (
+                tmp_cmd_output.lstrip().rstrip().replace("^\n", "").splitlines()
+            )
+            # Catches empty tables as wont be parsed (such as WLC show int grp sum)
+            if "---------" in str(tmp_cmd_output):
+                tmp_cmd_output = []
+            # Catches functions not supported (text output error in from cli)
+            elif len(tmp_cmd_output) == 1:
+                try:
+                    int(tmp_cmd_output[0])
+                except:
+                    if "Number of lines which match regexp = 0" == tmp_cmd_output[0]:
+                        tmp_cmd_output = []
+                    elif "Number of lines which match regexp" not in tmp_cmd_output[0]:
+                        tmp_cmd_output = []
+    return tmp_cmd_output
 
 
 # ----------------------------------------------------------------------------
@@ -497,7 +518,7 @@ def task_engine(task: Task, input_data: str, directory: str = None) -> Result:
         severity_level=logging.DEBUG,
     )
 
-    # 4d. CMD: Using commands crunched from the desired output gathers pre-feature/sub-feature actual config of the device
+    # 4c. CMD: Using commands crunched from the desired output gathers pre-feature/sub-feature actual config of the device
     feat_actual_data = defaultdict(dict)
     for feature, sub_feature in task.host["desired_state"].items():
         for sub_feat_name, sub_feat_cmds in sub_feature.items():
@@ -518,17 +539,16 @@ def task_engine(task: Task, input_data: str, directory: str = None) -> Result:
                 cmd_output.extend(tmp_cmd_output)
             feat_actual_data[feature][sub_feat_name] = cmd_output
 
-    # 4e. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
+    # 4d. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
     os_type = merge_os_types(task.host)
     actual_state = actual_state_engine("format_actual_state", os_type, feat_actual_data)
-
-    # 4f. VAL: Uses Napalm_validate validate method to generate a compliance report
+    # 4e. VAL: Uses Napalm_validate validate method to generate a compliance report
     desired_state = remove_cmds_desired_state(task.host["desired_state"])
 
     comp_result = generate_validate_report(
         desired_state, actual_state, str(task.host), directory
     )
-    # 4g. RSLT: Nornir returns compliance result or if fails the compliance report
+    # 4f. RSLT: Nornir returns compliance result or if fails the compliance report
     return Result(
         host=task.host,
         failed=comp_result["failed"],
@@ -566,7 +586,6 @@ def val_file_builder(task: Task, input_data: str, directory: str) -> Result:
                         validations["all"][feat][idx] = list(sub_feat.keys())[0]
     else:
         validations = task_load_input_data(task, input_data)
-
     import_actual_state_modules(validations)
 
     # 5b. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
@@ -593,20 +612,7 @@ def val_file_builder(task: Task, input_data: str, directory: str) -> Result:
                     ).result
                 except:
                     tmp_cmd_output = []
-                # Catches empty tables as wont be parsed (such as WLC show int grp sum)
-                if isinstance(tmp_cmd_output, str) and len(tmp_cmd_output) != 0:
-                    if "---------" in tmp_cmd_output.splitlines()[-1]:
-                        tmp_cmd_output = []
-                # Catches command output errors likely due to trying a command on an os_type that deosnt support that feature
-                for err in ERR_MSG:
-                    if err in str(tmp_cmd_output):
-                        tmp_cmd_output = []
-                # Converts NXOS "| json" cmds from string to JSON
-                if "json" in cmd:
-                    tmp_cmd_output = [json.loads(tmp_cmd_output)]
-                # Required for non-formatted data (no NTC template)
-                elif isinstance(tmp_cmd_output, str):
-                    tmp_cmd_output = tmp_cmd_output.lstrip().rstrip().splitlines()
+                tmp_cmd_output = cleanup_output(cmd, tmp_cmd_output)
                 cmd_output.extend(tmp_cmd_output)
             if len(tmp_cmd_output) != 0:
                 feat_actual_data[feature][sub_feat_name] = cmd_output
@@ -624,7 +630,6 @@ def val_file_builder(task: Task, input_data: str, directory: str) -> Result:
         content=yaml.dump({"hosts": {str(task.host): actual_state}}, sort_keys=False),
     )
     info = f"✅ Created the validation file '{val_file}'"
-
     return Result(
         host=task.host,
         result="",
@@ -656,9 +661,8 @@ def main():
             input_data=input_file,
             directory=args["directory"],
         )
-        # TSHOOT: Unhash to see output of failed netmiko commands
+        # RESULT: Print details of which sub-features have/haven't had validations created. Unhash to see output of failed netmiko commands
         # print_result(result)
-        # RESULT: Print details of which sub-features have/haven't had validations created
         for each_host in nr.inventory.hosts.keys():
             print_result(
                 result[each_host][0],
@@ -670,7 +674,6 @@ def main():
                     "file_info",
                 ],
             )
-
     # RUN_VALIDATION: Runs the validation creating compliance report (method 4)
     else:
         if args["save_to_file"] == True:

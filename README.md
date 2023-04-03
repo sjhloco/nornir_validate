@@ -132,9 +132,6 @@ Rather than defining a validation file manually from scratch it can be generated
 
 To allow for the ability to generate validation files without specifying an index of features the output displayed when running the script will not show any details of failed commands (*netmiko_send_command*). The reasoning for this is that there will always be failures for any of the subfeatures not enabled on device so by displaying these confuses matters as is a false negative. If you require to see these (for example when troubleshooting) unhash *print_result(result)* on around line 661 of *nr_val.py*.
 
-!!!!! ADD VIDEO !!!!!!
-
-
 ## Compliance Report
 
 The *desired_state* (from input file) and *actual_state* (from device) are iterated through ***napalm_validate*** to produces a per-subfeature compliance report. The subfeatures are grouped into an overall compliance report with the reports compliance status set to *false* if any of the individual subfeatures fail compliance.
@@ -167,15 +164,14 @@ DATA_DIRECTORY = os.getcwd()
 | `-s` | Add this flag to save the report as *hostname_compliance_report_YYYYMMDD-HHMM.json* in *DATA_DIRECTORY* or specified location 
 
 ```python
-python nr_val.py -f my_validations.yml
+python nr_val.py
+python nr_val.py val_input.yml
+python nr_val.py -s
 ```
 
 If the validation fails a full compliance report will be printed to screen and the nornir task marked as failed.
 
-!!!!! Re work example so that uses new flags !!!!!
-
-![run_example_config](https://user-images.githubusercontent.com/33333983/222000867-84f2042f-902a-4697-9ec3-16425a667867.gif)
-
+ADD IMAGE
 ### Imported
 
 The *nr_val* ***task_engine*** function can be imported directly into a script to make use of an existing nornir inventory and/or dynamically create the input data. This is just a simple example to show how a validations can be run against a file, if you want to also incorporate file merging or the validation file builder look in the *main* function of *nr_val.py*.

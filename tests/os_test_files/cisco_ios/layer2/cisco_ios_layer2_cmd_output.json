@@ -95,9 +95,11 @@
         "mac_table": [
             "Number of lines which match regexp = 19",
             "Mac Entries for Vlan 10:",
-            "Total Mac Addresses    : 6",
+            "Dynamic Address Count  : 6",
+            "Static  Address Count  : 0",
             "Mac Entries for Vlan 64:",
-            "Total Mac Addresses    : 5"
+            "Dynamic Address Count  : 5",
+            "Static  Address Count  : 1"
         ]
     }
 }

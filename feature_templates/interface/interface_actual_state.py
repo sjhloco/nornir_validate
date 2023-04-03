@@ -148,7 +148,9 @@ def generate_val_file(
     ### SWITCHPORT: {intf: {mode: access or trunk, vlan: x or [x,y]}}
     elif sub_feature == "switchport":
         for each_intf in output:
-            if each_intf["mode"] != "down":
+            if each_intf["mode"] == "down" or each_intf["mode"] == "":
+                pass
+            else:
                 mode = each_intf["mode"].replace("static ", "").split()[0]
                 tmp_dict[each_intf["interface"]]["mode"] = mode
                 if (

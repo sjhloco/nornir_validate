@@ -2,7 +2,7 @@
 {% if 'ios' in os_type |string %}
 {% elif 'nxos' in os_type |string %}
 {% elif 'asa' in os_type |string %}
-{% set conn_count_cmd = "show conn count" %}
+{% set conn_count_cmd = "show conn all | count flags" %}
 {% elif 'wlc' in os_type |string %}
 {% endif %}
 

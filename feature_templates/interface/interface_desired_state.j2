@@ -6,7 +6,7 @@
 {% elif 'nxos' in os_type |string %}
 {% set intf_cmd = "show interface status" %}
 {% set switchport_cmd = "show interface switchport" %}
-{% set ip_brief_cmd = "show ip interface brief vrf all | json" %}
+{% set ip_brief_cmd = "show ip  interface brief vrf all | json" %}
 {% elif 'asa' in os_type |string %}
 {% set intf_cmd = "show interface" %}
 {% set ip_brief_cmd = "show interface ip brief" %}

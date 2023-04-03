@@ -4,7 +4,5 @@
 **/nornir.log
 **/TODO
 **/.vscode
-test.py
-input_data_test.yml
-**/tmp_outputs_nxos_asa_wlc
-
+**/hme_subfeat_index.yml
+**/hme_val_files
