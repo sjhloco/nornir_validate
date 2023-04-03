@@ -171,7 +171,8 @@ python nr_val.py -s
 
 If the validation fails a full compliance report will be printed to screen and the nornir task marked as failed.
 
-ADD IMAGE
+![render1680563143615](https://user-images.githubusercontent.com/33333983/229646275-869a18cd-451a-4c2b-b9fd-e1190ce10015.gif)
+
 ### Imported
 
 The *nr_val* ***task_engine*** function can be imported directly into a script to make use of an existing nornir inventory and/or dynamically create the input data. This is just a simple example to show how a validations can be run against a file, if you want to also incorporate file merging or the validation file builder look in the *main* function of *nr_val.py*.
