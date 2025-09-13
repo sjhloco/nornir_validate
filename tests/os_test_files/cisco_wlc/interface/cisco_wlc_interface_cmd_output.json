@@ -1,0 +1,51 @@
+{
+    "interface": {
+        "intf": [
+            {
+                "admin_mode": "Enable",
+                "link_status": "Up",
+                "link_trap": "Enable",
+                "physical_mode": "Auto",
+                "physical_status": "10000 Full",
+                "poe": "N/A",
+                "port": "1",
+                "stp_status": "Forw",
+                "type": "Normal"
+            },
+            {
+                "admin_mode": "Enable",
+                "link_status": "Up",
+                "link_trap": "Enable",
+                "physical_mode": "Auto",
+                "physical_status": "Auto",
+                "poe": "N/A",
+                "port": "RP",
+                "stp_status": "Forw",
+                "type": "Normal"
+            }
+        ],
+        "ip_brief": [
+            {
+                "ap_mgr": "No",
+                "guest": "No",
+                "int_count": "9",
+                "ip_addr": "172.1.8.5",
+                "name": "int_gst_svc",
+                "port": "LAG",
+                "type": "Dynamic",
+                "vlan": "202"
+            },
+            {
+                "ap_mgr": "No",
+                "guest": "No",
+                "int_count": "9",
+                "ip_addr": "172.2.0.5",
+                "name": "int_gst_hotspot",
+                "port": "LAG",
+                "type": "Dynamic",
+                "vlan": "201"
+            }
+        ]
+    }
+}
+

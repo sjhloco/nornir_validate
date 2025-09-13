@@ -1,0 +1,15 @@
+---
+ios_host:
+  hostname: 10.10.10.1
+  groups: [ios]
+nxos_host:
+  hostname: 10.10.10.1
+  groups: [nxos]
+asa_host:
+  hostname: 10.10.10.1
+  groups: [asa]
+wlc_host:
+  hostname: 10.10.10.1
+  groups: [wlc]
+
+

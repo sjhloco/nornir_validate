@@ -1,0 +1,3 @@
+neighbor:
+  cdp:
+    show cdp neighbors detail: VALIDATE

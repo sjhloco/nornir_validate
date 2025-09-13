@@ -1,0 +1,103 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set eigrp_nbr_cmd = "show ip eigrp neighbors" %}
+{% set ospf_intf_cmd = "show ip ospf interface brief" %}
+{% set ospf_nbr_cmd = "show ip ospf neighbor" %}
+{% set ospf_lsdb_cmd = "show ip ospf database database-summary | in Process ID|Total" %}
+{% set bgp_cmd =  "show ip bgp all summary" %}
+{% elif 'nxos' in os_type |string %}
+{% set ospf_intf_cmd = "show ip ospf interface brief vrf all" %}
+{% set ospf_nbr_cmd = "show ip ospf neighbor vrf all" %}
+{% set ospf_lsdb_cmd = "show ip ospf database database-summary vrf all | in \"Process ID|Total\"" %}
+{% set bgp_cmd =  "show ip bgp all summary vrf all" %}
+{% elif 'asa' in os_type |string %}
+{% set ospf_intf_cmd = "show ospf interface brief" %}
+{% set ospf_nbr_cmd = "show ospf neighbor" %}
+{% set ospf_lsdb_cmd = "show ospf database database-summary | in Process ID|Total" %}
+{% set bgp_cmd =  "show bgp summary" %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+
+{# ###### Macro of nbr used multiple times ###### #}
+{%- macro def_nbr(intf_info, state) -%}
+          nbr:
+            _mode: strict
+{% if intf_info.nbr.__class__.__name__ != 'list' %}
+            {{ intf_info.nbr }}: {{ state }} 
+{% elif intf_info.nbr.__class__.__name__ == 'list' %}
+{% for each_nbr in intf_info.nbr %}
+            {{ each_nbr }}: {{ state }}
+{% endfor %}{% endif %}
+{%- endmacro -%}
+
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'eigrp_intf_nbr' and eigrp_nbr_cmd is defined %}
+    eigrp_intf_nbr:
+      {{ eigrp_nbr_cmd }}: VALIDATE
+{% elif sub_feat == 'ospf_intf_nbr' and ospf_intf_cmd is defined %}
+    ospf_intf_nbr:
+      {{ ospf_intf_cmd }}: SUB_FEATURE_COMBINED_CMD
+      {{ ospf_nbr_cmd }}: VALIDATE
+{% elif sub_feat == 'ospf_lsdb_count' and ospf_lsdb_cmd is defined %}
+    ospf_lsdb_count:
+      {{ ospf_lsdb_cmd }}: VALIDATE
+{% elif sub_feat == 'bgp_peer' and bgp_cmd is defined %}
+    bgp_peer:
+      {{ bgp_cmd }}: VALIDATE
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### EIGRP_INTF_NBR: {cmd: {intf: {asn: x, nbr: {nbr_ip: up}}} ### #}
+{% if sub_feat == 'eigrp_intf_nbr' %}
+    eigrp_intf_nbr:
+      {{ eigrp_nbr_cmd }}: 
+{% for each_intf, intf_info in input_vars.items() %}
+        {{ each_intf }}:
+          asn: {{ intf_info.asn }}
+          {{ def_nbr(intf_info, "up") }}
+{% endfor %}
+{# ### OSPF_INTF_NBR: {cmd: {intf: {pid, x, area: x, nbr: {nbr_ip: FULL}}} ### #}
+{% elif sub_feat == 'ospf_intf_nbr' %}
+    ospf_intf_nbr:
+      {{ ospf_intf_cmd }}: 
+        SUB_FEATURE_COMBINED_CMD
+      {{ ospf_nbr_cmd }}: 
+{% for each_intf, intf_info in input_vars.items() %}
+        {{ each_intf }}:
+          pid: {{ intf_info.pid }}
+          area: {{ intf_info.area }}
+{% if intf_info.nbr is defined %}
+          {{ def_nbr(intf_info, "FULL") }}
+{% else %}
+          nbr: {}
+{% endif %}
+{% endfor %}
+{# ### OSPF_LSDB_COUNT: {cmd: {process: X, total_lsa: x}} ### #}
+{% elif sub_feat == 'ospf_lsdb_count' %}
+    ospf_lsdb_count:
+      {{ ospf_lsdb_cmd }}:
+        {{ input_vars }}  
+{# ### BGP_PEER: {cmd: {peer: {asn:x, rcv_pfx:x}} ### #}
+{% elif sub_feat == 'bgp_peer' %}
+    bgp_peer:
+      {{ bgp_cmd }}: 
+        _mode: strict
+{% for each_peer, peer_info in input_vars.items() %}
+        {{ each_peer }}:
+          asn: {{ peer_info.asn }}
+          rcv_pfx: {{ peer_info.rcv_pfx }}
+{% endfor %} 
+
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+{% endif %}

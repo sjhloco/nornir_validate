@@ -1,0 +1,6 @@
+all:
+  fhr:
+    hsrp:
+      Gi0/2:
+        priority: 50
+        state: Active

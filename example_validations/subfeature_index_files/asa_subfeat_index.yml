@@ -1,0 +1,39 @@
+all:
+  system:
+    # Software image: Current image
+    - image
+    # Management ACL: SSH access and SNMP ACLs
+    - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
+  redundancy:
+    # High Availability state: The redundancy state of the local and peered devices
+    - ha_state
+  intf_bonded:
+    # Port-channels (strict members): Port-channel and member interfaces
+    - port_channel
+  interface:
+    # INTF: Physical interface attributes
+    - intf
+    # IP_BRIEF: L3 interface
+    - ip_brief
+  route_table:
+    # Route Table count: Total number of subnets (global implicit)
+    - route_count
+    # Routing table entires: Route and next-hop (global implicit)
+    - route
+  route_protocol:
+    # OSPF Interface/Neighbor (strict): OSPF enabled interfaces (short name) and optional strict peers (address not RID)
+    - ospf_intf_nbr
+    # OSPF database count: Total per-OSPF process LSAs
+    - ospf_lsdb_count
+    # BGP Peers/Neighbors (strict): BGP peers
+    - bgp_peer
+  fw:
+    # CONN_COUNT: Total connections
+    - conn_count
+  vpn:
+    # StS VPN PEERS (strict): List of VPN peers
+    - sts_peer
+    # AC_VPN CLIENTS: AnyConnect users and policies
+    - ac_user
+    # NUM_VPN: Total StS VPN peers and AnyConnect users
+    - vpn_count

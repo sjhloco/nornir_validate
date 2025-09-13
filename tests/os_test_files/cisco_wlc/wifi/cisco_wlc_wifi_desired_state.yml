@@ -1,0 +1,54 @@
+wifi:
+  wlan:
+    show wlan summary:
+      11:
+        intf: intgrp_gst_guest_hotspot
+        ssid: wifi-guest
+        status: Enabled
+      12:
+        intf: intgrp_blu
+        ssid: corp
+        status: Enabled
+      13:
+        intf: intgrp_gst_grn
+        ssid: grn
+        status: Enabled
+  ap:
+    show ap summary:
+      DC-AP-01:
+        model: AIR-AP2802I-E-K9
+        ip: 10.20.10.12
+        client_count: 4
+      DC-AP-02:
+        model: AIR-AP2802I-E-K9
+        ip: 10.20.10.14
+        client_count: 14
+  client_count:
+    show client summary:
+      total_count: 4
+    show client wlan 99931: SUB_FEATURE_COMBINED_CMD
+    show client wlan 31:
+      wl31_count: 2
+    show client wlan 99920: SUB_FEATURE_COMBINED_CMD
+    show client wlan 20:
+      wl20_count: 1
+  flexconnect:
+    show flexconnect group summary:
+      FlexCon Group - Grp1:
+        ap_count: 44
+      default-flex-group-1826280552:
+        ap_count: 4
+  intf_grp:
+    show interface group summary:
+      intgrp_guest:
+        ap_grp_count: 2
+        intf_count: 1
+        wlan_count: 1
+      intgrp_prod:
+        ap_grp_count: 6
+        intf_count: 1
+        wlan_count: 1
+      intgrp_byod:
+        ap_grp_count: 11
+        intf_count: 1
+        wlan_count: 2

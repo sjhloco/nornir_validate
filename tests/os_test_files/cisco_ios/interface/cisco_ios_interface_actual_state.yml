@@ -1,0 +1,52 @@
+interface:
+  intf:
+    Gi0/1:
+      duplex: a-full
+      speed: a-1000
+      type: access
+      status: connected
+    Gi0/2:
+      duplex: a-full
+      speed: a-1000
+      type: trunk
+      status: connected
+    Gi0/3:
+      duplex: a-full
+      speed: a-1000
+      type: routed
+      status: connected
+    Gi0/4:
+      duplex: auto
+      speed: auto
+      type: access
+      status: disabled
+  switchport:
+    Gi0/1:
+      mode: access
+      vlan: 999
+    Po1:
+      mode: trunk
+      vlan:
+      - 144
+      - 3101
+      - 3102
+    Gi0/2:
+      mode: trunk
+      vlan:
+      - 144
+    Gi0/4:
+      mode: down
+      vlan: null
+  ip_brief:
+    GigabitEthernet0/1:
+      ip: 10.30.20.101
+      status: up
+    GigabitEthernet0/4:
+      ip: unassigned
+      status: administratively down
+    Loopback1:
+      ip: 10.10.255.1
+      status: up
+    Vlan10:
+      ip: 10.10.10.1
+      status: up

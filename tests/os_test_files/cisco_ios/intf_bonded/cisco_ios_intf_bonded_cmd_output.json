@@ -1,0 +1,14 @@
+{
+    "intf_bonded": {
+        "port_channel": [
+            {
+                "group": "3",
+                "po_name": "Po3",
+                "po_status": "SU",
+                "protocol": "LACP",
+                "interfaces": ["Gi0/15", "Gi0/16"],
+                "interfaces_status": ["P", "P"]
+            }
+        ]
+    }
+}

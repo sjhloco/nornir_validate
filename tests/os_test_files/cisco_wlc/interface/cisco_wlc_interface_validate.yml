@@ -1,0 +1,14 @@
+all:
+  interface:
+    intf:
+      1:
+        duplex: Full
+        speed: 10000
+        type: Forw
+      RP:
+        duplex: Auto
+        speed: Auto
+        type: Forw
+    ip_brief:
+      int_gst_svc: 172.1.8.5
+      int_gst_hotspot: 172.2.0.5

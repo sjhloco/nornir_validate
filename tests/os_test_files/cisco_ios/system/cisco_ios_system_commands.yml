@@ -1,0 +1,8 @@
+system:
+  image:
+    show version: VALIDATE
+  mgmt_acl:
+    show ip access-lists TEST_SSH_ACCESS: VALIDATE
+    show ip access-lists TEST_SNMP_ACCESS: VALIDATE
+  module:
+    show module: VALIDATE

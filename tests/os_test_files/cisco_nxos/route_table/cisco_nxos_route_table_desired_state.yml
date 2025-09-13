@@ -1,0 +1,125 @@
+route_table:
+  vrf:
+    show vrf interface:
+      AMB:
+        _mode: strict
+        list:
+        - Vlan3003
+      BLU:
+        _mode: strict
+        list:
+        - Vlan108
+        - Vlan109
+        - Vlan110
+        - Vlan111
+        - Vlan112
+        - Vlan113
+        - Vlan3001
+        - loopback21
+      default:
+        _mode: strict
+        list:
+        - Vlan1
+        - loopback1
+        - loopback2
+        - Ethernet1/1
+        - Ethernet1/2
+  route_count:
+    show ip  route summary vrf BLU | in VRF|routes:
+      BLU: 925
+    show ip  route summary | in VRF|routes:
+      global: 21
+    show ip  route summary vrf TRI | in VRF|routes:
+      TRI: 58
+  route:
+    show ip route:
+      global:
+        192.168.2.33/32:
+          rtype: ospf-DC_UNDERLAY intra
+          nh: 192.168.2.33
+        192.168.2.34/32:
+          rtype: ospf-DC_UNDERLAY intra
+          nh: 192.168.2.34
+        192.168.2.37/32:
+          rtype: ospf-DC_UNDERLAY intra
+          nh:
+            _mode: strict
+            list:
+            - 192.168.2.33
+            - 192.168.2.34
+        172.29.10.254/32:
+          rtype: bgp-65301 external
+          nh: 192.168.31.1
+        172.29.2.241/32:
+          rtype: bgp-65301 external
+          nh: 192.168.151.2
+        192.168.12.8/29:
+          rtype: direct
+          nh: Vlan3101
+        192.168.12.9/32:
+          rtype: local
+          nh: Vlan3101
+        192.168.151.0/30:
+          rtype: direct
+          nh: Eth1/45
+        192.168.151.1/32:
+          rtype: local
+          nh: Eth1/45
+        192.168.55.11/32:
+          rtype: bgp-65301 internal
+          nh: 192.168.12.2
+        192.168.55.12/32:
+          rtype: bgp-65301 external
+          nh: 192.168.151.2
+        192.168.55.15/32:
+          rtype: bgp-65301 internal
+          nh: 192.168.12.2
+    show ip route vrf TRI:
+      TRI:
+        192.168.2.123/32:
+          rtype: local
+          nh: Lo71
+        192.168.2.124/32:
+          rtype: bgp-65102 internal
+          nh: 192.168.2.62
+        10.255.23.10/32:
+          rtype: bgp-65111 external
+          nh:
+            _mode: strict
+            list:
+            - 192.168.1.57
+            - 192.168.1.58
+    show ip route vrf BLU:
+      BLU:
+        10.251.32.0/19:
+          rtype: bgp-65301 external
+          nh:
+            _mode: strict
+            list:
+            - 192.168.2.57
+            - 192.168.2.58
+        10.253.1.16/28:
+          rtype: ospf-BLU1 nssa
+          nh: 192.168.11.3
+        10.253.1.32/28:
+          rtype: bgp-65301 external
+          nh:
+            _mode: strict
+            list:
+            - 192.168.2.57
+            - 192.168.2.58
+        10.22.10.0/23:
+          rtype: ospf-BLU1 nssa
+          nh: 192.168.11.3
+        10.22.12.0/23:
+          rtype: ospf-BLU1 nssa
+          nh: 192.168.11.3
+        10.22.14.0/23:
+          rtype: ospf-BLU1 nssa
+          nh: 192.168.11.3
+        10.22.20.0/22:
+          rtype: bgp-65301 external
+          nh: 192.168.2.57
+        0.0.0.0/0:
+          rtype: static
+          nh: 10.1.100.1

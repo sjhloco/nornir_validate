@@ -1,0 +1,97 @@
+{
+    "interface": {
+        "intf": [
+            {
+                "duplex": "full",
+                "name": "ACCESS > SVR01",
+                "port": "Eth1/1",
+                "speed": "10G",
+                "status": "connected",
+                "type": "10Gbase-SR",
+                "vlan": "21"
+            },
+            {
+                "duplex": "full",
+                "name": "UPLINK > FW",
+                "port": "Eth1/2",
+                "speed": "10G",
+                "status": "connected",
+                "type": "10Gbase-SR",
+                "vlan": "trunk"
+            },
+            {
+                "duplex": "auto",
+                "name": "DC2_BLU_COMPUTE",
+                "port": "Vlan200",
+                "speed": "auto",
+                "status": "connected",
+                "type": "--",
+                "vlan": "routed"
+            }
+        ],
+        "switchport": [
+            {
+                "access_vlan": "1",
+                "access_vlan_name": "default",
+                "interface": "Ethernet3/1",
+                "mode": "trunk",
+                "native_vlan": "1",
+                "native_vlan_name": "default",
+                "switchport": "Enabled",
+                "switchport_monitor": "Not enabled ",
+                "trunking_vlans": "11-16,200,1001",
+                "voice_vlan": ""
+            },
+            {
+                "access_vlan": "17",
+                "access_vlan_name": "UPLINK_OOB_FW_VL17",
+                "interface": "port-channel5",
+                "mode": "access",
+                "native_vlan": "1",
+                "native_vlan_name": "default",
+                "switchport": "Enabled",
+                "switchport_monitor": "Not enabled ",
+                "trunking_vlans": "1-4094",
+                "voice_vlan": ""
+            }
+        ],
+        "ip_brief": [
+            {
+                "TABLE_intf": {
+                    "ROW_intf": [
+                        {
+                            "vrf-name-out": "default",
+                            "intf-name": "Lo1",
+                            "proto-state": "up",
+                            "link-state": "up",
+                            "admin-state": "up",
+                            "iod": "34",
+                            "prefix": "192.168.1.41",
+                            "ip-disabled": "FALSE"
+                        },
+                        {
+                            "vrf-name-out": "default",
+                            "intf-name": "Eth1/1",
+                            "proto-state": "up",
+                            "link-state": "up",
+                            "admin-state": "up",
+                            "iod": "87",
+                            "unnum-intf": "loopback1",
+                            "ip-disabled": "FALSE"
+                        },
+                        {
+                            "vrf-name-out": "BLU",
+                            "intf-name": "Vlan6",
+                            "proto-state": "up",
+                            "link-state": "up",
+                            "admin-state": "up",
+                            "iod": "23",
+                            "prefix": "172.20.6.1",
+                            "ip-disabled": "FALSE"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

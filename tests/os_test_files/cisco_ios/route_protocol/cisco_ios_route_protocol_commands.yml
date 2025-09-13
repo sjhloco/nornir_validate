@@ -1,0 +1,10 @@
+route_protocol:
+  eigrp_intf_nbr:
+    show ip eigrp neighbors: VALIDATE
+  ospf_intf_nbr:
+    show ip ospf interface brief: SUB_FEATURE_COMBINED_CMD
+    show ip ospf neighbor: VALIDATE
+  ospf_lsdb_count:
+    show ip ospf database database-summary | in Process ID|Total: VALIDATE
+  bgp_peer:
+    show ip bgp all summary: VALIDATE

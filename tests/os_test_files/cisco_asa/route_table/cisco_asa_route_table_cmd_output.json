@@ -1,0 +1,285 @@
+{
+    "route_table": {
+        "route_count": [
+            "IP routing table maximum-paths is 8",
+            "Total           14          372         0           33264       144296      "
+        ],
+        "route": [
+            {
+                "distance": "111",
+                "mask": "255.255.255.255",
+                "metric": "20",
+                "network": "10.231.0.134",
+                "nexthopif": "DC_AMB_vl94",
+                "nexthopip": "10.233.1.19",
+                "protocol": "O",
+                "type": "N2",
+                "uptime": "06:24:07"
+            },
+            {
+                "distance": "111",
+                "mask": "255.255.255.255",
+                "metric": "20",
+                "network": "10.231.0.137",
+                "nexthopif": "DC_AMB_vl94",
+                "nexthopip": "10.233.1.18",
+                "protocol": "O",
+                "type": "N2",
+                "uptime": "06:19:51"
+            },
+            {
+                "distance": "111",
+                "mask": "255.255.255.255",
+                "metric": "20",
+                "network": "10.231.0.138",
+                "nexthopif": "DC_AMB_vl94",
+                "nexthopip": "10.233.1.18",
+                "protocol": "O",
+                "type": "N2",
+                "uptime": "06:13:33"
+            },
+            {
+                "distance": "111",
+                "mask": "255.255.255.255",
+                "metric": "20",
+                "network": "10.231.16.14",
+                "nexthopif": "DC_AMB_vl94",
+                "nexthopip": "10.233.1.18",
+                "protocol": "O",
+                "type": "N2",
+                "uptime": "07:00:14"
+            },
+            {
+                "distance": "",
+                "mask": "255.255.255.255",
+                "metric": "",
+                "network": "10.235.12.1",
+                "nexthopif": "DC_AMB_SMTP",
+                "nexthopip": "",
+                "protocol": "L",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "",
+                "mask": "255.255.255.0",
+                "metric": "",
+                "network": "10.235.13.0",
+                "nexthopif": "DC_AMB_WEB",
+                "nexthopip": "",
+                "protocol": "C",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "",
+                "mask": "255.255.255.255",
+                "metric": "",
+                "network": "10.235.13.1",
+                "nexthopif": "DC_AMB_WEB",
+                "nexthopip": "",
+                "protocol": "L",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "110",
+                "mask": "255.255.255.248",
+                "metric": "11",
+                "network": "10.235.100.16",
+                "nexthopif": "Outside",
+                "nexthopip": "10.235.100.9",
+                "protocol": "O",
+                "type": "",
+                "uptime": "7w0d"
+            },
+            {
+                "distance": "",
+                "mask": "255.255.255.255",
+                "metric": "",
+                "network": "10.235.111.1",
+                "nexthopif": "Untrust",
+                "nexthopip": "",
+                "protocol": "L",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "",
+                "mask": "255.255.255.248",
+                "metric": "",
+                "network": "10.235.113.0",
+                "nexthopif": "DCA",
+                "nexthopip": "",
+                "protocol": "C",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "",
+                "mask": "255.255.255.255",
+                "metric": "",
+                "network": "10.235.113.2",
+                "nexthopif": "DCA",
+                "nexthopip": "",
+                "protocol": "L",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "",
+                "mask": "255.255.255.0",
+                "metric": "",
+                "network": "10.235.120.0",
+                "nexthopif": "DC_AMB_MGMT",
+                "nexthopip": "",
+                "protocol": "C",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "1",
+                "mask": "255.255.255.255",
+                "metric": "0",
+                "network": "10.235.220.15",
+                "nexthopif": "DC_AMB_DCI_LINK",
+                "nexthopip": "10.233.1.2",
+                "protocol": "S",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "1",
+                "mask": "255.255.255.255",
+                "metric": "0",
+                "network": "25.10.34.121",
+                "nexthopif": "Outside",
+                "nexthopip": "10.235.100.9",
+                "protocol": "S",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "1",
+                "mask": "255.255.255.255",
+                "metric": "0",
+                "network": "26.14.154.191",
+                "nexthopif": "Outside",
+                "nexthopip": "10.235.100.9",
+                "protocol": "S",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "protocol": "B",
+                "type": "",
+                "network": "10.10.128.0",
+                "mask": "255.255.240.0",
+                "distance": "200",
+                "metric": "0",
+                "nexthopip": "10.10.234.1",
+                "nexthopif": "",
+                "uptime": "3w2d"
+            },
+            {
+                "protocol": "B",
+                "type": "",
+                "network": "10.10.235.11",
+                "mask": "255.255.255.255",
+                "distance": "200",
+                "metric": "0",
+                "nexthopip": "10.10.234.1",
+                "nexthopif": "",
+                "uptime": "3w2d"
+            },
+            {
+                "distance": "1",
+                "mask": "255.255.255.255",
+                "metric": "0",
+                "network": "51.11.74.117",
+                "nexthopif": "Outside",
+                "nexthopip": "10.235.100.9",
+                "protocol": "S",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "1",
+                "mask": "255.240.0.0",
+                "metric": "0",
+                "network": "172.16.0.0",
+                "nexthopif": "Semi-Trust",
+                "nexthopip": "10.235.112.3",
+                "protocol": "S",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "1",
+                "mask": "255.254.0.0",
+                "metric": "0",
+                "network": "172.30.0.0",
+                "nexthopif": "DC_AMB_P2P",
+                "nexthopip": "10.233.1.6",
+                "protocol": "S",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "distance": "110",
+                "mask": "255.255.255.240",
+                "metric": "20",
+                "network": "18.44.16.12",
+                "nexthopif": "Outside",
+                "nexthopip": "10.235.100.9",
+                "protocol": "O",
+                "type": "E2",
+                "uptime": "7w0d"
+            },
+            {
+                "distance": "110",
+                "mask": "255.255.255.240",
+                "metric": "20",
+                "network": "19.4.16.1",
+                "nexthopif": "Outside",
+                "nexthopip": "10.235.100.9",
+                "protocol": "O",
+                "type": "E2",
+                "uptime": "7w0d"
+            },
+            {
+                "distance": "1",
+                "mask": "255.255.0.0",
+                "metric": "0",
+                "network": "192.168.0.0",
+                "nexthopif": "Semi-Trust",
+                "nexthopip": "10.235.112.3",
+                "protocol": "S",
+                "type": "",
+                "uptime": ""
+            },
+            {
+                "protocol": "S",
+                "type": "",
+                "network": "1.1.1.1",
+                "mask": "255.255.255.255",
+                "distance": "1",
+                "metric": "0",
+                "nexthopip": "10.10.144.3",
+                "nexthopif": "HME_GST_ACCESS",
+                "uptime": ""
+            },
+            {
+                "protocol": "S",
+                "type": "",
+                "network": "1.1.1.1",
+                "mask": "255.255.255.255",
+                "distance": "1",
+                "metric": "0",
+                "nexthopip": "10.10.144.2",
+                "nexthopif": "HME_GST_ACCESS",
+                "uptime": ""
+            }
+        ]
+    }
+}

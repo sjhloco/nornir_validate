@@ -1,0 +1,16 @@
+all:
+  system:
+    - image
+  redundancy:
+    - ha_state
+  neighbor:
+    - cdp
+  interface:
+    - intf
+    - ip_brief
+  wifi:
+    - wlan
+    - ap
+    - client_count: [wl31, wl20]
+    - flexconnect
+    - intf_grp

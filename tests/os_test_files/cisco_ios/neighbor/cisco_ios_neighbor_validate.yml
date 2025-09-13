@@ -1,0 +1,13 @@
+all:
+  neighbor:
+    cdp:
+      Gi0/1:
+        nbr_name: Switch01
+        nbr_intf: Gi0/3
+      Gi0/2:
+        nbr_name: Switch02
+        nbr_intf: Gi0/3
+    lldp:
+      Gi0/3:
+        nbr_name: Router01
+        nbr_intf: Gi0/1

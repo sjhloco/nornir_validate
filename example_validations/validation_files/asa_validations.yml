@@ -1,0 +1,164 @@
+# ----------------------------------------------------------------------------
+# Information
+# ----------------------------------------------------------------------------
+## The validation file is structured by feature and then within the feature the sub-features that will be validated
+## Both features and sub-features are optional, you dont have to define all features or all sub-features within a feature
+### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
+### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+
+all:
+  # ----------------------------------------------------------------------------
+  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  system:
+    ## Software image: The current software image running on the device
+    image: 9.12(4)37
+    ## Management ACL (strict): Uses either ssh or http for name and can optionally add interface in the source section
+    mgmt_acl:
+      ssh:
+        ace:
+          - permit: mgmt - 10.17.10.0/24
+          - permit: mgmt - 10.10.10.10/32
+      http:
+        ace:
+          - permit: inside - any
+
+  # ----------------------------------------------------------------------------
+  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  redundancy:
+    ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
+    ha_state:
+      local: Active
+      peer: Standby Ready
+
+  # ----------------------------------------------------------------------------
+  # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  intf_bonded:
+  ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
+    port_channel:
+      Po1:
+        protocol: LACP
+        members: [Gi0/0, Gi0/1]
+      Po101:
+        protocol: LACP
+        members: [Te1/1/8, Te2/1/8]
+      Po11:
+        protocol: LACP
+        members: [Gi0/5, Gi0/6, Gi0/7]
+
+  # ----------------------------------------------------------------------------
+  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  interface:
+  ## INTF: Physical interface attributes, type (firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+    intf:
+      GigabitEthernet0/4:
+        duplex: Full-duplex
+        speed: 1000 Mbps
+        type: Outside-colt
+      Port-channel1:
+        duplex: Full-duplex
+        speed: 1000 Mbps
+        type: Outside
+      TenGigabitEthernet0/8.93:
+        type: DC1_AMB_VPN_vl94
+      TenGigabitEthernet0/9:
+        duplex: Full-duplex
+        speed: 10000 Mbps
+        type: HA-State-Sync-Data
+
+  ## IP_BRIEF: L3 interface and IP address, status is expected to be up (only checks for the specified interfaces)
+    ip_brief: 
+      GigabitEthernet0/4: 10.25.100.2
+      TenGigabitEthernet0/8.94: 10.23.1.17
+      GigabitEthernet0/14: 192.16821.33
+      Tunnel11: 192.168.21.22
+      Tunnel0: unassigned
+
+  # ----------------------------------------------------------------------------
+  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  route_table:
+    ## Route Table count: Total number of subnets either in global (default) RT or the name of the vrf
+    route_count:
+      global: 138
+    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    route:
+      global:
+        192.168.111.3/32: 
+          rtype: S
+          nh: 192.168.2.9
+        0.0.0.0/0: 
+          rtype: S
+          nh: 10.25.100.9
+        10.21.0.11/32: 
+          rtype: O N2
+          nh: 10.23.1.18
+        10.25.11.0/24: 
+          rtype: C
+          nh: DC1_AMB_F5_LB
+        10.25.11.1/32:
+          rtype: L
+          nh: DC1_AMB_F5_LB
+        10.252.0.0/19: 
+          rtype: S
+          nh: Null0
+
+  # ----------------------------------------------------------------------------
+  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  route_protocol:
+    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ospf_intf_nbr: 
+      Outside:
+        pid: 101
+        area: 101
+        nbr: 10.25.100.9
+      DC1_AMB_VPN_vl94:
+        pid: 100
+        area: 110
+        nbr: [10.23.1.19, 10.23.1.18]
+      Inside:
+        pid: 2
+        area: 0
+  #   ## OSPF database count: The total number of LSAs (all types) in the LSDB per OSPF process
+    ospf_lsdb_count:
+      101:
+        total_lsa: 3
+    ## BGP Peers/Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of received prefixes
+    bgp_peer:
+      10.25.113.1:
+        asn: 64519
+        rcv_pfx: 0
+      192.168.167.9:
+        asn: 65212
+        rcv_pfx: 6
+
+  # ----------------------------------------------------------------------------
+  # Firewall Validations - ASA
+  # ----------------------------------------------------------------------------
+  fw:
+    # CONN_COUNT: Total number of connections
+    conn_count: 10064
+
+  # ----------------------------------------------------------------------------
+  # VPN Validations - IOS/IOS-XE, ASA
+  # ----------------------------------------------------------------------------
+  vpn:
+    ## StS VPN PEERS (strict): List of VPN peers, status is expected to be UP-ACTIVE on IOS or ASA to have tx/rx
+    sts_peer:
+      [2.3.4.5, 52.15.7.17, 167.98.12.54, 167.98.12.6]
+    ## AC_VPN CLIENTS: AnyConnect username with the group policy and tunnel group it is using - ASA only
+    ac_user: 
+      mbeilsa:
+        tunnel_group: VPN-PRD-ACCESS
+        group_policy: VPN_PRD_GEN
+      dcrocket:
+        tunnel_group: VPN-NPRD-ACCESS
+        group_policy: VPN_NPRD_GEN
+  #   ## NUM_VPN: Total number of StS VPN peers and AnyConnect users (ASA only)
+    vpn_count:
+      sts: 6
+      ac: 14

@@ -1,0 +1,5 @@
+intf_bonded:
+  port_channel:
+    show port-channel summary: VALIDATE
+  vpc:
+    show vpc | json: VALIDATE

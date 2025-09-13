@@ -1,0 +1,41 @@
+all:
+  system:
+    - image
+    - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
+    - module
+  redundancy:
+    - ha_state
+    - sw_stack
+  neighbor:
+    - cdp
+    - lldp
+  intf_bonded:
+    - port_channel
+  interface:
+    - intf
+    - switchport
+    - ip_brief
+  layer2:
+    - vlan
+    - stp_vlan
+    - mac_table: [vl10, vl64]
+  fhr:
+    - hsrp
+  route_table:
+    - vrf
+    - route_count: [BLU]
+    - route: [BLU, AMB]
+  route_protocol:
+    - eigrp_intf_nbr
+    - ospf_intf_nbr
+    - ospf_lsdb_count
+    - bgp_peer
+  auth_session:
+    - mab_count
+    - dot1x_count
+  evpn:
+    - nve_vni
+    - nve_peer
+  vpn:
+    - sts_peer
+    - vpn_count

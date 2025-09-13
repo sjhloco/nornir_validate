@@ -1,0 +1,3 @@
+intf_bonded:
+  port_channel:
+    show etherchannel summary: VALIDATE

@@ -1,0 +1,21 @@
+interface:
+  intf:
+    show port summary:
+      1:
+        duplex: Full
+        speed: 10000
+        type: Forw
+        status: connected
+      RP:
+        duplex: Auto
+        speed: Auto
+        type: Forw
+        status: connected
+  ip_brief:
+    show interface summary:
+      int_gst_svc:
+        ip: 172.1.8.5
+        status: up
+      int_gst_hotspot:
+        ip: 172.2.0.5
+        status: up

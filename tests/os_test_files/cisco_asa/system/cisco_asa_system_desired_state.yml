@@ -1,0 +1,35 @@
+system:
+  image:
+    show version: 9.12(4)37
+  mgmt_acl:
+    show run http:
+      http:
+        _mode: strict
+        10:
+          action: permit
+          protocol: ip
+          src: inside - 10.17.10.0/24
+          dst: any
+        20:
+          action: permit
+          protocol: ip
+          src: inside - 10.10.10.10/32
+          dst: any
+    show run ssh:
+      ssh:
+        _mode: strict
+        10:
+          action: permit
+          protocol: ip
+          src: mgmt - 10.17.10.0/24
+          dst: any
+        20:
+          action: permit
+          protocol: ip
+          src: mgmt - 10.10.10.10/32
+          dst: any
+        30:
+          action: permit
+          protocol: ip
+          src: mgmt - any
+          dst: any

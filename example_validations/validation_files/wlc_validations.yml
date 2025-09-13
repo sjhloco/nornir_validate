@@ -1,0 +1,103 @@
+# ----------------------------------------------------------------------------
+# Information
+# ----------------------------------------------------------------------------
+## The validation file is structured by feature and then within the feature the sub-features that will be validated
+## Both features and sub-features are optional, you dont have to define all features or all sub-features within a feature
+### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
+### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+
+all:
+  # ----------------------------------------------------------------------------
+  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  system:
+    ## Software image: The current software image running on the device
+    image: 8.10.171.0
+
+  # ----------------------------------------------------------------------------
+  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  redundancy:
+    ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
+    ha_state:
+      local: ACTIVE
+      peer: STANDBY HOT
+
+  # ----------------------------------------------------------------------------
+  # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
+  # ----------------------------------------------------------------------------
+  neighbor: 
+    # CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface (is from detail cmd so needs long interface names)
+    cdp:
+      TenGigabitEthernet0/0/1:
+        nbr_name: DC1-N9K-LEF01
+        nbr_intf: Ethernet1/22
+      TenGigabitEthernet0/0/2:
+        nbr_name: DC1-N9K-LEF02
+        nbr_intf: Ethernet1/22
+
+  # ----------------------------------------------------------------------------
+  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  interface:
+  ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+    intf:
+      1:
+        duplex: Full
+        speed: 10000
+        type: Forw
+      SP:
+        duplex: Auto
+        speed: Auto
+        type: Forw
+  ## IP_BRIEF: L3 interface and IP address, status is expected to be up (only checks for the specified interfaces)
+    ip_brief: 
+      int_amb_guest: 10.52.96.9
+      int_blu: 10.10.108.10
+
+  # ----------------------------------------------------------------------------
+  # WIFI Validations - WLC
+  # ----------------------------------------------------------------------------
+  wifi:
+    wlan: 
+      ## WLAN: List of WLANs, the SSID, associated interface and expected status of Enabled
+      22:
+        interface: intgrp_blu
+        ssid: wifi_blu
+      99:
+        interface: intgrp_amb_guest
+        ssid: wifi_guest
+      91:
+        interface: intgrp_grn_nprd
+        ssid: wifi_nprd
+    # AP_SUMMARY: List of APs, model, IP and the number of clients on each
+    ap:
+      AP-0301:
+        model: AIR-AP2802I-E-K9
+        ip: 172.1.2.21
+        client_count: 17
+      FG-0307:
+        model: AIR-AP2802I-E-K9
+        ip: 172.1.2.27
+        client_count: 12
+
+    ## NUM_CLIENTS: Total number of clients and number of clients per WLAN
+    client_count:
+      total_count: 4
+      wl31_count: 1
+    ## FLEX_CONN: Number of APs per flexconnect group
+    flexconnect:
+      FlexCon Group - Grp1:
+        ap_count: 44
+      default-flex-group-1826280552:
+        ap_count: 4
+    ## INTF_GROUP: Number of interfaces, WLANs and APs per interface group
+    intf_grp:
+      intgrp_prodt:
+        ap_grp_count: 2
+        intf_count: 1
+        wlan_count: 1
+      intgrp_amb_guest:
+        ap_grp_count: 11
+        intf_count: 1
+        wlan_count: 2

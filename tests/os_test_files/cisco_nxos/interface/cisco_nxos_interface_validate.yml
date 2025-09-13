@@ -1,0 +1,29 @@
+all:
+  interface:
+    intf:
+      Eth1/1:
+        duplex: full
+        speed: 10G
+        type: access
+      Eth1/2:
+        duplex: full
+        speed: 10G
+        type: trunk
+      Vlan200:
+        duplex: auto
+        speed: auto
+        type: routed
+    switchport:
+      Ethernet3/1:
+        mode: trunk
+        vlan:
+        - 11-16
+        - 200
+        - 1001
+      port-channel5:
+        mode: access
+        vlan: 17
+    ip_brief:
+      Lo1: 192.168.1.41
+      Eth1/1: loopback1
+      Vlan6: 172.20.6.1

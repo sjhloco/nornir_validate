@@ -1,0 +1,253 @@
+# ----------------------------------------------------------------------------
+# Information
+# ----------------------------------------------------------------------------
+## The validation file is structured by feature and then within the feature the sub-features that will be validated
+## Both features and sub-features are optional, you dont have to define all features or all sub-features within a feature
+### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
+### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+
+all:
+  # ----------------------------------------------------------------------------
+  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  system:
+    ## Software image: The current software image running on the device
+    image: 9.3(5)
+    # Management ACL (strict): ACL defining SSH access to the device (extended ACLs with 'IP' protocol destination 'any') - Not WLC
+    mgmt_acl:
+      ACL_SSH_ACCESS:
+        ace:
+          - remark: MGMT Access - VLAN10
+          - permit: 10.17.10.0/24
+          - remark: Citrix Access
+          - permit: 10.10.10.10/32
+          - deny: any
+    ## MODULE: Module status is optional, if not defined is assumed to be "ok" (NXOS sups may have an active or standby)
+    module:
+      1:
+        model: N9K-C93180YC-FX
+        status: active *
+
+  # ----------------------------------------------------------------------------
+  # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
+  # ----------------------------------------------------------------------------
+  neighbor:
+    ## CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
+    cdp:
+      Eth1/28:
+        nbr_name: DC1-SWI-DMZ01
+        nbr_intf: Ten1/1/8
+      Eth1/1:
+        nbr_name: DC1-N9K-SPN01
+        nbr_intf: Eth1/1
+      Eth1/49:
+        nbr_name: DC1-N9K-SPN01
+        nbr_intf: Eth1/33
+  ## LLDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
+    lldp:
+      Eth1/49:
+        nbr_name: DC1-N9K-SPN01
+        nbr_intf: Ethernet1/1 
+      Eth1/50:
+        nbr_name: DC1-N9K-SPN0
+        nbr_intf: Ethernet1/2
+
+  # ----------------------------------------------------------------------------
+  # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  intf_bonded:
+  ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
+    port_channel:
+      Po21:
+        protocol: LACP
+        members: [Eth1/21]
+      Po22:
+        protocol: None
+        members: [Eth1/22]
+
+  ## VPC: The overall VPC state and VLANs over the peer link as well as each VPC member interfaces and vlans
+    vpc:
+      role: primary-secondary
+      peerlink_vlans: [1,6,19,23,91,93-94,113-116,200,1328-1330,3001]
+      vpcs:
+        31:
+          po: Po31
+          vlans: [213-216,300]
+        35:
+          po: Po35
+          vlans: [14,210-211,2100,2102,2110-2111,3220]
+        42:
+          po: Po42
+          vlans: [105]
+
+  # ----------------------------------------------------------------------------
+  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  # interface:
+  ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+    intf:
+      Eth1/1:
+        duplex: full
+        speed: 1000
+        type: access
+      Eth1/3:
+        duplex: full
+        speed: 10G
+        type: access
+      Lo1:
+        duplex: auto
+        speed: auto
+        type: routed
+      Po28:
+        duplex: full
+        speed: 10G
+        type: trunk
+      Vlan6:
+        duplex: auto
+        speed: auto
+        type: routed
+
+  ## SWITCH: L2 interface mode (access, trunk down) and VLANs (single or list) over that port
+    switchport:
+      Ethernet1/21:
+        mode: trunk
+        vlan: [14,210-211,2100,2102,2110-2111,3220]
+      Ethernet1/9:
+        mode: trunk
+        vlan: [91,93-94,210-211,213-216]
+      Ethernet1/3:
+        mode: access
+        vlan: 311
+  # IP_BRIEF: L3 interface and IP address, status is expected to be up (only checks for the specified interfaces)
+    ip_brief: 
+      Lo1: 192.168.201.41
+      Eth1/49: loopback1
+      Vlan6: 172.5.6.1
+      Vlan3007: forward-enabled
+      Vlan1100: 10.110.100.1
+  # ----------------------------------------------------------------------------
+  # Layer2 Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  layer2:
+    ## VLANs (strict intf): VLAN name and list of interfaces in that VLAN (strict interfaces, so those exact interfaces)
+    vlan:
+      6:
+        name: DC1_BLU_COMPUTE_VL6
+        intf: [Po1, Po31, Po32, Po33, Eth1/21, Eth1/22]
+      3001:
+        name: DC1_BLU_L3VNI_VL3001
+        intf: [Po1, Eth1/24]
+    ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN
+    mac_table:
+      total_mac_count: 646
+      vl14_mac_count: 6
+      vl112_mac_count: 21
+      vl5_mac_count: 20
+
+  # ----------------------------------------------------------------------------
+  # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  fhr:
+    ## HSRP: For each HSRP interface the priority and state
+    hsrp:
+      Vlan11:
+        priority: 100
+        state: Standby
+      Vlan200:
+        priority: 110
+        state: Active
+
+  # ----------------------------------------------------------------------------
+  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  route_table:
+    ## VRF (strict): List of member interfaces for each VRF - Not ASA
+    vrf:
+      BLU: [Vlan6,Vlan18,loopback11]
+      TRI: [Vlan94,Vlan3007,loopback72]
+    ## Total number of subnets: Either the global (default) RT or the name of the vrf
+    route_count:
+      global: 21
+      BLU: 4
+      AMB: 15
+    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    route:
+      global:
+        192.168.121.81/32: 
+          rtype: local
+          nh: Lo5
+        192.168.121.82/32: 
+          rtype: ospf-DC_UNDERLAY intra
+          nh: [192.168.121.33, 192.168.121.34]
+        192.168.101.33/32: 
+          rtype: ospf-DC_UNDERLAY intra
+          nh: 192.168.121.33
+      TRI:
+        10.1.0.0/16: 
+          rtype: bgp-65101 internal
+          nh: 192.168.121.58
+        10.250.30.0/24: 
+          rtype: bgp-65101 external
+          nh: 192.168.121.58
+      BLU:
+        0.0.0.0/0: 
+          rtype: bgp-65101 internal
+          nh: 192.168.11.57
+        10.100.121.0/24: 
+          rtype: direct
+          nh: Vlan1101
+        10.100.121.1/32: 
+          rtype: local
+          nh: Vlan1101
+
+  # ----------------------------------------------------------------------------
+  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  route_protocol:
+    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ospf_intf_nbr: 
+      Vlan2:
+        pid: DC_UNDERLAY
+        area: 0.0.0.0
+        nbr: 192.168.121.38
+      Lo1:
+        pid: DC_UNDERLAY
+        area: 0.0.0.0
+      Eth1/49:
+        pid: DC_UNDERLAY
+        area: 0.0.0.1
+        nbr: 192.168.121.33
+      Vlan100:
+        pid: BLU10
+        area: 0.0.0.10
+        nbr: [192.168.120.3, 192.168.121.38]
+    ## OSPF database count: The total number of LSAs (all types) in the LSDB per OSPF process
+    ospf_lsdb_count:
+      DC_UNDERLAY:
+        total_lsa: 6
+      BLU10:
+        total_lsa: 20
+    ## BGP Peers/Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of received prefixes
+    bgp_peer:
+      192.168.121.33:
+        asn: 65121
+        rcv_pfx: 970
+      192.168.121.34:
+        asn: 65121
+        rcv_pfx: 970
+      10.23.1.74:
+        asn: 65131
+        rcv_pfx: 25
+        
+  # ----------------------------------------------------------------------------
+  # EVPN/VXLAN Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  evpn:
+    ## NVE VNIs - Dictionary of L2/L3VNIs and the associated BDI/VRF, state is expected top be Up
+    nve_vni:
+      10002:
+        bd_vrf: 6
+      10321:
+        bd_vrf: BLU
+    ## NVE Peers (strict): Single  peer or list of peers, state is expected top be UP 
+    nve_peer: [192.168.121.51, 192.168.121.57, 192.168.121.91]

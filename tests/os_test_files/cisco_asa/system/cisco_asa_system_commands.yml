@@ -1,0 +1,6 @@
+system:
+  image:
+    show version: VALIDATE
+  mgmt_acl:
+    show run ssh: VALIDATE
+    show run http: VALIDATE

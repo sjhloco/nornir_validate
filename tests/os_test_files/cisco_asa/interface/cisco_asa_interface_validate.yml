@@ -1,0 +1,19 @@
+all:
+  interface:
+    intf:
+      GigabitEthernet1/1:
+        duplex: Full-duplex
+        speed: 1000 Mbps
+        type: HME_RED_UPLINK_INET
+      GigabitEthernet1/2:
+        duplex: Full-duplex
+        speed: 1000 Mbps
+      GigabitEthernet1/3:
+        duplex: Full-duplex
+        speed: 1000 Mbps
+      Port-channel1.144:
+        type: HME_GST_ACCESS
+    ip_brief:
+      GigabitEthernet1/1: 192.168.10.253
+      Port-channel1.144: 10.110.144.1
+      Port-channel1.3101: 10.10.254.2

@@ -1,0 +1,109 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set vrf_cmd = "show vrf" %}
+{% set route_count_cmd = "show ip  route summary | in name|Total" %}
+{% set route_vrf_count_cmd = "show ip  route vrf x summary | in name|Total" %}
+{% set route_cmd = "show ip route" %}
+{% elif 'nxos' in os_type |string %}
+{% set vrf_cmd = "show vrf interface" %}
+{% set route_count_cmd = "show ip  route summary | in VRF|routes" %}
+{% set route_vrf_count_cmd = "show ip  route summary vrf x | in VRF|routes" %}
+{% set route_cmd = "show ip route" %}
+{% elif 'asa' in os_type |string %}
+{% set route_count_cmd = "show route summary | in maximum-paths|Total" %}
+{% set route_cmd = "show route" %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+
+{# ###### Macro of templating used multiple times ###### #}
+{%- macro def_route(rte_tab, rte) -%}
+        {{ rte_tab }}:
+{% for rte, rte_info in rte.items() %}
+          {{ rte }}:
+            rtype: {{ rte_info.rtype }}
+{% if rte_info.nh.__class__.__name__ == 'list' %}
+            nh: 
+              _mode: strict 
+              list: {{ rte_info.nh }}
+{% else %}
+            nh: {{ rte_info.nh }}
+{% endif %}{% endfor %}
+{%- endmacro -%}
+{%- macro def_route1(rte_tab, rte) -%}
+{% for rte, rte_info in rte.items() %}
+          {{ rte }}:
+            rtype: {{ rte_info.rtype }}
+{% if rte_info.nh.__class__.__name__ == 'list' %}
+            nh: 
+              _mode: strict 
+              list: {{ rte_info.nh }}
+{% else %}
+            nh: {{ rte_info.nh }}
+{% endif %}{% endfor %}
+{%- endmacro -%}
+
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'vrf' and vrf_cmd is defined %}
+    vrf:
+      {{ vrf_cmd }}: VALIDATE
+{% elif 'route_count' in sub_feat and route_count_cmd is defined %}
+    route_count:
+      {{ route_count_cmd }}: VALIDATE
+{% if sub_feat.route_count.__class__.__name__ == 'list' and route_vrf_count_cmd is defined %}
+{% for each_vrf in sub_feat.route_count %}
+      {{ route_vrf_count_cmd.split('x') | first }}{{ each_vrf }}{{ route_vrf_count_cmd.split('x') | last }}: VALIDATE
+{% endfor %}{% endif %}
+{% elif 'route' in sub_feat and route_cmd is defined %}
+    route:
+      {{ route_cmd }}: VALIDATE
+{% if sub_feat.route.__class__.__name__ == 'list' %}
+{% for each_vrf in sub_feat.route %}
+      {{ route_cmd }} vrf {{ each_vrf }}: VALIDATE
+{% endfor %}{% endif %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### VRF: {cmd: {vrf: [intfx, intfy]}} ### #}
+{% if sub_feat == 'vrf' %}
+    vrf:
+      {{ vrf_cmd }}: 
+{% for each_vrf, vrf_info in input_vars.items() %}
+        {{ each_vrf }}:
+          _mode: strict
+          list: {{ vrf_info }}
+{% endfor %}
+{# ### RTE_COUNT: {cmd: {global_subnets: x, xx_subnets: x}) ### #}
+{% elif sub_feat == 'route_count' %}
+    route_count:
+{% for vrf_info, num_rte in input_vars.items() %}
+{% if vrf_info == "global" %}
+      {{ route_count_cmd }}: 
+        {{ vrf_info }}: {{ num_rte }}
+{% else%}
+      {{ route_vrf_count_cmd.split('x') | first }}{{ vrf_info }}{{ route_vrf_count_cmd.split('x') | last }}: 
+        {{ vrf_info }}: {{ num_rte }}
+{% endif %}{% endfor %}
+{# ### RTE_TABLE: {cmd: {vrf: {route/prefix: type: x, nh: y}}) ### #}
+{% elif sub_feat == 'route' %}
+    route:
+{% for each_rte_tab, each_rte in input_vars.items() %}
+{% if each_rte_tab == "global" %}
+      {{ route_cmd }}:
+        {{ def_route(each_rte_tab, each_rte) }}
+{% else %}
+      {{ route_cmd }} vrf {{ each_rte_tab }}:
+        {{ def_route(each_rte_tab, each_rte) }}
+{% endif %}{% endfor %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+{% endif %}

@@ -1,0 +1,105 @@
+{
+    "layer2": {
+        "vlan": [
+            {"interfaces": [], "name": "default", "status": "active", "vlan_id": "1"},
+            {"interfaces": [], "name": "test", "status": "active", "vlan_id": "10"},
+            {
+                "interfaces": ["Gi0/1"],
+                "name": "test20",
+                "status": "active",
+                "vlan_id": "20"
+            }
+        ],
+        "stp_vlan": [
+            {
+                "vlan_id": "96",
+                "interface": "Gi0/6",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "4",
+                "port_priority": "128",
+                "port_id": "6",
+                "type": "P2p"
+            },
+            {
+                "vlan_id": "96",
+                "interface": "Gi0/8",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "4",
+                "port_priority": "128",
+                "port_id": "8",
+                "type": "P2p "
+            },
+            {
+                "vlan_id": "96",
+                "interface": "Gi0/11",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "4",
+                "port_priority": "128",
+                "port_id": "11",
+                "type": "P2p "
+            },
+            {
+                "vlan_id": "144",
+                "interface": "Gi0/6",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "4",
+                "port_priority": "128",
+                "port_id": "6",
+                "type": "P2p "
+            },
+            {
+                "vlan_id": "144",
+                "interface": "Gi0/8",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "4",
+                "port_priority": "128",
+                "port_id": "8",
+                "type": "P2p"
+            },
+            {
+                "vlan_id": "144",
+                "interface": "Gi0/11",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "4",
+                "port_priority": "128",
+                "port_id": "11",
+                "type": "P2p "
+            },
+            {
+                "vlan_id": "144",
+                "interface": "Po1",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "3",
+                "port_priority": "128",
+                "port_id": "456",
+                "type": "P2p "
+            },
+            {
+                "vlan_id": "3102",
+                "interface": "Po1",
+                "role": "Desg",
+                "status": "FWD",
+                "cost": "3",
+                "port_priority": "128",
+                "port_id": "456",
+                "type": "P2p "
+            }
+        ],
+        "mac_table": [
+            "Number of lines which match regexp = 19",
+            "Mac Entries for Vlan 10:",
+            "Dynamic Address Count  : 6",
+            "Static  Address Count  : 0",
+            "Mac Entries for Vlan 64:",
+            "Dynamic Address Count  : 5",
+            "Static  Address Count  : 1"
+        ]
+    }
+}

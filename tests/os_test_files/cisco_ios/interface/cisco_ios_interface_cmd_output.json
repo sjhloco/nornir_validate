@@ -1,0 +1,121 @@
+{
+    "interface": {
+        "intf": [
+            {
+                "port": "Gi0/1",
+                "name": "UPLINK > HME-ASA-X",
+                "status": "connected",
+                "vlan": "999",
+                "duplex": "a-full",
+                "speed": "a-1000",
+                "type": "10/100/1000BaseTX",
+                "fc_mode": ""
+            },
+            {
+                "port": "Gi0/2",
+                "name": "UPLINK > HME-ASA-X",
+                "status": "connected",
+                "vlan": "trunk",
+                "duplex": "a-full",
+                "speed": "a-1000",
+                "type": "10/100/1000BaseTX",
+                "fc_mode": ""
+            },
+            {
+                "port": "Gi0/3",
+                "name": "UPLINK > HME-ASA-X",
+                "status": "connected",
+                "vlan": "routed",
+                "duplex": "a-full",
+                "speed": "a-1000",
+                "type": "10/100/1000BaseTX",
+                "fc_mode": ""
+            },
+            {
+                "port": "Gi0/4",
+                "name": "UNUSED",
+                "status": "disabled",
+                "vlan": 1,
+                "duplex": "auto",
+                "speed": "auto",
+                "type": "unknown",
+                "fc_mode": ""
+            }
+        ],
+        "switchport": [
+            {
+                "interface": "Gi0/1",
+                "switchport": "Enabled",
+                "switchport_monitor": "",
+                "switchport_negotiation": "Off",
+                "mode": "static access",
+                "admin_mode": "static access",
+                "access_vlan": "999",
+                "native_vlan": "1",
+                "voice_vlan": "none",
+                "trunking_vlans": ["ALL"]
+            },
+            {
+                "interface": "Po1",
+                "switchport": "Enabled",
+                "switchport_monitor": "",
+                "switchport_negotiation": "On",
+                "mode": "trunk (member of bundle Po1)",
+                "admin_mode": "trunk",
+                "access_vlan": "1",
+                "native_vlan": "1",
+                "voice_vlan": "none",
+                "trunking_vlans": ["144,3101,3102"]
+            },
+            {
+                "interface": "Gi0/2",
+                "switchport": "Enabled",
+                "switchport_monitor": "",
+                "switchport_negotiation": "On",
+                "mode": "trunk",
+                "admin_mode": "trunk",
+                "access_vlan": "1",
+                "native_vlan": "1",
+                "voice_vlan": "none",
+                "trunking_vlans": ["144"]
+            },
+            {
+                "interface": "Gi0/4",
+                "switchport": "Enabled",
+                "switchport_monitor": "",
+                "switchport_negotiation": "On",
+                "mode": "down",
+                "admin_mode": "dynamic auto",
+                "access_vlan": "1",
+                "native_vlan": "1",
+                "voice_vlan": "none",
+                "trunking_vlans": ["ALL"]
+            }
+        ],
+        "ip_brief": [
+            {
+                "interface": "GigabitEthernet0/1",
+                "ip_address" : "10.30.20.101",
+                "proto": "up",
+                "status": "up"
+            },
+            {
+                "interface": "GigabitEthernet0/4",
+                "ip_address" : "unassigned",
+                "proto": "up",
+                "status": "administratively down"
+            },
+            {
+                "interface": "Loopback1",
+                "ip_address": "10.10.255.1",
+                "proto": "up",
+                "status": "up"
+            },
+            {   "interface": "Vlan10", 
+                "ip_address": "10.10.10.1", 
+                "proto": "up", 
+                "status": "up"
+            }
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+all:
+  route_protocol:
+    ospf_intf_nbr:
+      Outside:
+        pid: 101
+        area: 101
+        nbr:
+        - 10.25.10.9
+      Transit:
+        pid: 100
+        area: 100
+        nbr:
+        - 192.168.10.3
+      Inside:
+        pid: 100
+        area: 110
+        nbr:
+        - 10.23.1.18
+        - 10.23.1.19
+    ospf_lsdb_count:
+      101:
+        total_lsa: 10
+      100:
+        total_lsa: 306
+    bgp_peer:
+      10.25.113.1:
+        asn: 64529
+        rcv_pfx: 31

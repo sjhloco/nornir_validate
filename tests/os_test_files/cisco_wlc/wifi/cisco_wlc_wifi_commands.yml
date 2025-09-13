@@ -1,0 +1,15 @@
+wifi:
+  wlan:
+    show wlan summary: VALIDATE
+  ap:
+    show ap summary: VALIDATE
+  client_count:
+    show client summary: VALIDATE
+    show client wlan 99931: VALIDATE
+    show client wlan 31: VALIDATE
+    show client wlan 99920: VALIDATE
+    show client wlan 20: VALIDATE
+  flexconnect:
+    show flexconnect group summary: VALIDATE
+  intf_grp:
+    show interface group summary: VALIDATE

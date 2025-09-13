@@ -1,0 +1,83 @@
+route_table:
+  route_count:
+    show route summary | in maximum-paths|Total:
+      global: 372
+  route:
+    show route:
+      global:
+        10.231.0.134/32:
+          rtype: O N2
+          nh: 10.233.1.19
+        10.231.0.137/32:
+          rtype: O N2
+          nh: 10.233.1.18
+        10.231.0.138/32:
+          rtype: O N2
+          nh: 10.233.1.18
+        10.231.16.14/32:
+          rtype: O N2
+          nh: 10.233.1.18
+        10.235.12.1/32:
+          rtype: L
+          nh: DC_AMB_SMTP
+        10.235.13.0/24:
+          rtype: C
+          nh: DC_AMB_WEB
+        10.235.13.1/32:
+          rtype: L
+          nh: DC_AMB_WEB
+        10.235.100.16/29:
+          rtype: O
+          nh: 10.235.100.9
+        10.235.111.1/32:
+          rtype: L
+          nh: Untrust
+        10.235.113.0/29:
+          rtype: C
+          nh: DCA
+        10.235.113.2/32:
+          rtype: L
+          nh: DCA
+        10.235.120.0/24:
+          rtype: C
+          nh: DC_AMB_MGMT
+        10.235.220.15/32:
+          rtype: S
+          nh: 10.233.1.2
+        25.10.34.121/32:
+          rtype: S
+          nh: 10.235.100.9
+        26.14.154.191/32:
+          rtype: S
+          nh: 10.235.100.9
+        10.10.128.0/20:
+          rtype: B
+          nh: 10.10.234.1
+        10.10.235.11/32:
+          rtype: B
+          nh: 10.10.234.1
+        51.11.74.117/32:
+          rtype: S
+          nh: 10.235.100.9
+        172.16.0.0/12:
+          rtype: S
+          nh: 10.235.112.3
+        172.30.0.0/15:
+          rtype: S
+          nh: 10.233.1.6
+        18.44.16.12/28:
+          rtype: O E2
+          nh: 10.235.100.9
+        19.4.16.1/28:
+          rtype: O E2
+          nh: 10.235.100.9
+        192.168.0.0/16:
+          rtype: S
+          nh: 10.235.112.3
+        1.1.1.1/32:
+          rtype: S
+          nh:
+            _mode: strict
+            list:
+            - 10.10.144.3
+            - 10.10.144.2

@@ -1,0 +1,3 @@
+all:
+  system:
+    image: 8.10.171.0

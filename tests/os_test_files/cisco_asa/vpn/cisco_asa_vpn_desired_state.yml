@@ -1,0 +1,22 @@
+vpn:
+  sts_peer:
+    show vpn-sessiondb detail l2l:
+      _mode: strict
+      169.254.107.100: UP-ACTIVE
+      169.254.107.101: UP-ACTIVE
+  ac_user:
+    show vpn-session anyconnect:
+      smithj:
+        tunnel_group: TUN_VPN_PROD
+        group_policy: GRP_VPN_PROD
+      jonesb1:
+        tunnel_group: TUN_VPN_NPE
+        group_policy: GRP_VPN_NPE
+      smithj2:
+        tunnel_group: TUN_VPN_PROD
+        group_policy: GRP_VPN_PROD
+  vpn_count:
+    show vpn-session l2l | count Connection:
+      sts: 8
+    show vpn-session:
+      ac: 685

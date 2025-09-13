@@ -1,0 +1,10 @@
+intf_bonded:
+  port_channel:
+    Po3:
+      status: U
+      protocol: LACP
+      members:
+        Gi0/15:
+          mbr_status: P
+        Gi0/16:
+          mbr_status: P

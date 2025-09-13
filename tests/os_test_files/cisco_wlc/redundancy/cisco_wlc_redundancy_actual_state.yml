@@ -1,0 +1,4 @@
+redundancy:
+  ha_state:
+    local: ACTIVE
+    peer: STANDBY HOT

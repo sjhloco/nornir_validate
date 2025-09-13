@@ -1,0 +1,102 @@
+{
+    "intf_bonded": {
+        "port_channel": [
+            {
+                "bundle_iface": "Po21",
+                "bundle_proto": "LACP",
+                "bundle_proto_state": "",
+                "bundle_status": "(SU)",
+                "phys_iface": ["Eth1/21"],
+                "phys_iface_status": ["(P)"]
+            },
+            {
+                "bundle_iface": "Po22",
+                "bundle_proto": "LACP",
+                "bundle_proto_state": "",
+                "bundle_status": "(SU)",
+                "phys_iface": ["Eth1/22"],
+                "phys_iface_status": ["(P)"]
+            },
+            {
+                "bundle_iface": "Po26",
+                "bundle_proto": "NONE",
+                "bundle_proto_state": "",
+                "bundle_status": "(SU)",
+                "phys_iface": ["Eth1/26"],
+                "phys_iface_status": ["(P)"]
+            }
+        ],
+        "vpc": [
+            {
+                "vpc-domain-id": "2",
+                "vpc-peer-status": "peer-ok",
+                "vpc-peer-status-reason": "SUCCESS",
+                "vpc-peer-keepalive-status": "peer-alive",
+                "vpc-peer-consistency": "consistent",
+                "vpc-per-vlan-peer-consistency": "consistent",
+                "vpc-peer-consistency-status": "SUCCESS",
+                "vpc-type-2-consistency": "consistent",
+                "vpc-type-2-consistency-status": "SUCCESS",
+                "vpc-role": "primary-secondary",
+                "num-of-vpcs": "12",
+                "peer-gateway": "1",
+                "dual-active-excluded-vlans": "-",
+                "vpc-graceful-consistency-check-status": "enabled",
+                "vpc-auto-recovery-status": "Enabled, timer is off.(timeout = 240s)",
+                "vpc-delay-restore-status": "Timer is off.(timeout = 30s)",
+                "vpc-delay-restore-svi-status": "Timer is off.(timeout = 10s)",
+                "operational-l3-peer": "Disabled",
+                "virtual-peerlink": "Enabled",
+                "vpc-peer-link-hdr": "Start of VPC peer-link table",
+                "TABLE_peerlink": {
+                    "ROW_peerlink": {
+                        "peer-link-id": "1",
+                        "peerlink-ifindex": "Po1",
+                        "peer-link-port-state": "1",
+                        "peer-up-vlan-bitset": "110-111,113-116,200,1100,1102,1110-1111"
+                    }
+                },
+                "vpc-end": ["End of table", "End of table"],
+                "vpc-hdr": "Start of vPC table",
+                "vpc-not-es": "vPC complex",
+                "TABLE_vpc": {
+                    "ROW_vpc": [
+                        {
+                            "vpc-id": "21",
+                            "vpc-ifindex": "Po21",
+                            "vpc-port-state": "1",
+                            "phy-port-if-removed": "disabled",
+                            "vpc-thru-peerlink": "0",
+                            "vpc-consistency": "consistent",
+                            "vpc-consistency-status": "SUCCESS",
+                            "up-vlan-bitset": "113-116,200",
+                            "es-attr": "DF: Invalid"
+                        },
+                        {
+                            "vpc-id": "25",
+                            "vpc-ifindex": "Po25",
+                            "vpc-port-state": "1",
+                            "phy-port-if-removed": "disabled",
+                            "vpc-thru-peerlink": "0",
+                            "vpc-consistency": "consistent",
+                            "vpc-consistency-status": "SUCCESS",
+                            "up-vlan-bitset": "110-111,1100,1102,1110-1111",
+                            "es-attr": "DF: Invalid"
+                        },
+                        {
+                            "vpc-id": "32",
+                            "vpc-ifindex": "Po32",
+                            "vpc-port-state": "1",
+                            "phy-port-if-removed": "disabled",
+                            "vpc-thru-peerlink": "0",
+                            "vpc-consistency": "consistent",
+                            "vpc-consistency-status": "SUCCESS",
+                            "up-vlan-bitset": "1102",
+                            "es-attr": "DF: Invalid"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

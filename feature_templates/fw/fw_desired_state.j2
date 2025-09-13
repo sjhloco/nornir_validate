@@ -1,0 +1,34 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% elif 'nxos' in os_type |string %}
+{% elif 'asa' in os_type |string %}
+{% set conn_count_cmd = "show conn all | count flags" %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'conn_count' and conn_count_cmd is defined %}
+    conn_count:
+      {{ conn_count_cmd }}: VALIDATE
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### FW_CONN_COUNT: {cmd: xx} ### #}
+{% if sub_feat == 'conn_count' %}
+    conn_count: 
+      {{ conn_count_cmd }}: 
+        {{ input_vars }}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+{% endif %}
+
+

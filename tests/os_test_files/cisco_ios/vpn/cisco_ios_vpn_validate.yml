@@ -1,0 +1,7 @@
+all:
+  vpn:
+    sts_peer:
+    - 10.161.255.14
+    - 192.168.0.1
+    vpn_count:
+      sts: 2

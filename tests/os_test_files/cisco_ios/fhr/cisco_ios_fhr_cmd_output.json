@@ -1,0 +1,17 @@
+{   
+    "fhr": {
+        "hsrp": [
+            {
+                "active": "local",
+                "group": "0",
+                "iface": "Gi0/2",
+                "preempt": "P",
+                "priority": "50",
+                "standby": "unknown",
+                "state": "Active",
+                "virtualip": "20.20.20.1"
+            }
+        ]
+    }
+}
+

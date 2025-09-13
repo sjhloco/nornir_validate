@@ -1,0 +1,8 @@
+neighbor:
+  cdp:
+    TenGigabitEthernet0/0/1:
+      nbr_name: BB-9500-VSS01
+      nbr_intf: TenGigabitEthernet1/0/7
+    TenGigabitEthernet0/0/2:
+      nbr_name: BB-9500-VSS01
+      nbr_intf: TenGigabitEthernet2/0/7

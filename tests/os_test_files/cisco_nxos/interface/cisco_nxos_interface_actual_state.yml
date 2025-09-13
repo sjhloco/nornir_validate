@@ -1,0 +1,37 @@
+interface:
+  intf:
+    Eth1/1:
+      duplex: full
+      speed: 10G
+      type: access
+      status: connected
+    Eth1/2:
+      duplex: full
+      speed: 10G
+      type: trunk
+      status: connected
+    Vlan200:
+      duplex: auto
+      speed: auto
+      type: routed
+      status: connected
+  switchport:
+    Ethernet3/1:
+      mode: trunk
+      vlan:
+      - 11-16
+      - 200
+      - 1001
+    port-channel5:
+      mode: access
+      vlan: 17
+  ip_brief:
+    Lo1:
+      ip: 192.168.1.41
+      status: up
+    Eth1/1:
+      ip: loopback1
+      status: up
+    Vlan6:
+      ip: 172.20.6.1
+      status: up

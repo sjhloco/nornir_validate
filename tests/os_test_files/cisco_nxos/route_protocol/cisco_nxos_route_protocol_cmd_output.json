@@ -1,0 +1,203 @@
+{
+    "route_protocol": {
+        "ospf_intf_nbr": [
+            {
+                "process": "BLU1",
+                "vrf": "BLU",
+                "interface_count": "1",
+                "interface": "Vlan10",
+                "area": "0.0.0.10",
+                "cost": "10",
+                "state": "DR",
+                "neighbors_fc": "2",
+                "status": "up"
+            },
+            {
+                "process": "DC_UNDERLAY",
+                "vrf": "default",
+                "interface_count": "6",
+                "interface": "Vlan2",
+                "area": "0.0.0.0",
+                "cost": "100",
+                "state": "P2P",
+                "neighbors_fc": "1",
+                "status": "up"
+            },
+            {
+                "process": "DC_UNDERLAY",
+                "vrf": "default",
+                "interface_count": "6",
+                "interface": "Lo1",
+                "area": "0.0.0.0",
+                "cost": "1",
+                "state": "LOOPBACK",
+                "neighbors_fc": "0",
+                "status": "up"
+            },
+            {
+                "process": "DC_UNDERLAY",
+                "vrf": "default",
+                "interface_count": "6",
+                "interface": "Eth1/1",
+                "area": "0.0.0.0",
+                "cost": "1",
+                "state": "P2P",
+                "neighbors_fc": "1",
+                "status": "up"
+            },
+            {
+                "process": "DC_UNDERLAY",
+                "vrf": "default",
+                "interface_count": "6",
+                "interface": "Eth1/2",
+                "area": "0.0.0.0",
+                "cost": "1",
+                "state": "P2P",
+                "neighbors_fc": "1",
+                "status": "up"
+            },
+            {
+                "interface": "Vlan10",
+                "local_ipaddr": "172.16.100.2",
+                "neighbor_ipaddr": "172.16.101.38",
+                "ospf_pid": "",
+                "state": "FULL/BDR",
+                "uptime": "2y0w",
+                "vrf": ""
+            },
+            {
+                "interface": "Vlan2",
+                "local_ipaddr": "172.16.102.2",
+                "neighbor_ipaddr": "172.16.101.38",
+                "ospf_pid": "",
+                "state": "FULL/ -",
+                "uptime": "1y45w",
+                "vrf": ""
+            },
+            {
+                "interface": "Eth1/1",
+                "local_ipaddr": "172.16.101.33",
+                "neighbor_ipaddr": "172.16.101.33",
+                "ospf_pid": "",
+                "state": "FULL/ -",
+                "uptime": "2y4w",
+                "vrf": ""
+            },
+            {
+                "interface": "Eth1/2",
+                "local_ipaddr": "172.16.101.34",
+                "neighbor_ipaddr": "172.16.101.34",
+                "ospf_pid": "",
+                "state": "FULL/ -",
+                "uptime": "2y4w",
+                "vrf": ""
+            }
+        ],
+        "ospf_lsdb_count": [
+            "             OSPF Router with ID (172.16.101.91) (Process ID BLU1 VRF default)",
+            "  Total               0     ",
+            "             OSPF Router with ID (172.16.101.37) (Process ID BLU1 VRF BLU)",
+            "  Total               20    ",
+            "             OSPF Router with ID (172.16.101.37) (Process ID DC_UNDERLAY VRF default)",
+            "  Total               6 "
+        ],
+        "bgp_peer": [
+            {
+                "vrf": "BLU",
+                "address_family": "IPv4 Unicast",
+                "router_id": "172.16.101.101",
+                "local_as": "65161",
+                "bgp_neigh": "10.25.113.1",
+                "bgp_ver": "4",
+                "neigh_as": "65001",
+                "msg_rcvd": "21968368",
+                "msg_sent": "22451737",
+                "tblver": "2301549",
+                "in_queue": "0",
+                "out_queue": "0",
+                "up_down": "24w2d",
+                "state_pfxrcd": "0"
+            },
+            {
+                "vrf": "TRI",
+                "address_family": "IPv4 Unicast",
+                "router_id": "172.16.101.123",
+                "local_as": "65161",
+                "bgp_neigh": "10.23.1.74",
+                "bgp_ver": "4",
+                "neigh_as": "65171",
+                "msg_rcvd": "3078819",
+                "msg_sent": "3074406",
+                "tblver": "8526",
+                "in_queue": "0",
+                "out_queue": "0",
+                "up_down": "2w5d",
+                "state_pfxrcd": "24"
+            },
+            {
+                "vrf": "default",
+                "address_family": "IPv4 Unicast",
+                "router_id": "172.16.101.37",
+                "local_as": "65161",
+                "bgp_neigh": "172.16.102.2",
+                "bgp_ver": "4",
+                "neigh_as": "65161",
+                "msg_rcvd": "1166456",
+                "msg_sent": "1165743",
+                "tblver": "14450",
+                "in_queue": "0",
+                "out_queue": "0",
+                "up_down": "2y0w",
+                "state_pfxrcd": "28"
+            },
+            {
+                "vrf": "default",
+                "address_family": "IPv4 Unicast",
+                "router_id": "172.16.101.37",
+                "local_as": "65161",
+                "bgp_neigh": "172.16.151.2",
+                "bgp_ver": "4",
+                "neigh_as": "65162",
+                "msg_rcvd": "1074723",
+                "msg_sent": "1073151",
+                "tblver": "14450",
+                "in_queue": "0",
+                "out_queue": "0",
+                "up_down": "1w1d",
+                "state_pfxrcd": "18"
+            },
+            {
+                "vrf": "default",
+                "address_family": "L2VPN EVPN",
+                "router_id": "172.16.101.37",
+                "local_as": "65161",
+                "bgp_neigh": "172.16.201.37",
+                "bgp_ver": "4",
+                "neigh_as": "65162",
+                "msg_rcvd": "23261970",
+                "msg_sent": "26520909",
+                "tblver": "63025110",
+                "in_queue": "0",
+                "out_queue": "0",
+                "up_down": "1w1d",
+                "state_pfxrcd": "698"
+            },
+            {
+                "vrf": "default",
+                "address_family": "L2VPN EVPN",
+                "router_id": "172.16.101.37",
+                "local_as": "65161",
+                "bgp_neigh": "172.16.201.38",
+                "bgp_ver": "4",
+                "neigh_as": "65162",
+                "msg_rcvd": "23309853",
+                "msg_sent": "26564632",
+                "tblver": "63025110",
+                "in_queue": "0",
+                "out_queue": "0",
+                "up_down": "2y2w",
+                "state_pfxrcd": "698"
+            }
+        ]
+    }
+}

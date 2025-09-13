@@ -1,0 +1,31 @@
+all:
+  system:
+    - image
+    - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
+    - module
+  neighbor:
+    - cdp
+    - lldp
+  intf_bonded:
+    - port_channel
+    - vpc
+  interface:
+    - intf
+    - switchport
+    - ip_brief
+  layer2:
+    - vlan
+    - mac_table: [vl6, vl24]
+  fhr:
+    - hsrp
+  route_table:
+    - vrf
+    - route_count: [BLU, TRI]
+    - route: [BLU, TRI]
+  route_protocol:
+    - ospf_intf_nbr
+    - ospf_lsdb_count
+    - bgp_peer
+  evpn:
+    - nve_vni
+    - nve_peer

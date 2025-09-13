@@ -1,0 +1,87 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set vlan_cmd = "show vlan brief" %}
+{% set stp_cmd = "show spanning-tree" %}
+{% set mac_table_all_cmd = "show mac address-table dynamic | count dynamic|DYNAMIC" %}
+{% set mac_table_cmd = "show mac address-table count Vlan | in Dynamic|Static|Vlan" %}
+{% elif 'nxos' in os_type |string %}
+{% set vlan_cmd = "show vlan brief" %}
+{% set mac_table_all_cmd = "show mac address-table | in dynamic | count" %}
+{% set mac_table_cmd = "show mac  address-table dynamic vlan | last 2" %}
+{% elif 'asa' in os_type |string %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'vlan' and vlan_cmd is defined %}
+    vlan: 
+      {{ vlan_cmd }}: VALIDATE
+{% elif sub_feat == 'stp_vlan' and stp_cmd is defined %}
+    stp_vlan: 
+      {{ stp_cmd }}: VALIDATE
+{% elif 'mac_table' in sub_feat and mac_table_all_cmd is defined %}
+    mac_table:
+      {{ mac_table_all_cmd }}: VALIDATE
+{% if sub_feat.mac_table.__class__.__name__ == 'list' %}
+{% for each_vl in sub_feat.mac_table %}
+{% set vl = each_vl.split('_') | first | replace("vl","") %}
+{% if 'nxos' in os_type |string %}
+      {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}: SUB_FEATURE_COMBINED_CMD
+      {{ mac_table_all_cmd.split("table ") | first }}table vlan {{ vl }} {{ mac_table_all_cmd.split("table ") | last }}: VALIDATE
+{% else %}
+      {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}: VALIDATE
+{% endif %}{% endfor %}{% endif %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### VLAN: {cmd: {vlan: {name: x, intf:[x,y]}} ### #}
+{% if sub_feat == 'vlan' %}
+    vlan: 
+      {{ vlan_cmd }}: 
+{% for each_vl, each_vl_info in input_vars.items() %}
+        {{ each_vl }}:
+          name: {{ each_vl_info.name }}
+          intf:
+            _mode: strict
+            list: {{ each_vl_info.intf }}
+{% endfor %}
+{# ### STP: {cmd: {vlan: {intfx: FWD, intfy: FWD}}} ### #}
+{% elif sub_feat == 'stp_vlan' %}
+    stp_vlan: 
+      {{ stp_cmd }}: 
+{% for each_vl, vl_info in input_vars.items() %}
+        {{ each_vl }}: 
+{% for each_intf in vl_info.intf %}
+          _mode: strict
+          {{ each_intf }}: FWD
+{% endfor %}{% endfor %}
+{# ### MAC TABLE COUNT: {cmd:  {total_mac_count: x, vlxxx_mac_count: x} ### #}
+{% elif sub_feat == 'mac_table' %}
+    mac_table:
+{% for mac_info, num_mac in input_vars.items() %}
+{% set vl = mac_info.split('_') | first | replace("vl","") %}
+{% if mac_info == "total_mac_count" %}
+      {{ mac_table_all_cmd }}:
+        {{ mac_info }}: {{ num_mac }}
+{% elif 'nxos' in os_type |string %}
+      {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}:
+        {{ mac_info }}: {{ num_mac }}  
+      {{ mac_table_all_cmd.split("table ") | first }}table vlan {{ vl }} {{ mac_table_all_cmd.split("table ") | last }}:
+        {{ mac_info }}: {{ num_mac }}
+{% else %}
+      {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}:
+        {{ mac_info }}: {{ num_mac }}
+{% endif %}
+{% endfor %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+{% endif %}

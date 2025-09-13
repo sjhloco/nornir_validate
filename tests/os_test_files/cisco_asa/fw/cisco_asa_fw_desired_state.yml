@@ -1,0 +1,3 @@
+fw:
+  conn_count:
+    show conn all | count flags: 26

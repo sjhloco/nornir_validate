@@ -1,0 +1,49 @@
+layer2:
+  vlan:
+    show vlan brief:
+      10:
+        name: DC_VL10
+        intf:
+          _mode: strict
+          list:
+          - Po1
+          - Po21
+          - Po22
+          - Po23
+          - Po24
+          - Eth1/21
+          - Eth1/22
+          - Eth1/23
+          - Eth1/24
+      90:
+        name: DC2_VL90
+        intf:
+          _mode: strict
+          list:
+          - Po1
+          - Eth1/9
+      2230:
+        name: DC2_VL2230
+        intf:
+          _mode: strict
+          list:
+          - Po1
+          - Po28
+          - Eth1/28
+      3001:
+        name: DC2_BLU_FABRIC_L3VNI_VL3001
+        intf:
+          _mode: strict
+          list:
+          - Po1
+  mac_table:
+    show mac  address-table dynamic vlan 6 | last 2:
+      vl6_mac_count: 26
+    show mac address-table vlan 6 | in dynamic | count:
+      vl6_mac_count: 26
+    show mac  address-table dynamic vlan 24 | last 2:
+      vl24_mac_count: 306
+    show mac address-table vlan 24 | in dynamic | count:
+      vl24_mac_count: 306
+    show mac address-table | in dynamic | count:
+      total_mac_count: 681

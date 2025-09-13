@@ -1,0 +1,7 @@
+interface:
+  intf:
+    show interface status: VALIDATE
+  switchport:
+    show interface switchport: VALIDATE
+  ip_brief:
+    show ip  interface brief vrf all | json: VALIDATE

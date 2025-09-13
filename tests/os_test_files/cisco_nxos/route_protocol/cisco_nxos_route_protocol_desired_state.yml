@@ -1,0 +1,59 @@
+route_protocol:
+  ospf_intf_nbr:
+    show ip ospf interface brief vrf all: SUB_FEATURE_COMBINED_CMD
+    show ip ospf neighbor vrf all:
+      Vlan10:
+        pid: BLU1
+        area: 0.0.0.10
+        nbr:
+          _mode: strict
+          172.16.101.38: FULL
+      Vlan2:
+        pid: DC_UNDERLAY
+        area: 0.0.0.0
+        nbr:
+          _mode: strict
+          172.16.101.38: FULL
+      Lo1:
+        pid: DC_UNDERLAY
+        area: 0.0.0.0
+        nbr: {}
+      Eth1/1:
+        pid: DC_UNDERLAY
+        area: 0.0.0.0
+        nbr:
+          _mode: strict
+          172.16.101.33: FULL
+      Eth1/2:
+        pid: DC_UNDERLAY
+        area: 0.0.0.0
+        nbr:
+          _mode: strict
+          172.16.101.34: FULL
+  ospf_lsdb_count:
+    show ip ospf database database-summary vrf all | in "Process ID|Total":
+      BLU1:
+        total_lsa: 20
+      DC_UNDERLAY:
+        total_lsa: 6
+  bgp_peer:
+    show ip bgp all summary vrf all:
+      _mode: strict
+      10.25.113.1:
+        asn: 65001
+        rcv_pfx: 0
+      10.23.1.74:
+        asn: 65171
+        rcv_pfx: 24
+      172.16.102.2:
+        asn: 65161
+        rcv_pfx: 28
+      172.16.151.2:
+        asn: 65162
+        rcv_pfx: 18
+      172.16.201.37:
+        asn: 65162
+        rcv_pfx: 698
+      172.16.201.38:
+        asn: 65162
+        rcv_pfx: 698

@@ -1,0 +1,38 @@
+system:
+  image:
+    show version: 15.2(7)E2
+  mgmt_acl:
+    show ip access-lists TEST_SSH_ACCESS:
+      TEST_SSH_ACCESS:
+        _mode: strict
+        10:
+          action: permit
+          protocol: ip
+          src: 10.17.10.0/24
+          dst: any
+        20:
+          action: permit
+          protocol: ip
+          src: 10.10.10.10/32
+          dst: any
+        30:
+          action: deny
+          protocol: ip
+          src: any
+          dst: any
+    show ip access-lists TEST_SNMP_ACCESS:
+      TEST_SNMP_ACCESS:
+        _mode: strict
+        10:
+          action: permit
+          protocol: ip
+          src: 10.17.10.0/24
+          dst: any
+  module:
+    show module:
+      1:
+        model: WS-X6816-10GE
+        status: ok
+      5:
+        model: VS-SUP2T-10G
+        status: ok

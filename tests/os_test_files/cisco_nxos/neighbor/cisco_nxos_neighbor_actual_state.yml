@@ -1,0 +1,18 @@
+neighbor:
+  cdp:
+    Eth1/21:
+      nbr_name: DC-CCM-SUB01
+      nbr_intf: eth0
+    Eth1/25:
+      nbr_name: DC-SWI-ILO01
+      nbr_intf: Gig1/1/1
+    Eth1/50:
+      nbr_name: DC-N9K-SPN02
+      nbr_intf: Eth1/1
+  lldp:
+    Eth1/49:
+      nbr_name: DC-N9K-SPN01
+      nbr_intf: Ethernet1/1
+    Eth1/50:
+      nbr_name: DC-N9K-SPN02
+      nbr_intf: Ethernet1/1

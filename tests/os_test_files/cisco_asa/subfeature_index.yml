@@ -1,0 +1,24 @@
+all:
+  system:
+    - image
+    - mgmt_acl: ["ssh", "http"]
+  redundancy:
+    - ha_state
+  intf_bonded:
+    - port_channel
+  interface:
+    - intf
+    - ip_brief
+  route_table:
+    - route_count
+    - route
+  route_protocol:
+    - ospf_intf_nbr
+    - ospf_lsdb_count
+    - bgp_peer
+  fw:
+    - conn_count
+  vpn:
+    - sts_peer
+    - ac_user
+    - vpn_count

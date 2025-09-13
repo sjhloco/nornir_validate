@@ -1,0 +1,19 @@
+all:
+  evpn:
+    nve_vni:
+      10006:
+        bd_vrf: 6
+      20093:
+        bd_vrf: 93
+      3098:
+        bd_vrf: 98
+      10301:
+        bd_vrf: BLU
+      10303:
+        bd_vrf: AMB
+      10306:
+        bd_vrf: GRY
+    nve_peer:
+    - 192.168.111.41
+    - 192.168.111.47
+    - 192.168.111.81

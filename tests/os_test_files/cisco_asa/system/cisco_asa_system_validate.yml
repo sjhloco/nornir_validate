@@ -1,0 +1,13 @@
+all:
+  system:
+    image: 9.12(4)37
+    mgmt_acl:
+      http:
+        ace:
+        - permit: inside - 10.17.10.0/24
+        - permit: inside - 10.10.10.10/32
+      ssh:
+        ace:
+        - permit: mgmt - 10.17.10.0/24
+        - permit: mgmt - 10.10.10.10/32
+        - permit: mgmt - any

@@ -1,0 +1,130 @@
+route_table:
+  vrf:
+    AMB:
+    - Vl96
+    - Vl3102
+    BLU:
+    - Lo12
+    - Vl5
+    - Vl10
+    - Vl20
+    GRN:
+    - Gi0/1
+  route_count:
+    global: 20
+    BLU: 113
+  route:
+    global:
+      0.0.0.0/0:
+        nh: 10.30.20.1
+        rtype: S
+      1.1.1.1/32:
+        nh: Loopback1
+        rtype: C
+      2.2.2.2/32:
+        nh: 10.10.10.2
+        rtype: B
+      4.4.4.4/32:
+        nh: 10.10.10.2
+        rtype: O
+      5.5.5.5/32:
+        nh: 10.10.10.2
+        rtype: O IA
+      6.6.6.6/32:
+        nh: 10.10.10.2
+        rtype: O E2
+      10.10.10.0/24:
+        nh: GigabitEthernet3
+        rtype: C
+      10.10.10.1/32:
+        nh: GigabitEthernet3
+        rtype: L
+      10.30.20.0/24:
+        nh: GigabitEthernet1
+        rtype: C
+      10.30.20.102/32:
+        nh: GigabitEthernet1
+        rtype: L
+      21.1.1.1/32:
+        nh: 10.10.10.2
+        rtype: D
+      23.1.1.1/32:
+        nh: 10.10.10.2
+        rtype: D EX
+      192.168.14.4/30:
+        nh: 192.168.14.2
+        rtype: O
+      192.168.25.41/32:
+        nh: Loopback1
+        rtype: C
+      192.168.25.42/32:
+        nh:
+        - 192.168.14.10
+        - 192.168.14.2
+        rtype: O
+      192.168.25.43/32:
+        nh: 192.168.14.2
+        rtype: O
+      192.168.25.45/32:
+        nh: Loopback2
+        rtype: C
+      192.168.25.47/32:
+        nh: Loopback3
+        rtype: C
+    BLU:
+      50.1.1.1/32:
+        nh: Loopback50
+        rtype: C
+      10.12.1.0/27:
+        nh:
+        - 192.168.12.5
+        - 192.168.12.1
+        rtype: B
+      10.12.242.64/28:
+        nh:
+        - 192.168.12.5
+        - 192.168.12.1
+        rtype: B
+      172.16.10.0/24:
+        nh: 10.80.10.2
+        rtype: B
+      172.16.20.0/24:
+        nh: 10.80.10.2
+        rtype: B
+    AMB:
+      0.0.0.0/0:
+        nh: 10.10.254.10
+        rtype: B
+      10.0.0.0/8:
+        nh: 10.10.254.3
+        rtype: B
+      10.10.96.0/19:
+        nh: Null0
+        rtype: B
+      10.10.96.0/24:
+        nh: Vlan96
+        rtype: C
+      10.10.96.1/32:
+        nh: Vlan96
+        rtype: L
+      10.10.254.0/29:
+        nh: Vlan3101
+        rtype: B
+      10.10.254.1/32:
+        nh: Vlan3101
+        rtype: L
+      10.10.254.8/29:
+        nh: Vlan3102
+        rtype: C
+      10.10.254.9/32:
+        nh: Vlan3102
+        rtype: L
+      10.20.0.0/16:
+        nh: 10.10.254.10
+        rtype: B
+      172.16.0.0/12:
+        nh: 10.10.254.3
+        rtype: B
+      192.168.0.0/16:
+        nh: 10.10.254.3
+        rtype: B

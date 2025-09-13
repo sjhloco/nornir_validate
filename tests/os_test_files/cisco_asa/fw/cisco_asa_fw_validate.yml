@@ -1,0 +1,3 @@
+all:
+  fw:
+    conn_count: 26

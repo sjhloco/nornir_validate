@@ -1,0 +1,37 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set hsrp_cmd = "show standby brief" %}
+{% elif 'nxos' in os_type |string %}
+{% set hsrp_cmd = "show hsrp | json" %}
+{% elif 'asa' in os_type |string %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'hsrp' and hsrp_cmd is defined %}
+    hsrp:
+      {{ hsrp_cmd }}: VALIDATE
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### HSRP: {cmd: {intf: {priority: x, state: y} ### #}
+{% if sub_feat == 'hsrp' %}
+    hsrp:
+      {{ hsrp_cmd }}: 
+{% for each_hsrp, hsrp_info in input_vars.items() %}
+        {{ each_hsrp }}:
+          priority: {{ hsrp_info.priority }}
+          state: {{ hsrp_info.state }}
+{% endfor %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+{% endif %}

@@ -1,0 +1,5 @@
+interface:
+  intf:
+    show port summary: VALIDATE
+  ip_brief:
+    show interface summary: VALIDATE

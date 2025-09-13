@@ -1,0 +1,47 @@
+[tool.mypy]
+ignore_missing_imports = true # stops missing library stubs or py.typed marker warning
+
+# [tool.ruff]
+# line-length = 88 
+[tool.ruff.lint]
+# RUFF DEFAULTS
+# (These are all the default groups, even if you don’t currently select them)
+# select = [
+#     "F",    # Pyflakes – detects syntax errors and basic mistakes
+#     "E4",   # Pycodestyle errors (part of E group)
+#     "E7",   # Pycodestyle E7xx errors (naming, etc.)
+#     "E9",   # Pycodestyle E9xx errors (syntax)
+# ]
+select = [
+    "E",    # Pycodestyle errors (style issues)
+    "UP",   # Pyupgrade – upgrades syntax to newer Python versions
+    "I",    # isort – import ordering checks
+    "D",    # Pydocstyle – docstring formatting
+    "B",    # Flake8-bugbear – common bug patterns
+    "SIM",  # Flake8-simplify – code simplification hints
+    "ANN",  # Flake8-annotations – enforces type annotation style
+    # Extra I added
+    "YTT",  # Flake8-2020 – checks for Python 2020 best practices
+    "N",    # PEP8 Naming – naming conventions
+    "A",    # Flake8-builtins – misuse of Python built-in names
+    "PT",   # Flake8-pytest-style – pytest best practices
+    "TC",   # Flake8-type-checking – proper import of typing in type checks
+    "ARG",  # Flake8-unused-arguments – flags unused function arguments
+    "EM",   # Flake8-errmsg – error message style
+]
+ignore = [
+    "E501",  # Pycodestyle - line too long
+    "D1",    # Pydocstyle - missing docstring in public module, class, or function
+#    "D203",  # Pydocstyle - one blank line required before class docstring
+#    "D212",  # Pydocstyle - summary line should be immediately after the opening quotes.
+#    "D401",  # Pydocstyle - Checks for docstring first lines that are not in an imperative mood.
+#    "TRY003", # Tryceratops - Checks for long exception messages that are not defined in the exception class itself.
+#    "PERF401", # Perflint - Checks for for loops that can be replaced by a list comprehension.
+#    FBT003", # Flake8-boolean-trap - boolean position value in function call
+#    "S311",  # Flake8-bandit - Standard pseudo-random generators are not suitable for security/cryptographic purposes
+#    "RET504", # Flake8-return - Checks for variable assignments that immediately precede a return of the assigned variable.
+#    "FA102", # Flake8-future-annotations - Missing `from __future__ import annotations`, but uses PEP 604 union
+#    "EM101", # Flake8-errmsg - Checks for the use of string literals in exception constructors.
+]
+[tool.ruff.lint.pydocstyle]
+convention = "google"

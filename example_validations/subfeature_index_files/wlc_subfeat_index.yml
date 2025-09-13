@@ -1,0 +1,26 @@
+all:
+  system:
+    # Software image: Current image
+    - image
+  redundancy:
+    # High Availability state: The redundancy state of the local and peered devices
+    - ha_state
+  neighbor:
+    # CDP neighbors: Connected neighbors
+    - cdp
+  interface:
+    # INTF: Physical interface attributes
+    - intf
+    # IP_BRIEF: L3 interface
+    - ip_brief
+  wifi:
+    # WLAN: List of WLANs and SSID
+    - wlan
+    # AP_SUMMARY: List of APs
+    - ap
+    # NUM_CLIENTS: Number of per-WLAN clients (total is implicit)
+    - client_count: [wl22]
+    # FLEX_CONN: Number of APs per flexconnect group
+    - flexconnect
+    # INTF_GROUP: Number of interfaces, WLANs and APs per interface group
+    - intf_grp

@@ -1,0 +1,7 @@
+interface:
+  intf:
+    show interfaces status: VALIDATE
+  switchport:
+    show interfaces switchport: VALIDATE
+  ip_brief:
+    show ip interface brief: VALIDATE

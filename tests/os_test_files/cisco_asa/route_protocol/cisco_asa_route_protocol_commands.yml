@@ -1,0 +1,8 @@
+route_protocol:
+  ospf_intf_nbr:
+    show ospf interface brief: SUB_FEATURE_COMBINED_CMD
+    show ospf neighbor: VALIDATE
+  ospf_lsdb_count:
+    show ospf database database-summary | in Process ID|Total: VALIDATE
+  bgp_peer:
+    show bgp summary: VALIDATE

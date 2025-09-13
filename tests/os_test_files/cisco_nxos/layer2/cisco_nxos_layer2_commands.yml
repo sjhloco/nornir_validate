@@ -1,0 +1,9 @@
+layer2:
+  vlan:
+    show vlan brief: VALIDATE
+  mac_table:
+    show mac address-table | in dynamic | count: VALIDATE
+    show mac  address-table dynamic vlan 6 | last 2: SUB_FEATURE_COMBINED_CMD
+    show mac address-table vlan 6 | in dynamic | count: VALIDATE
+    show mac  address-table dynamic vlan 24 | last 2: SUB_FEATURE_COMBINED_CMD
+    show mac address-table vlan 24 | in dynamic | count: VALIDATE

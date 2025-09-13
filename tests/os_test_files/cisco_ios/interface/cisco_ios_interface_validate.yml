@@ -1,0 +1,33 @@
+all:
+  interface:
+    intf:
+      Gi0/1:
+        duplex: a-full
+        speed: a-1000
+        type: access
+      Gi0/2:
+        duplex: a-full
+        speed: a-1000
+        type: trunk
+      Gi0/3:
+        duplex: a-full
+        speed: a-1000
+        type: routed
+    switchport:
+      Gi0/1:
+        mode: access
+        vlan: 999
+      Po1:
+        mode: trunk
+        vlan:
+        - 144
+        - 3101
+        - 3102
+      Gi0/2:
+        mode: trunk
+        vlan:
+        - 144
+    ip_brief:
+      GigabitEthernet0/1: 10.30.20.101
+      Loopback1: 10.10.255.1
+      Vlan10: 10.10.10.1

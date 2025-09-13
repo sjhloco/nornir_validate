@@ -1,0 +1,20 @@
+redundancy:
+  ha_state:
+    show redundancy:
+      local: ACTIVE
+      peer: STANDBY HOT
+  sw_stack:
+    show switch detail:
+      _mode: strict
+      switch1:
+        priority: 15
+        role: Active
+        state: Ready
+      switch2:
+        priority: 14
+        role: Standby
+        state: Ready
+      switch3:
+        priority: 1
+        role: Member
+        state: Ready

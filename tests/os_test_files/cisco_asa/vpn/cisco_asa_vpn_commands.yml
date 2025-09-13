@@ -1,0 +1,8 @@
+vpn:
+  sts_peer:
+    show vpn-sessiondb detail l2l: VALIDATE
+  ac_user:
+    show vpn-session anyconnect: VALIDATE
+  vpn_count:
+    show vpn-session l2l | count Connection: VALIDATE
+    show vpn-session: VALIDATE

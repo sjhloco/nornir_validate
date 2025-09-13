@@ -1,0 +1,67 @@
+route_protocol:
+  eigrp_intf_nbr:
+    show ip eigrp neighbors:
+      Gi3:
+        asn: 1
+        nbr:
+          _mode: strict
+          10.10.10.2: up
+      Vl10:
+        asn: 545
+        nbr:
+          _mode: strict
+          10.230.205.27: up
+  ospf_intf_nbr:
+    show ip ospf interface brief: SUB_FEATURE_COMBINED_CMD
+    show ip ospf neighbor:
+      Gi0/3:
+        pid: 3
+        area: 1
+        nbr:
+          _mode: strict
+          192.168.230.2: FULL
+      Gi1/2:
+        pid: 3
+        area: 1
+        nbr:
+          _mode: strict
+          192.168.220.2: FULL
+      Vl120:
+        pid: 2
+        area: 0
+        nbr:
+          _mode: strict
+          192.168.10.2: FULL
+          192.168.10.3: FULL
+      Po1:
+        pid: 1
+        area: 0
+        nbr:
+          _mode: strict
+          10.90.10.1: FULL
+      Vl110:
+        pid: 1
+        area: 1
+        nbr: {}
+  ospf_lsdb_count:
+    show ip ospf database database-summary | in Process ID|Total:
+      1:
+        total_lsa: 11
+  bgp_peer:
+    show ip bgp all summary:
+      _mode: strict
+      192.168.11.1:
+        asn: 65101
+        rcv_pfx: 6
+      172.17.255.12:
+        asn: 65103
+        rcv_pfx: 16
+      192.168.1.149:
+        asn: 65103
+        rcv_pfx: 105
+      192.168.255.12:
+        asn: 65103
+        rcv_pfx: 201
+      192.168.101.38:
+        asn: 65101
+        rcv_pfx: 242

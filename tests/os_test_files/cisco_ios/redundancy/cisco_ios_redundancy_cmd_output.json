@@ -1,0 +1,86 @@
+{
+    "redundancy": {
+        "ha_state": [
+            {
+                "active_boot_directory": "flash",
+                "active_boot_file": "packages.conf",
+                "active_config_register": "",
+                "active_maintenance_release": "",
+                "active_major_release": "",
+                "active_minor_release": "",
+                "active_slot": "1",
+                "active_software_state": "ACTIVE",
+                "active_uptime_days": "",
+                "active_uptime_hours": "2",
+                "active_uptime_minutes": "22",
+                "active_uptime_weeks": "5",
+                "active_uptime_years": "",
+                "communication_status": "Up",
+                "configured_redundancy_mode": "sso",
+                "hardware_mode": "Duplex",
+                "last_switchover_reason": "user forced",
+                "maintenance_mode": "Disabled",
+                "operating_redundancy_mode": "sso",
+                "standby_boot_directory": "flash",
+                "standby_boot_file": "packages.conf",
+                "standby_config_register": "",
+                "standby_failures": "0",
+                "standby_maintenance_release": "",
+                "standby_major_release": "",
+                "standby_minor_release": "",
+                "standby_slot": "2",
+                "standby_software_state": "STANDBY HOT",
+                "standby_status": "",
+                "standby_uptime_days": "",
+                "standby_uptime_hours": "2",
+                "standby_uptime_minutes": "16",
+                "standby_uptime_weeks": "5",
+                "standby_uptime_years": "",
+                "switchovers": "2",
+                "system_uptime_days": "",
+                "system_uptime_hours": "2",
+                "system_uptime_minutes": "46",
+                "system_uptime_weeks": "5",
+                "system_uptime_years": ""
+            }
+        ],
+        "sw_stack": [
+            {
+                "mac_address": "1234.5678.abbb",
+                "neighbor1": "3",
+                "neighbor2": "2",
+                "priority": "15",
+                "role": "Active",
+                "state": "Ready",
+                "status1": "OK",
+                "status2": "OK",
+                "switch": "1",
+                "version": "V01"
+            },
+            {
+                "mac_address": "1234.5678.abcc",
+                "neighbor1": "1",
+                "neighbor2": "3",
+                "priority": "14",
+                "role": "Standby",
+                "state": "Ready",
+                "status1": "OK",
+                "status2": "OK",
+                "switch": "2",
+                "version": "V01"
+            },
+            {
+                "mac_address": "1234.5678.abcd",
+                "neighbor1": "2",
+                "neighbor2": "1",
+                "priority": "1",
+                "role": "Member",
+                "state": "Ready",
+                "status1": "OK",
+                "status2": "OK",
+                "switch": "3",
+                "version": "V01"
+            }
+        ]
+    }
+}

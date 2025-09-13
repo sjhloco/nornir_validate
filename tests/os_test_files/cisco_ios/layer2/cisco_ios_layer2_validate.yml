@@ -1,0 +1,32 @@
+all:
+  layer2:
+    vlan:
+      1:
+        name: default
+        intf: []
+      10:
+        name: test
+        intf: []
+      20:
+        name: test20
+        intf:
+        - Gi0/1
+    stp_vlan:
+      96:
+        intf:
+        - Gi0/6
+        - Gi0/8
+        - Gi0/11
+      144:
+        intf:
+        - Gi0/6
+        - Gi0/8
+        - Gi0/11
+        - Po1
+      3102:
+        intf:
+        - Po1
+    mac_table:
+      vl10_mac_count: 6
+      vl64_mac_count: 5
+      total_mac_count: 19

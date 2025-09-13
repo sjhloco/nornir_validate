@@ -1,0 +1,13 @@
+all:
+  intf_bonded:
+    port_channel:
+      Po1:
+        protocol: LACP
+        members:
+        - Gi0/0
+        - Gi0/1
+      Po11:
+        protocol: LACP
+        members:
+        - Gi0/5
+        - Gi0/6

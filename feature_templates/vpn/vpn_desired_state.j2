@@ -1,0 +1,72 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set vpn_sts_cmd = "show crypto session detail" %}
+{% set sts_count_cmd = "show crypto session brief | count UA" %}
+{% set ac_count_cmd = "empty" %}
+{% elif 'nxos' in os_type |string %}
+{% elif 'asa' in os_type |string %}
+{% set vpn_sts_cmd = "show vpn-sessiondb detail l2l" %}
+{% set vpn_ac_cmd = "show vpn-session anyconnect" %}
+{% set sts_count_cmd = "show vpn-session l2l | count Connection" %}
+{% set ac_count_cmd = "show vpn-session" %}
+{% elif 'wlc' in os_type |string %}
+{% endif %}
+
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'sts_peer' and vpn_sts_cmd is defined %}
+    sts_peer:
+      {{ vpn_sts_cmd }}: VALIDATE
+{% elif sub_feat == 'ac_user' and vpn_ac_cmd is defined %}
+    ac_user:
+      {{ vpn_ac_cmd }}: VALIDATE
+{% elif sub_feat == 'vpn_count' and (vpn_sts_cmd is defined or vpn_ac_cmd is defined) %}
+    vpn_count:
+{% if vpn_sts_cmd is defined %}
+      {{ sts_count_cmd }}: VALIDATE
+{% endif %}
+{% if vpn_ac_cmd is defined %}
+      {{ ac_count_cmd }}: VALIDATE
+{% endif %} 
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### STS_PEER: {cmd: {peer_ip: UP-ACTIVE, peer_ip: UP-ACTIVE}} ### #}
+{% if sub_feat == 'sts_peer' %}
+    sts_peer:
+      {{ vpn_sts_cmd }}:
+          _mode: strict
+{% for each_peer in input_vars %}
+          {{ each_peer }}: UP-ACTIVE
+{% endfor %}
+{# ### AC_USER: {cmd: {user: tunnel_group: x, group_policy:y }} ### #}
+{% elif sub_feat == 'ac_user' %}
+    ac_user:
+      {{ vpn_ac_cmd }}:
+{% for each_user, user_info in input_vars.items() %}
+        {{ each_user }}:
+          tunnel_group: {{ user_info.tunnel_group }}
+          group_policy: {{ user_info.group_policy }}
+{% endfor %}
+{# ### VPN_COUNT: {cmd: {sts: x, ac:y }} ### #}
+{% elif sub_feat == 'vpn_count' %}
+    vpn_count:
+{% if input_vars.sts is defined %}
+      {{ sts_count_cmd }}:
+        sts: {{ input_vars.sts }}
+{% endif %}
+{% if input_vars.ac is defined %}
+      {{ ac_count_cmd }}:
+        ac: {{ input_vars.ac }}
+{% endif %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+{% endif %}

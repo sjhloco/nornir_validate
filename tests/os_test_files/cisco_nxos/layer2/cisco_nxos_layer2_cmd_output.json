@@ -1,0 +1,49 @@
+{
+    "layer2": {
+        "vlan": [
+            {
+                "interfaces": [
+                    "Po1",
+                    "Po21",
+                    "Po22",
+                    "Po23",
+                    "Po24",
+                    "Eth1/21",
+                    "Eth1/22",
+                    "Eth1/23",
+                    "Eth1/24"
+                ],
+                "name": "DC_VL10",
+                "status": "active",
+                "vlan_id": "10"
+            },
+            {
+                "interfaces": ["Po1", "Eth1/9"],
+                "name": "DC2_VL90",
+                "status": "active",
+                "vlan_id": "90"
+            },
+            {
+                "interfaces": ["Po1", "Po28", "Eth1/28"],
+                "name": "DC2_VL2230",
+                "status": "active",
+                "vlan_id": "2230"
+            },
+            {
+                "interfaces": ["Po1"],
+                "name": "DC2_BLU_FABRIC_L3VNI_VL3001",
+                "status": "active",
+                "vlan_id": "3001"
+            }
+        ],
+        "mac_table": [
+            681,
+            "C    6     0050.566e.685d   dynamic  0         F      F    nve1(192.168.201.91)",
+            "C    6     0050.566f.a626   dynamic  0         F      F    nve1(192.168.101.53)",
+            26,
+            "C   24     aeda.9d10.015e   dynamic  0         F      F    nve1(192.168.201.91)",
+            "C   24     aeda.9d10.0162   dynamic  0         F      F    nve1(192.168.201.91)",
+            306
+        ]
+    }
+}

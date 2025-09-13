@@ -1,0 +1,48 @@
+interface:
+  intf:
+    show interfaces status:
+      Gi0/1:
+        duplex: a-full
+        speed: a-1000
+        type: access
+        status: connected
+      Gi0/2:
+        duplex: a-full
+        speed: a-1000
+        type: trunk
+        status: connected
+      Gi0/3:
+        duplex: a-full
+        speed: a-1000
+        type: routed
+        status: connected
+  switchport:
+    show interfaces switchport:
+      Gi0/1:
+        mode: access
+        vlan: 999
+      Po1:
+        mode: trunk
+        vlan:
+          _mode: strict
+          list:
+          - 144
+          - 3101
+          - 3102
+      Gi0/2:
+        mode: trunk
+        vlan:
+          _mode: strict
+          list:
+          - 144
+  ip_brief:
+    show ip interface brief:
+      GigabitEthernet0/1:
+        ip: 10.30.20.101
+        status: up
+      Loopback1:
+        ip: 10.10.255.1
+        status: up
+      Vlan10:
+        ip: 10.10.10.1
+        status: up

@@ -1,0 +1,53 @@
+all:
+  route_protocol:
+    eigrp_intf_nbr:
+      Gi3:
+        asn: 1
+        nbr: 10.10.10.2
+      Vl10:
+        asn: 545
+        nbr: 10.230.205.27
+    ospf_intf_nbr:
+      Gi0/3:
+        pid: 3
+        area: 1
+        nbr:
+        - 192.168.230.2
+      Gi1/2:
+        pid: 3
+        area: 1
+        nbr:
+        - 192.168.220.2
+      Vl120:
+        pid: 2
+        area: 0
+        nbr:
+        - 192.168.10.2
+        - 192.168.10.3
+      Po1:
+        pid: 1
+        area: 0
+        nbr:
+        - 10.90.10.1
+      Vl110:
+        pid: 1
+        area: 1
+    ospf_lsdb_count:
+      1:
+        total_lsa: 11
+    bgp_peer:
+      192.168.11.1:
+        asn: 65101
+        rcv_pfx: 6
+      172.17.255.12:
+        asn: 65103
+        rcv_pfx: 16
+      192.168.1.149:
+        asn: 65103
+        rcv_pfx: 105
+      192.168.255.12:
+        asn: 65103
+        rcv_pfx: 201
+      192.168.101.38:
+        asn: 65101
+        rcv_pfx: 242

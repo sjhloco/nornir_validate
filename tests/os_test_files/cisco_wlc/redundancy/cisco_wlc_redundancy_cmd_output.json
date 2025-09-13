@@ -1,0 +1,19 @@
+{
+    "redundancy": {
+        "ha_state": [
+            {
+                "avg_mgmt_gw_latency": "438",
+                "avg_redundancy_peer_latency": "313",
+                "bulksync_status": "Complete",
+                "local_state": "ACTIVE",
+                "mobility_mac": "00:B7:71:10:C5:89",
+                "peer_state": "STANDBY HOT",
+                "redundancy_mode": "SSO ENABLED",
+                "redundancy_port": "UP",
+                "redundancy_state": "SSO",
+                "unit": "Primary",
+                "unit_id": "00:B7:71:10:C5:89"
+            }
+        ]
+    }
+}

@@ -1,0 +1,11 @@
+fhr:
+  hsrp:
+    Vlan11:
+      priority: 100
+      state: Standby
+    Vlan200:
+      priority: 110
+      state: Active
+    Vlan2501:
+      priority: 100
+      state: Standby

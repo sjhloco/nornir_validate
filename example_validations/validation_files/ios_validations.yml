@@ -1,0 +1,290 @@
+
+
+all:
+  # ----------------------------------------------------------------------------
+  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  system:
+    ## Software image: The current software image running on the device
+    image: 15.5(1)SY7
+    ## Management ACL (strict): ACL defining SSH access to the device (extended ACLs with 'IP' protocol destination 'any') - Not WLC
+    mgmt_acl:
+      FOS_SSH_ACCESS:
+        ace:
+          - remark: MGMT Access - VLAN10
+          - permit: 10.17.10.0/24
+          - remark: Citrix Access
+          - permit: 10.10.10.10/32
+          - deny: any
+    ## MODULE: Module status is optional, if not defined is assumed to be "ok" (NXOS sups may have an active or standby)
+    module:
+      1:
+        model: C6880-X-LE-16P10G
+      5:
+        model: C6880-X-LE-SUP
+
+  # ----------------------------------------------------------------------------
+  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  redundancy:
+    ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
+    ha_state:
+      local: ACTIVE
+      peer: STANDBY HOT
+#     ## Switch Stack (strict): Each stacked switch number, priority, role and state - Not NXOS, ASA, WLC
+    sw_stack:
+      switch1:
+        priority: 15
+        role: Active
+      switch2:
+        priority: 1
+        role: Member
+      switch3:
+        priority: 14
+        role: Standby
+
+  # ----------------------------------------------------------------------------
+  # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
+  # ----------------------------------------------------------------------------
+  neighbor:
+    ## CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
+    cdp:
+      Ten 2/0/6:
+        nbr_name: DC-WLC01-Standby
+        nbr_intf: Ten 0/0/1
+      Ten 1/0/6:
+        nbr_name: DC-WLC01-Standby
+        nbr_intf: Ten 0/0/2
+      Ten 2/0/5:
+        nbr_name: DC-SWI01
+        nbr_intf: Gig 5/1/1
+  ## LLDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
+    lldp:
+      Te1/0/11:
+        nbr_name: DC-SDW01
+        nbr_intf: Gi0
+      Te1/0/5:
+        nbr_name: DC-031.fos
+        nbr_intf: Gi1/1/1
+
+  # ----------------------------------------------------------------------------
+  # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  intf_bonded:
+  ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
+    port_channel:
+      Po11:
+        protocol: LACP
+        members: [Te1/1/1]
+      Po17:
+        protocol: LACP
+        members: [Gi1/1/1, Fi2/1/1]
+      Po18:
+        protocol: LACP
+        members: [Te1/0/2, Te2/0/2]
+
+  # ----------------------------------------------------------------------------
+  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # ----------------------------------------------------------------------------
+  interface:
+  # INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+    intf:
+      Te1/0/11:
+        duplex: a-full
+        speed: a-1000
+        status: connected
+        type: access
+      Te1/0/5:
+        duplex: full
+        speed: 1000
+        status: connected
+        type: access
+      Te1/0/6:
+        duplex: full
+        speed: 10G
+        status: connected
+        type: trunk
+      Te1/0/9:
+        duplex: full
+        speed: 1000
+        status: connected
+        type: routed
+
+  ## SWITCH: L2 interface mode (access, trunk down) and VLANs (single or list) over that port
+    switchport:
+      Po103:
+        mode: trunk
+        vlan: [104,107,110-117,620,1634]
+      Po22:
+        mode: trunk
+        vlan: [104,110,899,1701-1703]
+      Te2/0/3:
+        mode: access
+        vlan: 17
+
+  ## IP_BRIEF: L3 interface and IP address, status is expected to be up (only checks for the specified interfaces)
+    ip_brief: 
+      Vlan104: 172.1.4.1
+      Vlan107: 192.168.17.2
+      Vlan110: 10.10.10.1
+      Port-channel7: 10.10.20.1
+      Port-channel8: 192.168.17.6
+      Loopback1: 192.168.25.43
+      GigabitEthernet0/0: 172.1.4.51 
+      Te1/0/1 : unassigned
+
+  # ----------------------------------------------------------------------------
+  # Layer2 Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  layer2:
+    ## VLANs (strict intf): VLAN name and list of interfaces in that VLAN (strict interfaces, so those exact interfaces)
+    vlan:
+      84:
+        name: DC_MGMT
+        intf: [Te1/0/4, Te1/0/11, Te1/0/12, Te2/0/4]
+      1:
+        name: default
+        intf: [Te1/0/3, Te1/0/4]
+      1111:
+        name: missing
+        intf: [Gi1/1/3, Gi1/1/4]
+    ## Spanning-tree VLAN: List of forwarding (FWD) interfaces per-VLAN (access and trunk) - Not NXOS
+    stp_vlan:
+      84:
+        intf: [Te1/0/11, Te1/0/12, Te2/0/3, Te2/0/11, Te2/0/12, Po21, Po22, Po103]     
+      87:
+        intf: [Po103]  
+      12:
+        intf: [Po21, Po22, Po33]
+    ## MAC address count: Total number of dynamic MAC addresses in the MAC address table for all vlans and/or per-VLAN
+    mac_table:
+      total_mac_count: 39
+      vl84_mac_count: 6
+      vl83_mac_count: 21
+      vll10_mac_count: 21
+
+  # ----------------------------------------------------------------------------
+  # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  fhr:
+    ## HSRP: For each HSRP interface the priority and state
+    hsrp:
+      Vlan11:
+        priority: 100
+        state: Standby
+      Vlan200:
+        priority: 110
+        state: Active
+
+  # ----------------------------------------------------------------------------
+  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  route_table:
+    ## VRF (strict): List of member interfaces for each VRF - Not ASA
+    vrf:
+      BLU: [Lo111]
+      AMB: [Gi0/1, Gi0/2, Vl1000, Vl110, Vl120]
+      GRY: [Vl2000, Vl2100]
+    ## Route Table count: Total number of subnets either in global (default) RT or the name of the vrf
+    route_count:
+      global: 21
+      BLU: 4
+      AMB: 15
+    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    route:
+      global:
+        192.168.11.3/32: 
+          rtype: S
+          nh: 192.168.2.19
+        192.168.35.4/32: 
+          rtype: O E2
+          nh: [192.168.11.2, 192.168.11.10]
+        192.168.45.4/32: 
+          rtype: C
+          nh: Loopback111
+        192.168.1.14/30: 
+          rtype: L
+          nh: GigabitEthernet0/0/5
+      BLU:
+        0.0.0.0/0: 
+          rtype: S
+          nh: 192.168.11.11
+        192.168.5.4/32: 
+          rtype: O E2
+          nh: [192.168.11.2, 192.168.11.10]
+        172.1.100.0/24: 
+          rtype: C
+          nh: Vlan710
+
+  # ----------------------------------------------------------------------------
+  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
+  # ----------------------------------------------------------------------------
+  route_protocol:
+    ## EIGRP Interface/Neighbor (strict): List of EIGRP enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    eigrp_intf_nbr:
+      Gi3:
+        asn: 1
+        nbr: 10.10.10.2
+      Vl10:
+        asn: 545
+        nbr: 10.230.205.27
+    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ospf_intf_nbr: 
+      Lo11:
+        pid: 1
+        area: 101
+      Po12:
+        pid: 1
+        area: 4
+        nbr: 192.168.25.2
+      Po3:
+        pid: 101
+        area: 101
+        nbr: 10.25.100.2
+
+    ## OSPF database count: The total number of LSAs (all types) in the LSDB per OSPF process
+    ospf_lsdb_count:
+      1:
+        total_lsa: 3
+      101:
+        total_lsa: 10  
+    ## BGP Peers/Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of received prefixes
+    bgp_peer:
+      192.168.67.149:
+        asn: 65311
+        rcv_pfx: 55
+      192.168.67.9:
+        asn: 65312
+        rcv_pfx: 6
+
+  # ----------------------------------------------------------------------------
+  # Switchport authentication Validations - IOS/IOS-XE
+  # ----------------------------------------------------------------------------
+  auth_session:
+    ## MAB auth sessions: Total number of MAB authenticated sessions
+    mab_count: 27
+    ## DOT1X auth sessions:  Total number of DOT1X authenticated sessions
+    dot1x_count: 22
+
+  # ----------------------------------------------------------------------------
+  # EVPN/VXLAN Validations - IOS/IOS-XE, NXOS
+  # ----------------------------------------------------------------------------
+  evpn:
+    ## NVE VNIs - Dictionary of L2/L3VNIs and the associated BDI/VRF, state is expected top be Up
+    nve_vni:
+      10002:
+        bd_vrf: 6
+      10101:
+        bd_vrf: BLU
+    ## NVE Peers (strict): Single  peer or list of peers, state is expected top be UP 
+    nve_peer: [192.168.11.41, 192.168.11.47, 192.168.11.81]
+
+  # ----------------------------------------------------------------------------
+  # VPN Validations - IOS/IOS-XE, ASA
+  # ----------------------------------------------------------------------------
+  vpn:
+    # StS VPN PEERS (strict): List of VPN peers, status is expected to be UP-ACTIVE on IOS or ASA to have tx/rx
+    sts_peer: [212.61.5.23, 1.2.3.4]
+    # NUM_VPN: Total number of StS VPN peers and AnyConnect users (ASA only)
+    vpn_count:
+      sts: 2

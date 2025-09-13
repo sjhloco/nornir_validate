@@ -1,0 +1,60 @@
+{
+    "evpn": {
+        "nve_vni": [
+            {
+                "interface": "nve1",
+                "vni": "10306",
+                "mcast_group": "N/A",
+                "state": "Up",
+                "mode": "L3CP",
+                "bd": "306",
+                "vrf": "GRY"
+            },
+            {
+                "interface": "nve1",
+                "vni": "10303",
+                "mcast_group": "N/A",
+                "state": "Up",
+                "mode": "L3CP",
+                "bd": "303",
+                "vrf": "AMB"
+            },
+            {
+                "interface": "nve1",
+                "vni": "10302",
+                "mcast_group": "N/A",
+                "state": "Up",
+                "mode": "L3CP",
+                "bd": "302",
+                "vrf": "GRN"
+            },
+            {
+                "interface": "nve1",
+                "vni": "10301",
+                "mcast_group": "N/A",
+                "state": "Up",
+                "mode": "L3CP",
+                "bd": "301",
+                "vrf": "BLU"
+            }
+        ],
+        "nve_peer": [
+            {
+                "interface": "nve1",
+                "vni": "10303",
+                "type": "L3CP",
+                "peer": "192.168.111.81",
+                "rmac": "0200.c0a8.655b",
+                "state": "UP"
+            },
+            {
+                "interface": "nve1",
+                "vni": "10301",
+                "type": "L3CP",
+                "peer": "192.168.111.81",
+                "rmac": "0200.c0a8.655b",
+                "state": "UP"
+            }
+        ]
+    }
+}

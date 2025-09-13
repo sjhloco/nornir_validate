@@ -1,0 +1,9 @@
+layer2:
+  vlan:
+    show vlan brief: VALIDATE
+  stp_vlan:
+    show spanning-tree: VALIDATE
+  mac_table:
+    show mac address-table dynamic | count dynamic|DYNAMIC: VALIDATE
+    show mac address-table count Vlan 10 | in Dynamic|Static|Vlan: VALIDATE
+    show mac address-table count Vlan 64 | in Dynamic|Static|Vlan: VALIDATE

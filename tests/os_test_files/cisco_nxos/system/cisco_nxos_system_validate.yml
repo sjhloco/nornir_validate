@@ -1,0 +1,18 @@
+all:
+  system:
+    image: 9.3(5)
+    mgmt_acl:
+      TEST_SNMP_ACCESS:
+        ace:
+        - permit: 10.17.10.0/24
+      TEST_SSH_ACCESS:
+        ace:
+        - permit: 10.17.10.0/24
+        - permit: 10.10.10.10/32
+        - deny: any
+    module:
+      1:
+        model: N7K-SUP1
+        status: active *
+      3:
+        model: N7K-F248XP-25

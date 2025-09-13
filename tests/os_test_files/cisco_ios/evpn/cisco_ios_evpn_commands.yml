@@ -1,0 +1,5 @@
+evpn:
+  nve_vni:
+    show nve vni: VALIDATE
+  nve_peer:
+    show nve peers: VALIDATE
