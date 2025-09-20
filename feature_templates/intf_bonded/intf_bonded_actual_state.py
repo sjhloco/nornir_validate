@@ -21,10 +21,10 @@ def _set_keys(os_type: str) -> OsKeys:
     Returns:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
-    if "ios" in os_type or "asa" in os_type:
-        return OsKeys("po_name", "po_status", "protocol", "interfaces")
-    elif "nxos" in os_type:
-        return OsKeys("bundle_iface", "bundle_status", "bundle_proto", "phys_iface")
+    if "ios" in os_type or "nxos" in os_type or "asa" in os_type:
+        return OsKeys(
+            "bundle_name", "bundle_status", "bundle_protocol", "member_interface"
+        )
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)

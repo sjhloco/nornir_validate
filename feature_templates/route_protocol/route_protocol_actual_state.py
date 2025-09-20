@@ -28,7 +28,7 @@ def _set_keys(os_type: str) -> OsKeys:
     elif "nxos" in os_type:
         return OsKeys("neighbor_ipaddr", "bgp_neigh", "neigh_as", "state_pfxrcd")
     elif "asa" in os_type:
-        return OsKeys("address", "bgp_neigh", "neigh_as", "state_pfxrcd")
+        return OsKeys("ip_address", "bgp_neigh", "neigh_as", "state_pfxrcd")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)

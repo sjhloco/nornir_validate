@@ -3,7 +3,7 @@ all:
     # Software image: Current image
     - image
     # Management ACL: SSH access and SNMP ACLs
-    - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
+    - mgmt_acl
   redundancy:
     # High Availability state: The redundancy state of the local and peered devices
     - ha_state

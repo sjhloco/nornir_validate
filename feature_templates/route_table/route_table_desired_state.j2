@@ -10,7 +10,7 @@
 {% set route_vrf_count_cmd = "show ip  route summary vrf x | in VRF|routes" %}
 {% set route_cmd = "show ip route" %}
 {% elif 'asa' in os_type |string %}
-{% set route_count_cmd = "show route summary | in maximum-paths|Total" %}
+{% set route_count_cmd = "show  route summary | in maximum-paths|Total" %}
 {% set route_cmd = "show route" %}
 {% elif 'wlc' in os_type |string %}
 {% endif %}

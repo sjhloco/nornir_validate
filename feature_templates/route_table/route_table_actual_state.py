@@ -27,7 +27,7 @@ def _set_keys(os_type: str) -> OsKeys:
     elif "nxos" in os_type:
         return OsKeys(-1, "mask", "nexthop_ip", "nexthop_if")
     elif "asa" in os_type:
-        return OsKeys(2, "mask", "nexthopip", "nexthopif")
+        return OsKeys(2, "netmask", "nexthopip", "nexthopif")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)

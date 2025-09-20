@@ -29,10 +29,17 @@ def _set_keys(os_type: str) -> OsKeys:
         return OsKeys("port", "vlan", "status", "intf-name", "prefix", "link-state")
     elif "asa" in os_type:
         return OsKeys(
-            "interface", "interface_zone", "link_status", "intf", "ipaddr", "status"
+            "interface",
+            "interface_zone",
+            "link_status",
+            "interface",
+            "ip_address",
+            "status",
         )
     elif "wlc" in os_type:
-        return OsKeys("port", "stp_status", "link_status", "name", "ip_addr", "status")
+        return OsKeys(
+            "port", "stp_status", "link_status", "name", "ip_address", "status"
+        )
 
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"

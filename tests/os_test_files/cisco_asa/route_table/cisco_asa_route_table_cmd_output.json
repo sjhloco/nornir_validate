@@ -7,7 +7,7 @@
         "route": [
             {
                 "distance": "111",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "20",
                 "network": "10.231.0.134",
                 "nexthopif": "DC_AMB_vl94",
@@ -18,7 +18,7 @@
             },
             {
                 "distance": "111",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "20",
                 "network": "10.231.0.137",
                 "nexthopif": "DC_AMB_vl94",
@@ -29,7 +29,7 @@
             },
             {
                 "distance": "111",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "20",
                 "network": "10.231.0.138",
                 "nexthopif": "DC_AMB_vl94",
@@ -40,7 +40,7 @@
             },
             {
                 "distance": "111",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "20",
                 "network": "10.231.16.14",
                 "nexthopif": "DC_AMB_vl94",
@@ -51,7 +51,7 @@
             },
             {
                 "distance": "",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "",
                 "network": "10.235.12.1",
                 "nexthopif": "DC_AMB_SMTP",
@@ -62,7 +62,7 @@
             },
             {
                 "distance": "",
-                "mask": "255.255.255.0",
+                "netmask": "255.255.255.0",
                 "metric": "",
                 "network": "10.235.13.0",
                 "nexthopif": "DC_AMB_WEB",
@@ -73,7 +73,7 @@
             },
             {
                 "distance": "",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "",
                 "network": "10.235.13.1",
                 "nexthopif": "DC_AMB_WEB",
@@ -84,7 +84,7 @@
             },
             {
                 "distance": "110",
-                "mask": "255.255.255.248",
+                "netmask": "255.255.255.248",
                 "metric": "11",
                 "network": "10.235.100.16",
                 "nexthopif": "Outside",
@@ -95,7 +95,7 @@
             },
             {
                 "distance": "",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "",
                 "network": "10.235.111.1",
                 "nexthopif": "Untrust",
@@ -106,7 +106,7 @@
             },
             {
                 "distance": "",
-                "mask": "255.255.255.248",
+                "netmask": "255.255.255.248",
                 "metric": "",
                 "network": "10.235.113.0",
                 "nexthopif": "DCA",
@@ -117,7 +117,7 @@
             },
             {
                 "distance": "",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "",
                 "network": "10.235.113.2",
                 "nexthopif": "DCA",
@@ -128,7 +128,7 @@
             },
             {
                 "distance": "",
-                "mask": "255.255.255.0",
+                "netmask": "255.255.255.0",
                 "metric": "",
                 "network": "10.235.120.0",
                 "nexthopif": "DC_AMB_MGMT",
@@ -139,7 +139,7 @@
             },
             {
                 "distance": "1",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "0",
                 "network": "10.235.220.15",
                 "nexthopif": "DC_AMB_DCI_LINK",
@@ -150,7 +150,7 @@
             },
             {
                 "distance": "1",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "0",
                 "network": "25.10.34.121",
                 "nexthopif": "Outside",
@@ -161,7 +161,7 @@
             },
             {
                 "distance": "1",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "0",
                 "network": "26.14.154.191",
                 "nexthopif": "Outside",
@@ -174,7 +174,7 @@
                 "protocol": "B",
                 "type": "",
                 "network": "10.10.128.0",
-                "mask": "255.255.240.0",
+                "netmask": "255.255.240.0",
                 "distance": "200",
                 "metric": "0",
                 "nexthopip": "10.10.234.1",
@@ -185,7 +185,7 @@
                 "protocol": "B",
                 "type": "",
                 "network": "10.10.235.11",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "distance": "200",
                 "metric": "0",
                 "nexthopip": "10.10.234.1",
@@ -194,7 +194,7 @@
             },
             {
                 "distance": "1",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "metric": "0",
                 "network": "51.11.74.117",
                 "nexthopif": "Outside",
@@ -205,7 +205,7 @@
             },
             {
                 "distance": "1",
-                "mask": "255.240.0.0",
+                "netmask": "255.240.0.0",
                 "metric": "0",
                 "network": "172.16.0.0",
                 "nexthopif": "Semi-Trust",
@@ -216,7 +216,7 @@
             },
             {
                 "distance": "1",
-                "mask": "255.254.0.0",
+                "netmask": "255.254.0.0",
                 "metric": "0",
                 "network": "172.30.0.0",
                 "nexthopif": "DC_AMB_P2P",
@@ -227,7 +227,7 @@
             },
             {
                 "distance": "110",
-                "mask": "255.255.255.240",
+                "netmask": "255.255.255.240",
                 "metric": "20",
                 "network": "18.44.16.12",
                 "nexthopif": "Outside",
@@ -238,7 +238,7 @@
             },
             {
                 "distance": "110",
-                "mask": "255.255.255.240",
+                "netmask": "255.255.255.240",
                 "metric": "20",
                 "network": "19.4.16.1",
                 "nexthopif": "Outside",
@@ -249,7 +249,7 @@
             },
             {
                 "distance": "1",
-                "mask": "255.255.0.0",
+                "netmask": "255.255.0.0",
                 "metric": "0",
                 "network": "192.168.0.0",
                 "nexthopif": "Semi-Trust",
@@ -262,7 +262,7 @@
                 "protocol": "S",
                 "type": "",
                 "network": "1.1.1.1",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "distance": "1",
                 "metric": "0",
                 "nexthopip": "10.10.144.3",
@@ -273,7 +273,7 @@
                 "protocol": "S",
                 "type": "",
                 "network": "1.1.1.1",
-                "mask": "255.255.255.255",
+                "netmask": "255.255.255.255",
                 "distance": "1",
                 "metric": "0",
                 "nexthopip": "10.10.144.2",
@@ -283,3 +283,5 @@
         ]
     }
 }
+
+

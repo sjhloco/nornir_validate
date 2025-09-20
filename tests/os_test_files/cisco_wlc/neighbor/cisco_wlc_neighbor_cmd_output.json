@@ -3,21 +3,21 @@
         "cdp": [
             {
                 "capabilities": "Router Switch IGMP ",
-                "destination_host": "BB-9500-VSS01",
-                "local_port": "TenGigabitEthernet0/0/1",
-                "management_ip": "172.16.1.1",
+                "chassis_id": "BB-9500-VSS01",
+                "local_interface": "TenGigabitEthernet0/0/1",
+                "mgmt_address": "172.16.1.1",
                 "platform": "cisco C9500-16X",
-                "remote_port": "TenGigabitEthernet1/0/7",
-                "software_version": "Cisco IOS Software [Bengaluru], Catalyst L3 Switch Software (CAT9K_IOSXE), Version 17.6.4, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2022 by Cisco Systems, Inc. Compiled Sun 14-Aug-22 08:58 by mcpre"
+                "neighbor_interface": "TenGigabitEthernet1/0/7",
+                "neighbor_description": "Cisco IOS Software [Bengaluru], Catalyst L3 Switch Software (CAT9K_IOSXE), Version 17.6.4, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2022 by Cisco Systems, Inc. Compiled Sun 14-Aug-22 08:58 by mcpre"
             },
             {
                 "capabilities": "Router Switch IGMP ",
-                "destination_host": "BB-9500-VSS01",
-                "local_port": "TenGigabitEthernet0/0/2",
-                "management_ip": "172.16.1.1",
+                "chassis_id": "BB-9500-VSS01",
+                "local_interface": "TenGigabitEthernet0/0/2",
+                "mgmt_address": "172.16.1.1",
                 "platform": "cisco C9500-16X",
-                "remote_port": "TenGigabitEthernet2/0/7",
-                "software_version": "Cisco IOS Software [Bengaluru], Catalyst L3 Switch Software (CAT9K_IOSXE), Version 17.6.4, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2022 by Cisco Systems, Inc. Compiled Sun 14-Aug-22 08:58 by mcpre"
+                "neighbor_interface": "TenGigabitEthernet2/0/7",
+                "neighbor_description": "Cisco IOS Software [Bengaluru], Catalyst L3 Switch Software (CAT9K_IOSXE), Version 17.6.4, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2022 by Cisco Systems, Inc. Compiled Sun 14-Aug-22 08:58 by mcpre"
             }
         ]
     }

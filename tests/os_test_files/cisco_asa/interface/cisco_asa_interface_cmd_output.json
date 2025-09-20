@@ -140,20 +140,20 @@
         ],
         "ip_brief": [
             {
-                "intf": "GigabitEthernet1/1",
-                "ipaddr": "192.168.10.253",
+                "interface": "GigabitEthernet1/1",
+                "ip_address": "192.168.10.253",
                 "status": "up",
                 "proto": "up"
             },
             {
-                "intf": "Port-channel1.144",
-                "ipaddr": "10.110.144.1",
+                "interface": "Port-channel1.144",
+                "ip_address": "10.110.144.1",
                 "status": "up",
                 "proto": "up"
             },
             {
-                "intf": "Port-channel1.3101",
-                "ipaddr": "10.10.254.2",
+                "interface": "Port-channel1.3101",
+                "ip_address": "10.10.254.2",
                 "status": "up",
                 "proto": "up"
             }

@@ -100,7 +100,8 @@ def format_vpn_count(
     result = {}
     for each_line in output:
         if isinstance(each_line, str):
-            result["sts"] = _make_int(each_line.split()[-1])
+            if "Number of lines which match regexp" in each_line:
+                result["sts"] = _make_int(each_line.split()[-1])
         else:
             for each_vpn, active_sess in zip(
                 each_line["vpn_session_name"], each_line["vpn_session_active"]

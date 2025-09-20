@@ -2,28 +2,28 @@
     "intf_bonded": {
         "port_channel": [
             {
-                "bundle_iface": "Po21",
-                "bundle_proto": "LACP",
-                "bundle_proto_state": "",
+                "bundle_name": "Po21",
+                "bundle_protocol": "LACP",
+                "bundle_protocol_state": "",
                 "bundle_status": "(SU)",
-                "phys_iface": ["Eth1/21"],
-                "phys_iface_status": ["(P)"]
+                "member_interface": ["Eth1/21"],
+                "member_interface_status": ["(P)"]
             },
             {
-                "bundle_iface": "Po22",
-                "bundle_proto": "LACP",
-                "bundle_proto_state": "",
+                "bundle_name": "Po22",
+                "bundle_protocol": "LACP",
+                "bundle_protocol_state": "",
                 "bundle_status": "(SU)",
-                "phys_iface": ["Eth1/22"],
-                "phys_iface_status": ["(P)"]
+                "member_interface": ["Eth1/22"],
+                "member_interface_status": ["(P)"]
             },
             {
-                "bundle_iface": "Po26",
-                "bundle_proto": "NONE",
-                "bundle_proto_state": "",
+                "bundle_name": "Po26",
+                "bundle_protocol": "NONE",
+                "bundle_protocol_state": "",
                 "bundle_status": "(SU)",
-                "phys_iface": ["Eth1/26"],
-                "phys_iface_status": ["(P)"]
+                "member_interface": ["Eth1/26"],
+                "member_interface_status": ["(P)"]
             }
         ],
         "vpc": [

@@ -5,8 +5,9 @@
                 "area": "101",
                 "cost": "10",
                 "interface": "Outside",
-                "ip_address_mask": "10.10.100.10/255.255.255.248",
+                "ip_address": "10.10.100.10",
                 "neighbors_fc": "1/1",
+                "netmask": "255.255.255.248",
                 "process": "101",
                 "state": "P2P"
             },
@@ -14,8 +15,9 @@
                 "area": "100",
                 "cost": "10",
                 "interface": "Transit",
-                "ip_address_mask": "10.25.111.1/255.255.255.248",
+                "ip_address": "10.25.111.1",
                 "neighbors_fc": "1/1",
+                "netmask": "255.255.255.248",
                 "process": "100",
                 "state": "BDR"
             },
@@ -23,13 +25,14 @@
                 "area": "110",
                 "cost": "10",
                 "interface": "Inside",
-                "ip_address_mask": "10.25.1.17/255.255.255.240",
+                "ip_address": "10.25.1.17",
                 "neighbors_fc": "2/2",
+                "netmask": "255.255.255.240",
                 "process": "100",
                 "state": "DR"
             },
             {
-                "address": "10.25.10.9",
+                "ip_address": "10.25.10.9",
                 "dead_time": "0:00:07",
                 "interface": "Outside",
                 "neighbor_id": "10.10.100.9",
@@ -37,7 +40,7 @@
                 "state": "FULL/  -"
             },
             {
-                "address": "192.168.10.3",
+                "ip_address": "192.168.10.3",
                 "dead_time": "0:00:30",
                 "interface": "Transit",
                 "neighbor_id": "192.168.100.3",
@@ -45,7 +48,7 @@
                 "state": "FULL/DR"
             },
             {
-                "address": "10.23.1.18",
+                "ip_address": "10.23.1.18",
                 "dead_time": "0:00:07",
                 "interface": "Inside",
                 "neighbor_id": "10.25.1.18",
@@ -53,7 +56,7 @@
                 "state": "FULL/BDR"
             },
             {
-                "address": "10.23.1.19",
+                "ip_address": "10.23.1.19",
                 "dead_time": "0:00:07",
                 "interface": "Inside",
                 "neighbor_id": "10.25.1.19",
@@ -61,6 +64,11 @@
                 "state": "FULL/DROTHER"
             }
         ],
+
+
+
+
+
         "ospf_lsdb_count": [
             "            OSPF Router with ID (10.25.100.10) (Process ID 101)",
             "           Total      10        0        0",

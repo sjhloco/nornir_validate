@@ -29,7 +29,7 @@
                 "ap_mgr": "No",
                 "guest": "No",
                 "int_count": "9",
-                "ip_addr": "172.1.8.5",
+                "ip_address": "172.1.8.5",
                 "name": "int_gst_svc",
                 "port": "LAG",
                 "type": "Dynamic",
@@ -39,7 +39,7 @@
                 "ap_mgr": "No",
                 "guest": "No",
                 "int_count": "9",
-                "ip_addr": "172.2.0.5",
+                "ip_address": "172.2.0.5",
                 "name": "int_gst_hotspot",
                 "port": "LAG",
                 "type": "Dynamic",
@@ -48,4 +48,3 @@
         ]
     }
 }
-

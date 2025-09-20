@@ -1,6 +1,6 @@
 route_table:
   route_count:
-    show route summary | in maximum-paths|Total:
+    show  route summary | in maximum-paths|Total:
       global: 372
   route:
     show route:

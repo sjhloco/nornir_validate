@@ -3,19 +3,19 @@
         "port_channel": [
             {
                 "group": "1",
-                "interfaces": ["Gi0/0", "Gi0/1"],
-                "interfaces_status": ["P", "P"],
-                "po_name": "Po1",
-                "po_status": "U",
-                "protocol": "LACP"
+                "member_interface": ["Gi0/0", "Gi0/1"],
+                "member_interface_status": ["P", "P"],
+                "bundle_name": "Po1",
+                "bundle_status": "U",
+                "bundle_protocol": "LACP"
             },
             {
                 "group": "11",
-                "interfaces": ["Gi0/5", "Gi0/6"],
-                "interfaces_status": ["P", "P"],
-                "po_name": "Po11",
-                "po_status": "U",
-                "protocol": "LACP"
+                "member_interface": ["Gi0/5", "Gi0/6"],
+                "member_interface_status": ["P", "P"],
+                "bundle_name": "Po11",
+                "bundle_status": "U",
+                "bundle_protocol": "LACP"
             }
         ]
     }

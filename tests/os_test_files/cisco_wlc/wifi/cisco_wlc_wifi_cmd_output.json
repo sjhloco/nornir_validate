@@ -33,7 +33,7 @@
                 "clients": "4",
                 "country": "GB",
                 "dse_location": "[0 ,0 ,0 ]",
-                "ip": "10.20.10.12",
+                "ip_address": "10.20.10.12",
                 "location": "DC - R129",
                 "mac": "b0:8b:cf:aa:cc:bb",
                 "slot": "3"
@@ -44,7 +44,7 @@
                 "clients": "14",
                 "country": "GB",
                 "dse_location": "[0 ,0 ,0 ]",
-                "ip": "10.20.10.14",
+                "ip_address": "10.20.10.14",
                 "location": "DC - R18",
                 "mac": "b0:8b:cf:cc:ee:ff",
                 "slot": "3"

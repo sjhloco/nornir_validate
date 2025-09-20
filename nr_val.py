@@ -199,44 +199,6 @@ def create_val_dm() -> dict[str, dict[str, list[str]]]:
 
 
 # ----------------------------------------------------------------------------
-#  CLEAN: Cleans up non structured text data when auto generating validation files
-# ----------------------------------------------------------------------------
-def cleanup_output(cmd: str, tmp_cmd_output: Any) -> Any:  # noqa: ANN401
-    """Removes errors that occur from empty features, mainly unstructured data (non-ntc templates).
-
-    Args:
-        cmd (str): Command that was run to get tmp_cmd_output
-        tmp_cmd_output (list[dict[str, Any]]): Command output, had to use type Any due to try/except
-
-    Returns:
-        list[dict[str, Any]]: The original or sanitized command output (typing Any for same reason)
-    """
-    # Converts NXOS "| json" cmds from string to JSON
-    if "| json" in cmd:
-        tmp_cmd_output = [json.loads(tmp_cmd_output)]
-    # Required for non-formatted data (no NTC template)
-    if isinstance(tmp_cmd_output, str):
-        tmp_cmd_output = (
-            tmp_cmd_output.lstrip().rstrip().replace("^\n", "").splitlines()
-        )
-        # Catches empty tables as wont be parsed (such as WLC show int grp sum)
-        if "---------" in str(tmp_cmd_output):
-            tmp_cmd_output = []
-        # Catches functions not supported (text output error in from cli)
-        elif len(tmp_cmd_output) == 1:
-            try:
-                int(tmp_cmd_output[0])
-            except Exception as e:
-                # If matched strips these text statements out
-                if (
-                    tmp_cmd_output[0] == "Number of lines which match regexp = 0"
-                    or "Number of lines which match regexp" not in tmp_cmd_output[0]
-                ):
-                    tmp_cmd_output = []
-    return tmp_cmd_output
-
-
-# ----------------------------------------------------------------------------
 # 1. DESIRED_STATE: Create a host_var of desired state by running (per-os-type) task_template
 # ----------------------------------------------------------------------------
 def task_desired_state(
@@ -472,8 +434,12 @@ def val_file_builder(
                     ).result
                 except NornirSubTaskError:
                     tmp_cmd_output = []
-                # Cleans up non-formatted data (no NTC template)
-                tmp_cmd_output = cleanup_output(cmd, tmp_cmd_output)
+                # Converts NXOS "| json" cmds from string to JSON
+                if "json" in cmd:
+                    tmp_cmd_output = [json.loads(tmp_cmd_output)]
+                # Required for non-structured data(no NTC template)
+                elif isinstance(tmp_cmd_output, str):
+                    tmp_cmd_output = tmp_cmd_output.lstrip().rstrip().splitlines()
                 cmd_output.extend(tmp_cmd_output)
             if len(tmp_cmd_output) != 0:
                 feat_actual_data[feature][sub_feat_name] = cmd_output

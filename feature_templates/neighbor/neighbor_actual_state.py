@@ -22,7 +22,7 @@ def _set_keys(os_type: str) -> OsKeys:
     if "ios" in os_type or "nxos" in os_type:
         return OsKeys("local_interface", "neighbor", "neighbor_interface")
     elif "wlc" in os_type:
-        return OsKeys("local_port", "destination_host", "remote_port")
+        return OsKeys("local_interface", "chassis_id", "neighbor_interface")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)

@@ -64,13 +64,15 @@ def format_wlan(
     for each_wlan in output:
         wlanid = _make_int(each_wlan["wlanid"])
         result[wlanid]["ssid"] = each_wlan["ssid"]
-        # If creating actual state
+        # If creating actual state (replace(none) needed as long names merge next column (PIMIPv6))
         if not val_file:
-            result[wlanid]["intf"] = each_wlan["interface"]
+            result[wlanid]["intf"] = each_wlan["interface"].replace("none", "").rstrip()
             result[wlanid]["status"] = "Enabled"
         # If creating validation file
         elif val_file:
-            result[wlanid]["interface"] = each_wlan["interface"]
+            result[wlanid]["interface"] = (
+                each_wlan["interface"].replace("none", "").rstrip()
+            )
     return dict(result)
 
 
@@ -85,7 +87,7 @@ def format_ap(output: list[dict[str, str]]) -> dict[str, Any]:
     result: dict[str, dict[str, Union[str | int]]] = defaultdict(dict)
     for each_ap in output:
         result[each_ap["ap_name"]]["model"] = each_ap["ap_model"]
-        result[each_ap["ap_name"]]["ip"] = each_ap["ip"]
+        result[each_ap["ap_name"]]["ip"] = each_ap["ip_address"]
         result[each_ap["ap_name"]]["client_count"] = _make_int(each_ap["clients"])
     return dict(result)
 

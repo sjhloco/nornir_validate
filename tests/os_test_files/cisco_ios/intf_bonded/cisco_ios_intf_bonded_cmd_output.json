@@ -3,11 +3,11 @@
         "port_channel": [
             {
                 "group": "3",
-                "po_name": "Po3",
-                "po_status": "SU",
-                "protocol": "LACP",
-                "interfaces": ["Gi0/15", "Gi0/16"],
-                "interfaces_status": ["P", "P"]
+                "bundle_name": "Po3",
+                "bundle_status": "SU",
+                "bundle_protocol": "LACP",
+                "member_interface": ["Gi0/15", "Gi0/16"],
+                "member_interface_status": ["P", "P"]
             }
         ]
     }
