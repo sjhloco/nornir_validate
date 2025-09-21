@@ -8,7 +8,7 @@
                 "speed": "10G",
                 "status": "connected",
                 "type": "10Gbase-SR",
-                "vlan": "21"
+                "vlan_id": "21"
             },
             {
                 "duplex": "full",
@@ -17,7 +17,7 @@
                 "speed": "10G",
                 "status": "connected",
                 "type": "10Gbase-SR",
-                "vlan": "trunk"
+                "vlan_id": "trunk"
             },
             {
                 "duplex": "auto",
@@ -26,7 +26,7 @@
                 "speed": "auto",
                 "status": "connected",
                 "type": "--",
-                "vlan": "routed"
+                "vlan_id": "routed"
             }
         ],
         "switchport": [

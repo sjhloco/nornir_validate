@@ -204,7 +204,7 @@ all:
   # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_protocol:
-    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers (RID) off them (no need for nbr dict if no neighbors)
     ospf_intf_nbr: 
       Vlan2:
         pid: DC_UNDERLAY

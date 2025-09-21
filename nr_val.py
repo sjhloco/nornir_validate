@@ -408,6 +408,8 @@ def val_file_builder(
     Returns:
         Result: The nornir result from the execution of the task, so list of enabled and not enabled features as well as val file name
     """
+    # ERROR: Error patterns returned by devices that would mean a feature is not configured
+    error_patterns = ["ERROR: % Invalid input detected at '^' marker."]
     # 5a. Use input input validation DM or if empty create one of all the possible validations
     validations = create_val_dm() if len(input_data) == 0 else input_data
     import_actual_state_modules(validations)
@@ -442,8 +444,12 @@ def val_file_builder(
                     tmp_cmd_output = tmp_cmd_output.lstrip().rstrip().splitlines()
                 cmd_output.extend(tmp_cmd_output)
             if len(tmp_cmd_output) != 0:
-                feat_actual_data[feature][sub_feat_name] = cmd_output
-                used_subfeat.append(sub_feat_name)
+                # SKIP: Skips sub-feature validation if command returned an error
+                if any(pattern in str(tmp_cmd_output) for pattern in error_patterns):
+                    not_used_subfeat.append(sub_feat_name)
+                else:
+                    feat_actual_data[feature][sub_feat_name] = cmd_output
+                    used_subfeat.append(sub_feat_name)
             else:
                 not_used_subfeat.append(sub_feat_name)
 

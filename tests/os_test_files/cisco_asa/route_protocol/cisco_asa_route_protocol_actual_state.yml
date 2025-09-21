@@ -4,18 +4,18 @@ route_protocol:
       pid: 101
       area: 101
       nbr:
-        10.25.10.9: FULL
+        10.10.100.9: FULL
     Transit:
       pid: 100
       area: 100
       nbr:
-        192.168.10.3: FULL
+        192.168.100.3: FULL
     Inside:
       pid: 100
       area: 110
       nbr:
-        10.23.1.18: FULL
-        10.23.1.19: FULL
+        10.25.1.18: FULL
+        10.25.1.19: FULL
   ospf_lsdb_count:
     101:
       total_lsa: 10

@@ -21,7 +21,7 @@ def _set_keys(os_type: str) -> OsKeys:
         OsKeys: A NamedTuple with the keys for interface, priority, and state
     """
     if "ios" in os_type:
-        return OsKeys("iface", "priority", "state")
+        return OsKeys("interface", "priority", "state")
     elif "nxos" in os_type:
         return OsKeys("sh_if_index", "sh_prio", "sh_group_state")
     elif bool(re.search("asa", os_type)):  # noqa: SIM114

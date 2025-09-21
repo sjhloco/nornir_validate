@@ -2,7 +2,7 @@ all:
   system:
     # Software image: Current image
     - image
-    # Management ACL: SSH access and SNMP ACLs (ASA should just be mgmt_acl, no list)
+    # Management ACL: SSH access and SNMP ACLs (ASA would be [ssh, http])
     - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
     # MODULE: Multi-chassis modules
     - module

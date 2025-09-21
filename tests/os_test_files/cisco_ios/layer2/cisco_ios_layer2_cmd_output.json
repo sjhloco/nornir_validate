@@ -1,11 +1,11 @@
 {
     "layer2": {
         "vlan": [
-            {"interfaces": [], "name": "default", "status": "active", "vlan_id": "1"},
-            {"interfaces": [], "name": "test", "status": "active", "vlan_id": "10"},
+            {"interfaces": [], "vlan_name": "default", "status": "active", "vlan_id": "1"},
+            {"interfaces": [], "vlan_name": "test", "status": "active", "vlan_id": "10"},
             {
                 "interfaces": ["Gi0/1"],
-                "name": "test20",
+                "vlan_name": "test20",
                 "status": "active",
                 "vlan_id": "20"
             }

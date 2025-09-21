@@ -220,7 +220,7 @@ all:
   # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
   # ----------------------------------------------------------------------------
   route_protocol:
-    ## EIGRP Interface/Neighbor (strict): List of EIGRP enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ## EIGRP Interface/Neighbor (strict): List of EIGRP enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors) - Not NXOS
     eigrp_intf_nbr:
       Gi3:
         asn: 1
@@ -228,7 +228,7 @@ all:
       Vl10:
         asn: 545
         nbr: 10.230.205.27
-    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
+    ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers (RID) off them (no need for nbr dict if no neighbors)
     ospf_intf_nbr: 
       Lo11:
         pid: 1

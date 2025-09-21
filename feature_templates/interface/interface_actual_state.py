@@ -24,9 +24,9 @@ def _set_keys(os_type: str) -> OsKeys:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
     if "ios" in os_type:
-        return OsKeys("port", "vlan", "status", "interface", "ip_address", "status")
+        return OsKeys("port", "vlan_id", "status", "interface", "ip_address", "status")
     elif "nxos" in os_type:
-        return OsKeys("port", "vlan", "status", "intf-name", "prefix", "link-state")
+        return OsKeys("port", "vlan_id", "status", "intf-name", "prefix", "link-state")
     elif "asa" in os_type:
         return OsKeys(
             "interface",

@@ -7,20 +7,20 @@ route_protocol:
         area: 101
         nbr:
           _mode: strict
-          10.25.10.9: FULL
+          10.10.100.9: FULL
       Transit:
         pid: 100
         area: 100
         nbr:
           _mode: strict
-          192.168.10.3: FULL
+          192.168.100.3: FULL
       Inside:
         pid: 100
         area: 110
         nbr:
           _mode: strict
-          10.23.1.18: FULL
-          10.23.1.19: FULL
+          10.25.1.18: FULL
+          10.25.1.19: FULL
   ospf_lsdb_count:
     show ospf database database-summary | in Process ID|Total:
       101:

@@ -7,7 +7,7 @@ from typing import Any, NamedTuple, Union
 # KEY: Set dictionary keys on a per-os_type basis
 # ----------------------------------------------------------------------------
 class OsKeys(NamedTuple):
-    ospf_nbr_ip: str
+    neighbor_id: str
     bgp_nhbr: str
     bgp_nhbr_as: str
     bgp_pfxrcd: str
@@ -23,12 +23,12 @@ def _set_keys(os_type: str) -> OsKeys:
     """
     if "ios" in os_type:
         return OsKeys(
-            "address", "bgp_neighbor", "neighbor_as", "state_or_prefixes_received"
+            "neighbor_id", "bgp_neighbor", "neighbor_as", "state_or_prefixes_received"
         )
     elif "nxos" in os_type:
-        return OsKeys("neighbor_ipaddr", "bgp_neigh", "neigh_as", "state_pfxrcd")
+        return OsKeys("neighbor_id", "bgp_neigh", "neigh_as", "state_pfxrcd")
     elif "asa" in os_type:
-        return OsKeys("ip_address", "bgp_neigh", "neigh_as", "state_pfxrcd")
+        return OsKeys("neighbor_id", "bgp_neigh", "neigh_as", "state_pfxrcd")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -98,10 +98,10 @@ def format_eigrp_nhbr(val_file: bool, output: list[dict[str, Any]]) -> dict[str,
             result[intf]["asn"] = _make_int(each_nbr["as"])
         # val_file
         if val_file:
-            result[intf]["nbr"] = each_nbr["address"]
+            result[intf]["nbr"] = each_nbr["ip_address"]
         # actual state
         elif not val_file:
-            result[intf]["nbr"] = {each_nbr["address"]: state}
+            result[intf]["nbr"] = {each_nbr["ip_address"]: state}
     return dict(result)
 
 
@@ -129,7 +129,7 @@ def format_ospf_nhbr(
             return input_data
 
     def _ospf_nhbr(
-        ospf_nbr_ip: str,
+        neighbor_id: str,
         output: list[dict[str, Any]],
         tmp_dict_nbr: defaultdict[str, Any],
     ) -> dict[str, Union[list[str], dict[str, Union[str, int, dict[str, str]]]]]:
@@ -145,17 +145,17 @@ def format_ospf_nhbr(
                     result[each_intf["interface"]]["nbr"] = {}
             # Data from "show ip ospf neigh" is saved in tmp_dict_nbr (list is val_file, dict actual_state)
             elif tmp_dict_nbr.default_factory is list:
-                tmp_dict_nbr[each_intf["interface"]].extend([each_intf[ospf_nbr_ip]])
+                tmp_dict_nbr[each_intf["interface"]].extend([each_intf[neighbor_id]])
             elif tmp_dict_nbr.default_factory is dict:
                 state = _remove_char(each_intf["state"], "/")
-                tmp_dict_nbr[each_intf["interface"]][each_intf[ospf_nbr_ip]] = state
+                tmp_dict_nbr[each_intf["interface"]][each_intf[neighbor_id]] = state
         return dict(tmp_dict_nbr)
 
     # INTF: Add OSPF intf and process/area to results and neigbors per interface to dict_nbr
     if val_file:
-        dict_nbr = _ospf_nhbr(rp.ospf_nbr_ip, output, defaultdict(list))
+        dict_nbr = _ospf_nhbr(rp.neighbor_id, output, defaultdict(list))
     elif not val_file:
-        dict_nbr = _ospf_nhbr(rp.ospf_nbr_ip, output, defaultdict(dict))
+        dict_nbr = _ospf_nhbr(rp.neighbor_id, output, defaultdict(dict))
     # NBR: Add neighbors based on matching interfaces in results and dict_nbr
     for intf in result.keys():  # noqa: SIM118
         for intf1, nbr in dict_nbr.items():

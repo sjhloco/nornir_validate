@@ -83,7 +83,7 @@ def format_vlan(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
     result: dict[Union[str, int], dict[str, dict[str, list[str]]]] = defaultdict(dict)
     for each_vl in output:
         vl_id = _make_int(each_vl["vlan_id"])
-        result[vl_id]["name"] = each_vl["name"]
+        result[vl_id]["name"] = each_vl["vlan_name"]
         result[vl_id]["intf"] = each_vl["interfaces"]
     for each_item in [1002, 1003, 1004, 1005]:
         if result.get(each_item) is not None:

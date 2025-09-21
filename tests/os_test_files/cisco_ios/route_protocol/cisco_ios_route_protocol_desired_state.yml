@@ -19,13 +19,13 @@ route_protocol:
         area: 1
         nbr:
           _mode: strict
-          192.168.230.2: FULL
+          5.5.5.5: FULL
       Gi1/2:
         pid: 3
         area: 1
         nbr:
           _mode: strict
-          192.168.220.2: FULL
+          5.5.5.5: FULL
       Vl120:
         pid: 2
         area: 0

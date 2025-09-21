@@ -20,7 +20,7 @@ def _set_keys(os_type: str) -> OsKeys:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
     if "ios" in os_type or "nxos" in os_type:
-        return OsKeys("local_interface", "neighbor", "neighbor_interface")
+        return OsKeys("local_interface", "neighbor_name", "neighbor_interface")
     elif "wlc" in os_type:
         return OsKeys("local_interface", "chassis_id", "neighbor_interface")
     # Fallback if nothing matched

@@ -2,7 +2,7 @@
     "route_protocol": {
         "eigrp_intf_nbr": [
             {
-                "address": "10.10.10.2",
+                "ip_address": "10.10.10.2",
                 "as": "1",
                 "hold": "11",
                 "interface": "Gi3",
@@ -13,7 +13,7 @@
                 "uptime": "04:49:21"
             },
             {
-                "address": "10.230.205.27",
+                "ip_address": "10.230.205.27",
                 "as": "545",
                 "hold": "13",
                 "interface": "Vl10",
@@ -29,7 +29,8 @@
                 "interface": "Gi0/3",
                 "process": "3",
                 "area": "1",
-                "ip_address_mask": "192.168.230.1/24",
+                "ip_address": "192.168.230.1",
+                "prefix_length": 24,
                 "cost": "1",
                 "state": "BDR",
                 "neighbors_fc": "1/1"
@@ -38,7 +39,8 @@
                 "interface": "Gi1/2",
                 "process": "3",
                 "area": "1",
-                "ip_address_mask": "192.168.220.1/24",
+                "ip_address": "192.168.220.1",
+                "prefix_length": 24,
                 "cost": "1",
                 "state": "BDR",
                 "neighbors_fc": "1/1"
@@ -47,7 +49,8 @@
                 "interface": "Vl120",
                 "process": "2",
                 "area": "0",
-                "ip_address_mask": "192.168.10.1/24",
+                "ip_address": "192.168.10.1",
+                "prefix_length": 24,
                 "cost": "1",
                 "state": "DR",
                 "neighbors_fc": "2/2"
@@ -56,7 +59,8 @@
                 "interface": "Po1",
                 "process": "1",
                 "area": "0",
-                "ip_address_mask": "10.90.10.2/30",
+                "ip_address": "10.90.10.2",
+                "prefix_length": 30,
                 "cost": "1",
                 "state": "P2P",
                 "neighbors_fc": "1/1"
@@ -65,7 +69,8 @@
                 "interface": "Vl110",
                 "process": "1",
                 "area": "1",
-                "ip_address_mask": "172.16.110.1/24",
+                "ip_address": "172.16.110.1",
+                "prefix_length": 24,
                 "cost": "1",
                 "state": "DR",
                 "neighbors_fc": "0/0"
@@ -75,7 +80,7 @@
                 "priority": "1",
                 "state": "FULL/DR",
                 "dead_time": "00:00:37",
-                "address": "192.168.230.2",
+                "ip_address": "192.168.230.2",
                 "interface": "GigabitEthernet0/3"
             },
             {
@@ -83,7 +88,7 @@
                 "priority": "1",
                 "state": "FULL/DR",
                 "dead_time": "00:00:31",
-                "address": "192.168.220.2",
+                "ip_address": "192.168.220.2",
                 "interface": "GigabitEthernet1/2"
             },
             {
@@ -91,7 +96,7 @@
                 "priority": "1",
                 "state": "FULL/DR",
                 "dead_time": "00:00:36",
-                "address": "192.168.210.2",
+                "ip_address": "192.168.210.2",
                 "interface": "GigabitEthernet1/1"
             },
             {
@@ -99,7 +104,7 @@
                 "priority": "1",
                 "state": "FULL/BDR",
                 "dead_time": "00:00:30",
-                "address": "192.168.10.2",
+                "ip_address": "192.168.10.2",
                 "interface": "Vlan120"
             },
             {
@@ -107,7 +112,7 @@
                 "priority": "1",
                 "state": "FULL/DROTHER",
                 "dead_time": "00:00:37",
-                "address": "192.168.10.3",
+                "ip_address": "192.168.10.3",
                 "interface": "Vlan120"
             },
             {
@@ -115,7 +120,7 @@
                 "priority": "0",
                 "state": "FULL/  -",
                 "dead_time": "00:00:32",
-                "address": "10.90.10.1",
+                "ip_address": "10.90.10.1",
                 "interface": "Port-channel1"
             }
         ],

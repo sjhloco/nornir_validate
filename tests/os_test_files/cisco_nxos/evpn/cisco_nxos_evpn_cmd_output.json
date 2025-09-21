@@ -62,21 +62,21 @@
                 "peer": "192.168.111.41",
                 "state": "Up",
                 "type": "CP",
-                "rmac": "0200.c0a8.6533  "
+                "mac_address": "0200.c0a8.6533  "
             },
             {
                 "interface": "nve1",
                 "peer": "192.168.111.47",
                 "state": "Up",
                 "type": "CP",
-                "rmac": "2416.9dd1.5127 "
+                "mac_address": "2416.9dd1.5127 "
             },
             {
                 "interface": "nve1",
                 "peer": "192.168.111.81",
                 "state": "Up",
                 "type": "CP",
-                "rmac": "0200.c0a8.655b "
+                "mac_address": "0200.c0a8.655b "
             }
         ]
     }

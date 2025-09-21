@@ -5,7 +5,7 @@
                 "capability": "H",
                 "holdtime": "179",
                 "local_interface": "Eth1/21",
-                "neighbor": "DC-CCM-SUB01",
+                "neighbor_name": "DC-CCM-SUB01",
                 "neighbor_interface": "eth0",
                 "platform": "VMware"
             },
@@ -13,7 +13,7 @@
                 "capability": "S I",
                 "holdtime": "149",
                 "local_interface": "Eth1/25",
-                "neighbor": "DC-SWI-ILO01",
+                "neighbor_name": "DC-SWI-ILO01",
                 "neighbor_interface": "Gig1/1/1",
                 "platform": "WS-C3650-48PS"
             },
@@ -21,7 +21,7 @@
                 "capability": "R S s",
                 "holdtime": "156",
                 "local_interface": "Eth1/50",
-                "neighbor": "DC-N9K-SPN02",
+                "neighbor_name": "DC-N9K-SPN02",
                 "neighbor_interface": "Eth1/1",
                 "platform": "N9K-C9332C"
             }
@@ -29,12 +29,12 @@
         "lldp": [
             {
                 "local_interface": "Eth1/49",
-                "neighbor": "DC-N9K-SPN01",
+                "neighbor_name": "DC-N9K-SPN01",
                 "neighbor_interface": "Ethernet1/1"
             },
             {
                 "local_interface": "Eth1/50",
-                "neighbor": "DC-N9K-SPN02",
+                "neighbor_name": "DC-N9K-SPN02",
                 "neighbor_interface": "Ethernet1/1"
             }
         ]

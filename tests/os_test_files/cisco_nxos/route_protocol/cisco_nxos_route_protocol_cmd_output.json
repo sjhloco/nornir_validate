@@ -58,8 +58,8 @@
             },
             {
                 "interface": "Vlan10",
-                "local_ipaddr": "172.16.100.2",
-                "neighbor_ipaddr": "172.16.101.38",
+                "ip_address": "172.16.100.2",
+                "neighbor_id": "172.16.101.38",
                 "ospf_pid": "",
                 "state": "FULL/BDR",
                 "uptime": "2y0w",
@@ -67,8 +67,8 @@
             },
             {
                 "interface": "Vlan2",
-                "local_ipaddr": "172.16.102.2",
-                "neighbor_ipaddr": "172.16.101.38",
+                "ip_address": "172.16.102.2",
+                "neighbor_id": "172.16.101.38",
                 "ospf_pid": "",
                 "state": "FULL/ -",
                 "uptime": "1y45w",
@@ -76,8 +76,8 @@
             },
             {
                 "interface": "Eth1/1",
-                "local_ipaddr": "172.16.101.33",
-                "neighbor_ipaddr": "172.16.101.33",
+                "ip_address": "172.16.101.33",
+                "neighbor_id": "172.16.101.33",
                 "ospf_pid": "",
                 "state": "FULL/ -",
                 "uptime": "2y4w",
@@ -85,8 +85,8 @@
             },
             {
                 "interface": "Eth1/2",
-                "local_ipaddr": "172.16.101.34",
-                "neighbor_ipaddr": "172.16.101.34",
+                "ip_address": "172.16.101.34",
+                "neighbor_id": "172.16.101.34",
                 "ospf_pid": "",
                 "state": "FULL/ -",
                 "uptime": "2y4w",
