@@ -2,6 +2,8 @@
 **/.DS_Store
 TODO
 still_to_do/
+**/.template_builder/
+new_features.md
 
 # vscode settings
 **/.vscode

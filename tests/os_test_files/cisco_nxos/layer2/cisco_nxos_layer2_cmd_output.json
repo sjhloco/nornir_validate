@@ -36,14 +36,14 @@
                 "vlan_id": "3001"
             }
         ],
-        "mac_table": [
-            681,
-            "C    6     0050.566e.685d   dynamic  0         F      F    nve1(192.168.201.91)",
-            "C    6     0050.566f.a626   dynamic  0         F      F    nve1(192.168.101.53)",
+        "mac_table": 
+        [   681, 
+            "6   enet         CE", 
             26,
-            "C   24     aeda.9d10.015e   dynamic  0         F      F    nve1(192.168.201.91)",
-            "C   24     aeda.9d10.0162   dynamic  0         F      F    nve1(192.168.201.91)",
+            "24  enet         CE",
             306
         ]
     }
 }
+
+

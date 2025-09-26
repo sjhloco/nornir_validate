@@ -25,7 +25,7 @@ def _set_keys(os_type: str) -> OsKeys:
     if "ios" in os_type:
         return OsKeys(2, "prefix_length", "nexthop_ip", "nexthop_if")
     elif "nxos" in os_type:
-        return OsKeys(-1, "mask", "nexthop_ip", "nexthop_if")
+        return OsKeys(-1, "prefix_length", "nexthop_ip", "nexthop_if")
     elif "asa" in os_type:
         return OsKeys(2, "netmask", "nexthopip", "nexthopif")
     # Fallback if nothing matched

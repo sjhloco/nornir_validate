@@ -155,6 +155,8 @@ def format_intf(
             "administratively down",
             "admin down",
             "Down",
+            "notconnec",
+            "down",
         }
         if val_file and each_intf[intf.intf_status] in skip_statuses:
             continue

@@ -34,9 +34,9 @@ layer2:
         _mode: strict
         Po1: FWD
   mac_table:
-    show mac address-table count Vlan 10 | in Dynamic|Static|Vlan:
+    show mac address-table count Vlan 10 | in Dynamic|Vlan:
       vl10_mac_count: 6
-    show mac address-table count Vlan 64 | in Dynamic|Static|Vlan:
+    show mac address-table count Vlan 64 | in Dynamic|Vlan:
       vl64_mac_count: 5
     show mac address-table dynamic | count dynamic|DYNAMIC:
       total_mac_count: 19

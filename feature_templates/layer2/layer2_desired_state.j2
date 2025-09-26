@@ -3,11 +3,11 @@
 {% set vlan_cmd = "show vlan brief" %}
 {% set stp_cmd = "show spanning-tree" %}
 {% set mac_table_all_cmd = "show mac address-table dynamic | count dynamic|DYNAMIC" %}
-{% set mac_table_cmd = "show mac address-table count Vlan | in Dynamic|Static|Vlan" %}
+{% set mac_table_cmd = "show mac address-table count Vlan | in Dynamic|Vlan" %}
 {% elif 'nxos' in os_type |string %}
 {% set vlan_cmd = "show vlan brief" %}
 {% set mac_table_all_cmd = "show mac address-table | in dynamic | count" %}
-{% set mac_table_cmd = "show mac  address-table dynamic vlan | last 2" %}
+{% set mac_table_cmd = "show vlan id | in enet" %}
 {% elif 'asa' in os_type |string %}
 {% elif 'wlc' in os_type |string %}
 {% endif %}
@@ -30,7 +30,7 @@
 {% for each_vl in sub_feat.mac_table %}
 {% set vl = each_vl.split('_') | first | replace("vl","") %}
 {% if 'nxos' in os_type |string %}
-      {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}: SUB_FEATURE_COMBINED_CMD
+      {{ mac_table_cmd.split("id ") | first }}id {{ vl }} {{ mac_table_cmd.split("id ") | last }}: SUB_FEATURE_COMBINED_CMD
       {{ mac_table_all_cmd.split("table ") | first }}table vlan {{ vl }} {{ mac_table_all_cmd.split("table ") | last }}: VALIDATE
 {% else %}
       {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}: VALIDATE
@@ -73,7 +73,7 @@
       {{ mac_table_all_cmd }}:
         {{ mac_info }}: {{ num_mac }}
 {% elif 'nxos' in os_type |string %}
-      {{ mac_table_cmd.split("lan ") | first }}lan {{ vl }} {{ mac_table_cmd.split("lan ") | last }}:
+      {{ mac_table_cmd.split("id ") | first }}id {{ vl }} {{ mac_table_cmd.split("id ") | last }}:
         {{ mac_info }}: {{ num_mac }}  
       {{ mac_table_all_cmd.split("table ") | first }}table vlan {{ vl }} {{ mac_table_all_cmd.split("table ") | last }}:
         {{ mac_info }}: {{ num_mac }}

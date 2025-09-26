@@ -37,11 +37,11 @@ layer2:
           list:
           - Po1
   mac_table:
-    show mac  address-table dynamic vlan 6 | last 2:
+    show vlan id 6 | in enet:
       vl6_mac_count: 26
     show mac address-table vlan 6 | in dynamic | count:
       vl6_mac_count: 26
-    show mac  address-table dynamic vlan 24 | last 2:
+    show vlan id 24 | in enet:
       vl24_mac_count: 306
     show mac address-table vlan 24 | in dynamic | count:
       vl24_mac_count: 306

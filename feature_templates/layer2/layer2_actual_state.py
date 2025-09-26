@@ -22,7 +22,7 @@ def _set_keys(os_type: str) -> OsKeys:
     if "ios" in os_type:
         return OsKeys("Vlan", -1, 1)
     elif "nxos" in os_type:
-        return OsKeys("dynamic", 1, 2)
+        return OsKeys("enet", 0, 1)
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -130,27 +130,19 @@ def format_mac_table(l2: OsKeys, output: list[str]) -> dict[str, Union[str, int]
         dict[str, Union[str, int]]: {total_mac_count: x, vlx_mac_count: x}
     """
     result = {}
+    # Total MAC count is always first element in list
+    try:
+        result["total_mac_count"] = _make_int(output[0].split()[-1])
+    except Exception as e:
+        result["total_mac_count"] = 0
+    # Per-VLAN MAC count are in 2 consecutive cmds, first VL to match on and second the count
     for idx, each_item in enumerate(output):
         each_item = str(each_item)
-
         if l2.mac_table_match in each_item:
             name = f"vl{each_item.split()[l2.mac_table_element].replace(':', '')}_mac_count"
-            try:
-                result[name] = _make_int(output[idx + l2.mac_table_idx].split()[-1])
-            except Exception as e:
-                result[name] = _make_int(output[idx + l2.mac_table_idx])
+            result[name] = _make_int(output[idx + l2.mac_table_idx].split()[-1])
             output[idx] = ""
             output[idx + 1] = ""
-            output[idx + 2] = ""
-        elif "error" in each_item.lower() or "^" in each_item:
-            output[idx] = ""
-    # Only lines left will be count of total MACs
-    for each_item in output:
-        if len(str(each_item)) != 0:
-            try:
-                result["total_mac_count"] = _make_int(each_item.split()[-1])
-            except Exception as e:
-                result["total_mac_count"] = each_item
     return dict(result)
 
 

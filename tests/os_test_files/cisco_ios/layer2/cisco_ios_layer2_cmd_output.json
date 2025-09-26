@@ -96,10 +96,8 @@
             "Number of lines which match regexp = 19",
             "Mac Entries for Vlan 10:",
             "Dynamic Address Count  : 6",
-            "Static  Address Count  : 0",
             "Mac Entries for Vlan 64:",
-            "Dynamic Address Count  : 5",
-            "Static  Address Count  : 1"
+            "Dynamic Address Count  : 5"
         ]
     }
 }
