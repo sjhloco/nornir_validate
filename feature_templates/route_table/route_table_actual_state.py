@@ -80,7 +80,7 @@ def _make_int(input_data: str) -> Union[int, str]:
         return input_data
 
 
-def format_vrf(output: list[dict[str, Any]]) -> dict[str, Any]:
+def format_vrf(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
     """Format VRF output into the data structure.
 
     Args:
@@ -88,15 +88,16 @@ def format_vrf(output: list[dict[str, Any]]) -> dict[str, Any]:
     Returns:
         dict[str, Any]: {vrf: [intfx, intfy]}
     """
-    result: dict[str, list[str]] = {}
+    result: dict[Union[str, int], list[str]] = {}
     for each_vrf in output:
-        if result.get(each_vrf["name"]) is None:
+        vrf_name = _make_int(each_vrf["name"])
+        if result.get(vrf_name) is None:
             try:
-                result[each_vrf["name"]] = each_vrf["interfaces"]
+                result[vrf_name] = each_vrf["interfaces"]
             except KeyError:
-                result[each_vrf["name"]] = [each_vrf["interface"]]
+                result[vrf_name] = [each_vrf["interface"]]
         else:
-            result[each_vrf["name"]].append(each_vrf["interface"])
+            result[vrf_name].append(each_vrf["interface"])
     return dict(result)
 
 
@@ -185,7 +186,7 @@ def format_actual_state(
     os_type: str,
     sub_feature: str,
     output: list[Union[str, dict[str, str]]],
-) -> dict[str, Any]:
+) -> dict[Any, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
     Args:

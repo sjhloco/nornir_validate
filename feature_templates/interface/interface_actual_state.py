@@ -146,18 +146,19 @@ def format_intf(
         dict[Union[str, int], Any]:  {intf: {duplex: x, speed: x, type:x, status: connected }}, val_file doesn't have 'status'
     """
     result: dict[Union[str, int], dict[str, Union[str, int, None]]] = defaultdict(dict)
+    skip_statuses = {
+        "disabled",
+        "xcvrAbsen",
+        "administratively down",
+        "admin down",
+        "Down",
+        "notconnec",
+        "notconnect",
+        "down",
+    }
     for each_intf in output:
         intf_name = _make_int(each_intf[intf.intf_name])
         # BYPASS: Dont include disabled ports when building val_file
-        skip_statuses = {
-            "disabled",
-            "xcvrAbsen",
-            "administratively down",
-            "admin down",
-            "Down",
-            "notconnec",
-            "down",
-        }
         if val_file and each_intf[intf.intf_status] in skip_statuses:
             continue
         # SPEED/DUPLEX: WLC doesnt have standard duplex and speed NTC keys
@@ -214,7 +215,10 @@ def format_swport(val_file: bool, output: list[dict[str, Any]]) -> dict[str, Any
         skip_statuses = {"down", ""}
         if val_file and each_intf["mode"] in skip_statuses:
             continue
-        mode = each_intf["mode"].replace("static ", "").split()[0]
+        if len(each_intf["mode"]) == 0:
+            continue
+        else:
+            mode = each_intf["mode"].replace("static ", "").split()[0]
         result[each_intf["interface"]]["mode"] = mode
         if each_intf["mode"] == "static access" or each_intf["mode"] == "access":
             result[each_intf["interface"]]["vlan"] = _make_int(each_intf["access_vlan"])
@@ -244,13 +248,13 @@ def format_ipbrief(
         dict[str, Any]: {intf: {ip:x, status: x}}, val_file is {intfx: ipx, intfy: ipy}
     """
     result: dict[str, dict[str, str]] = defaultdict(dict)
+    skip_conditions = {
+        intf.ip_ip: ["unassigned"],
+        intf.ip_status: ["administratively down", "admin-down"],
+    }
     if bool(re.search("nxos", os_type)):
         output = _fix_nxos(output[0], "TABLE_intf", "ROW_intf")
     for each_intf in output:
-        skip_conditions = {
-            intf.ip_ip: ["unassigned"],
-            intf.ip_status: ["administratively down", "admin-down"],
-        }
         # Val file only
         if val_file:
             if any(

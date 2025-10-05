@@ -9,7 +9,6 @@ import pytest
 from nornir import InitNornir
 
 from nr_val import (
-    merge_feat_subfeat,
     merge_os_types,
     remove_cmds_desired_state,
     return_feature_desired_data,
@@ -26,30 +25,6 @@ test_inventory = os.path.join(os.path.dirname(__file__), "test_inventory")
 # ----------------------------------------------------------------------------
 # Tests all the methods within nr_val.py
 # ----------------------------------------------------------------------------
-
-
-# MERGE_FEAT: Tests merging
-def test_merge_feat_subfeat() -> None:
-    err_msg = "❌ return_merge_feat_subfeat: Function testing failed"
-    desired_output = {
-        "feat1": {"sub_feat1": {"key1": 1, "key2": 2}, "sub_feat3": {"key1": 1}}
-    }
-    tmp_data = {
-        "feat1": {"sub_feat1": {"key3": 3}, "sub_feat2": {"key1": 1}},
-        "feat2": {"sub_feat1": {"key1": 1}},
-    }
-    merge_feat_subfeat(desired_output, tmp_data)
-    actual_output = {
-        "feat1": {
-            "sub_feat1": {"key1": 1, "key2": 2, "key3": 3},
-            "sub_feat3": {"key1": 1},
-            "sub_feat2": {"key1": 1},
-        },
-        "feat2": {"sub_feat1": {"key1": 1}},
-    }
-    assert actual_output == desired_output, err_msg
-
-
 # MERGE_OS_TYPE: Tests merging of nornir platforms (device types)
 def test_merge_os_types() -> None:
     err_msg = "❌ merge_os_types: Function testing failed"

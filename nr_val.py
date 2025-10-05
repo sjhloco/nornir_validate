@@ -1,4 +1,5 @@
 import ast
+import contextlib
 import importlib
 import json
 import logging
@@ -8,11 +9,12 @@ from collections import defaultdict
 from glob import glob
 from typing import Any, Callable, Optional, Union
 
-import ipdb
+# import ipdb
 import yaml
+from nornir.core import Nornir
 from nornir.core.exceptions import NornirSubTaskError
 from nornir.core.inventory import Host
-from nornir.core.task import Result, Task
+from nornir.core.task import AggregatedResult, Result, Task
 from nornir_jinja2.plugins.tasks import template_file
 from nornir_netmiko.tasks import netmiko_send_command
 from nornir_rich.functions import print_result
@@ -60,7 +62,6 @@ def merge_os_types(host: Host) -> list[str]:
 
     Args:
         host (Host): Nornir inventory host object, holds the hosts attributes
-
     Returns:
         list[str]: List of the connection handlers for the different connection plugins
     """
@@ -83,7 +84,6 @@ def return_feature_desired_data(validations: dict[str, Any]) -> dict[str, Any]:
 
     Args:
         validations (dict[str, Any]): The user defined validations that were gathered from the input file
-
     Returns:
         dict[str, Any]: Dictionary of all the data required for the desired state to be rendered
     """
@@ -127,7 +127,6 @@ def strip_empty_feat(desired_state: dict[str, Any]) -> dict[str, Any]:
 
     Args:
         desired_state (dict[str, Any]): Desired state in format
-
     Returns:
         dict[str, Any]: Final desired state
     """
@@ -212,7 +211,6 @@ def task_desired_state(
         task (Task): The nornir tasks that implements (runs) this the nornir-jinja template plugin
         validations (dict[str, Any]): The validations to be run (user input validation data)
         task_template (Callable[[Task, str, str, dict[str, Any]], str]): Nornir-jinja plugin task to render the validations
-
     Returns:
         Optional[Result]: If no validation returns Nornir result stating so (if validations desired_sate added as hosts_vars to task host
     """
@@ -252,7 +250,7 @@ def task_desired_state(
         return Result(host=task.host, failed=True, result=result_text)
     else:
         task.host["desired_state"] = strip_empty_feat(desired_state)
-        return None  #! hopefully shouldnt break anything, needed to fix linting
+        return None
 
 
 # ----------------------------------------------------------------------------
@@ -270,7 +268,7 @@ def task_template(
         task (Task): The nornir tasks that implements (runs) this the nornir-jinja template plugin
         tmpl_path (str): Path to the feature templates
         validations (dict[str, Any]): The validations to be run (user input validation data)
-        desired_state (dict[str, Any]): The final desired state in format ({feat: {subfeat: {cmd: expected_result})
+        desired_state (dict[str, Any]): The final desired state in format ({feat: {subfeat: {cmd: expected_result}).
 
     Returns:
         list[str]: _description_
@@ -309,7 +307,6 @@ def actual_state_engine(
         val_file (bool): True if generate validation file called this function
         os_type (list[str]): Connection handler (plugin) used to format cmd data into actual state structure (same format as desired state)
         feat_actual_data (dict[str, dict[str, Any]]): The structured or non-structured data (cmd output) got from devices
-
     Returns:
         dict[str, dict[str, Any]]: Actual state formatted as ({feat: {subfeat: actual_result})
     """
@@ -340,7 +337,6 @@ def validate(
         task (Task): The nornir tasks that implements (runs) this the nornir tasks
         input_data (str): The User defined input data from input file
         save_report (Union[str | None]): To optionally save compliance reports to the directory specified in this variable
-
     Returns:
         Result: The final result of nornir_validate (all tasks), a special Nornir Result object passed back to the main() method to be printed
     """
@@ -365,9 +361,10 @@ def validate(
                     use_textfsm=True,
                     severity_level=logging.DEBUG,
                 ).result
-                # Converts NXOS "| json" cmds from string to JSON
+                # Converts NXOS "| json" cmds from string to JSON (suppress exceptions in case feature not used)
                 if "json" in cmd:
-                    tmp_cmd_output = [json.loads(tmp_cmd_output)]
+                    with contextlib.suppress(Exception):
+                        tmp_cmd_output = [json.loads(tmp_cmd_output)]
                 # Required for non-structured data(no NTC template)
                 elif isinstance(tmp_cmd_output, str):
                     tmp_cmd_output = tmp_cmd_output.lstrip().rstrip().splitlines()
@@ -404,12 +401,14 @@ def val_file_builder(
         task (Task): The Nornir task that executes host actions and stores the results
         input_data (Union[dict[str, Any], str]): Validations or if an empty string if dynamically creating a validation file
         directory (str): Working directory where the file will be saved
-
     Returns:
         Result: The nornir result from the execution of the task, so list of enabled and not enabled features as well as val file name
     """
     # ERROR: Error patterns returned by devices that would mean a feature is not configured
-    error_patterns = ["ERROR: % Invalid input detected at '^' marker."]
+    error_patterns = [
+        "ERROR: % Invalid input detected at '^' marker.",
+        "Invalid command at '^' marker.",
+    ]
     # 5a. Use input input validation DM or if empty create one of all the possible validations
     validations = create_val_dm() if len(input_data) == 0 else input_data
     import_actual_state_modules(validations)
@@ -436,9 +435,10 @@ def val_file_builder(
                     ).result
                 except NornirSubTaskError:
                     tmp_cmd_output = []
-                # Converts NXOS "| json" cmds from string to JSON
+                # Converts NXOS "| json" cmds from string to JSON (suppress exceptions in case feature not used)
                 if "json" in cmd:
-                    tmp_cmd_output = [json.loads(tmp_cmd_output)]
+                    with contextlib.suppress(Exception):
+                        tmp_cmd_output = [json.loads(tmp_cmd_output)]
                 # Required for non-structured data(no NTC template)
                 elif isinstance(tmp_cmd_output, str):
                     tmp_cmd_output = tmp_cmd_output.lstrip().rstrip().splitlines()
@@ -470,3 +470,35 @@ def val_file_builder(
         not_used_subfeat=not_used_subfeat,
         file_info=info,
     )
+
+
+# ----------------------------------------------------------------------------
+# 6. PRINT: Functions for printing results
+# ----------------------------------------------------------------------------
+def print_val_result(result: AggregatedResult) -> None:
+    """Prints the result of the validation in a user friendly way using a customization of nornir_rich print (better handling of dicts).
+
+    Args:
+        result (AggregatedResult): The nornir result from the execution of the task, so the compliance report in Nornir Result format
+    """
+    print_result(result)
+
+
+def print_build_result(result: AggregatedResult, nr: Nornir) -> None:
+    """Prints the result of the validation file builder, required in this manner so that failed tasks (features not enabled) dont show as a failed result.
+
+    Args:
+        result (AggregatedResult): The nornir result from the execution of the task, am only printing results for specified vars
+        nr (Nornir,): The Nornir inventory from which get (loop through) hostnames
+    """
+    for each_host in nr.inventory.hosts.keys():  # noqa: SIM118
+        print_result(
+            result[each_host][0],
+            vars=[
+                "host",
+                "result",
+                "used_subfeat",
+                "not_used_subfeat",
+                "file_info",
+            ],
+        )
