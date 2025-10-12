@@ -1,0 +1,47 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% set new_subfeat1_cmd = "show x" %}
+{% elif 'nxos' in os_type |string %}
+{% set new_subfeat2_cmd = "show y" %}
+{% elif 'asa' in os_type |string %}
+{% elif 'wlc' in os_type |string %}
+{% elif 'panos' in os_type |string %}
+{% elif 'viptela' in os_type |string %}
+{% endif %}
+
+
+{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
+{% if sub_features.__class__.__name__ == 'list' %}
+- {{ feature }}:
+{% for sub_feat in sub_features %}
+{% if sub_feat == 'new_subfeat1' and new_subfeat1_cmd is defined %}
+    new_subfeat1:
+      {{ new_subfeat1_cmd }}: VALIDATE
+{% elif sub_feat == 'new_subfeat2' and new_subfeat2_cmd is defined %}
+    new_subfeat2:
+      {{ new_subfeat2_cmd }}: VALIDATE
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+
+
+{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
+{% else %}
+- {{ feature }}:
+{% for sub_feat, input_vars in sub_features.items() %}
+{# ### SUB_FEATURE1_NAME: {cmd: {version: xx}} ### #}
+{% if sub_feat == 'new_subfeat1' %}
+    new_subfeat1: 
+      {{ new_subfeat1_cmd }}: 
+        {{ input_vars }}
+{# ### SUB_FEATURE2_NAME: {cmd: {xxx: {y: y, z: xxx}}} ### #}
+{% elif sub_feat == 'new_subfeat2' %}
+    new_subfeat2:
+      {{ new_subfeat2_cmd }}: 
+{% for each_item in input_vars %}
+        {{ each_item.xxx }}:
+          y: {{ each_item.y }}
+          z: {{ z | default('ok') }}
+{% endfor %}
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}
+{% endif %}
