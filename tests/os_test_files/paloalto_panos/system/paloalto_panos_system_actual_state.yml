@@ -1,0 +1,9 @@
+system:
+  sla:
+    HA_PATH_NORTH:
+      8.8.8.8:
+        rtt: 4
+        state: Up
+      217.111.187.217:
+        rtt: 3
+        state: Up

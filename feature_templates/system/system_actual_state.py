@@ -11,6 +11,10 @@ class OsKeys(NamedTuple):
     image_version: str
     mgmt_acl_name: str
     mgmt_acl_seq: str
+    sla_grp: str
+    sla_dst: str
+    sla_rtt: str
+    sla_state: str
 
 
 def _set_keys(os_type: str) -> OsKeys:
@@ -22,13 +26,15 @@ def _set_keys(os_type: str) -> OsKeys:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
     if "ios" in os_type:
-        return OsKeys("version", "acl_name", "line_num")
+        return OsKeys("version", "acl_name", "line_num", "", "", "", "")
     elif "nxos" in os_type:
-        return OsKeys("os", "name", "sn")
+        return OsKeys("os", "name", "sn", "", "", "", "")
     elif "asa" in os_type:
-        return OsKeys("version", "name", "sn")
+        return OsKeys("version", "name", "sn", "", "", "", "")
     elif "wlc" in os_type:
-        return OsKeys("product_version", "", "")
+        return OsKeys("product_version", "", "", "", "", "", "")
+    elif "panos" in os_type:
+        return OsKeys("", "", "", "grp_name", "destination", "rtt_avg", "suc_total")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -285,6 +291,42 @@ def format_module(
     return dict(result)
 
 
+def format_sla(
+    val_file: bool, sytm: OsKeys, output: list[dict[str, str]]
+) -> dict[str, Any]:
+    """Format SLA monitoring into the data structure.
+
+    Args:
+        val_file (bool): Used to identify if creating validation file as sometimes need implicit values
+        sytm (OsKeys): Keys for the specific OS type to retrieve the output data
+        output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
+    Returns:
+        Union[dict[str, str], list[str]]:  {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}, val_file is {cmd: {grp_name: {dst: {rtt: x}}}}
+    """
+    result: dict[str, dict[str, dict[str, Union[str, int]]]] = defaultdict(dict)
+    for probe in output:
+        try:
+            # Round up/down floats as needs to be integer to all for =>, =<, etc
+            rtt_num = float(probe[sytm.sla_rtt])
+            result[probe[sytm.sla_grp]][probe[sytm.sla_dst]] = {"rtt": round(rtt_num)}
+        except (ValueError, TypeError):
+            result[probe[sytm.sla_grp]][probe[sytm.sla_dst]] = {
+                "rtt": _make_int(probe[sytm.sla_rtt])
+            }
+        # Add state if it is the actual state
+        if not val_file:
+            state1 = (
+                probe[sytm.sla_state].split("/")[0]
+                if len(probe[sytm.sla_state].split("/")) > 1
+                else None
+            )
+            if probe[sytm.sla_state].split("/")[0] == state1:
+                result[probe[sytm.sla_grp]][probe[sytm.sla_dst]]["state"] = "Up"
+            else:
+                result[probe[sytm.sla_grp]][probe[sytm.sla_dst]]["state"] = "Down"
+    return dict(result)
+
+
 # ----------------------------------------------------------------------------
 # ACTUAL_STATE: Engine use to create sub-feature actual state or validation file
 # ----------------------------------------------------------------------------
@@ -321,6 +363,10 @@ def format_actual_state(
     ### MODULE: {module_num: {model: xxx, status, ok}}
     elif sub_feature == "module":
         return format_module(val_file, ntc_output)
+
+    ### SLA: {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}
+    if sub_feature == "sla":
+        return format_sla(val_file, sytm, ntc_output)
 
     ### CatchAll
     else:

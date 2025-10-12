@@ -1,0 +1,30 @@
+{
+    "system": {
+        "sla": [
+            {
+                "grp_name": "HA_PATH_NORTH",
+                "vr_name": "VR_HANDOFF",
+                "type": "virtual-router",
+                "destination": "8.8.8.8",
+                "suc_total": "10/10",
+                "rtt_min": "3.66",
+                "rtt_max": "4.19",
+                "rtt_avg": "3.90",
+                "probe_cnt": "10",
+                "interval": "1000"
+            },
+            {
+                "grp_name": "HA_PATH_NORTH",
+                "vr_name": "VR_HANDOFF",
+                "type": "virtual-router",
+                "destination": "217.111.187.217",
+                "suc_total": "10/10",
+                "rtt_min": "2.36",
+                "rtt_max": "2.75",
+                "rtt_avg": "2.58",
+                "probe_cnt": "10",
+                "interval": "1000"
+            }
+        ]
+    }
+}

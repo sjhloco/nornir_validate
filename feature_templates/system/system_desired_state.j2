@@ -12,6 +12,8 @@
 {% set mgmt_acl_cmd = "show run" %}
 {% elif 'wlc' in os_type |string %}
 {% set image_cmd = "show sysinfo" %}
+{% elif 'panos' in os_type |string %}
+{% set sla_cmd = "show high-availability path-monitoring" %}
 {% endif %}
 
 
@@ -34,6 +36,9 @@
 {% elif sub_feat == 'module' and module_cmd is defined %}
     module:
       {{ module_cmd }}: VALIDATE
+{% elif sub_feat == 'sla' and sla_cmd is defined %}
+    sla:
+      {{ sla_cmd }}: VALIDATE
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
 
@@ -73,6 +78,17 @@
           model: {{ mod_info.model }}
           status: {{ mod_info.status | default('ok') }}
 {% endfor %}
+{# ### SLA: {cmd: {grp_name: {dst: {rtt: x, State: Up}}}} ### #}
+{% elif sub_feat == 'sla' %}
+    sla:
+      {{ sla_cmd }}:
+{% for grp, dst in input_vars.items() %}
+        {{ grp }}:
+{% for name, values in dst.items() %}
+          {{ name }}:
+            rtt: {{ values.rtt | round | int }}
+            state: Up
+{% endfor %}{% endfor %}
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
 {% endif %}

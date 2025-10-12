@@ -1,0 +1,3 @@
+system:
+  sla:
+    show high-availability path-monitoring: VALIDATE
