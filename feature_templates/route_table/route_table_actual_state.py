@@ -8,7 +8,8 @@ from typing import Any, NamedTuple, Union
 # KEY: Set dictionary keys on a per-os_type basis
 # ----------------------------------------------------------------------------
 class OsKeys(NamedTuple):
-    route_count: int
+    count_match: str
+    count_iter: int
     route_mask: str
     route_nhip: str
     route_nhif: str
@@ -23,11 +24,13 @@ def _set_keys(os_type: str) -> OsKeys:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
     if "ios" in os_type:
-        return OsKeys(2, "prefix_length", "nexthop_ip", "nexthop_if")
+        return OsKeys("IP", 2, "prefix_length", "nexthop_ip", "nexthop_if")
     elif "nxos" in os_type:
-        return OsKeys(-1, "prefix_length", "nexthop_ip", "nexthop_if")
+        return OsKeys("IP", -1, "prefix_length", "nexthop_ip", "nexthop_if")
     elif "asa" in os_type:
-        return OsKeys(2, "netmask", "nexthopip", "nexthopif")
+        return OsKeys("IP", 2, "netmask", "nexthopip", "nexthopif")
+    elif "panos" in os_type:
+        return OsKeys("IPv6", 3, "", "", "")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -101,21 +104,26 @@ def format_vrf(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
     return dict(result)
 
 
-def format_rte_count(rt: OsKeys, output: list[str]) -> dict[str, Any]:
+def format_rte_count(rt: OsKeys, os_type: str, output: list[str]) -> dict[str, Any]:
     """Format route count output into the data structure.
 
     Args:
         rt (OsKeys): Keys for the specific OS type to retrieve the output data
+        os_type (str): The different Nornir platforms which are OS type of the device
         output (list[dict[str, str]]): The command output from the device in raw data structure
     Returns:
         dict[str, Any]: {global_subnets: x, xx_subnets: x}
     """
     result: dict[str, Union[int, str]] = {}
     for idx, each_item in enumerate(output):
-        if "IP" in each_item:
-            tmp = each_item.replace("maximum-paths is", "name is default")
-            vrf = tmp.split()[5].replace('"', "").replace("default", "global")
-            result[vrf] = _make_int(output[idx + 1].split()[rt.route_count])
+        if rt.count_match in each_item:
+            # Needed for Panos as no VRFs
+            if bool(re.search("panos", os_type)):
+                vrf = "global"
+            else:
+                tmp = each_item.replace("maximum-paths is", "name is default")
+                vrf = tmp.split()[5].replace('"', "").replace("default", "global")
+            result[vrf] = _make_int(output[idx + 1].split()[rt.count_iter])
     return dict(result)
 
 
@@ -206,7 +214,7 @@ def format_actual_state(
 
     ### RTE_COUNT: {global_subnets: x, xx_subnets: x}
     elif sub_feature == "route_count":
-        return format_rte_count(rt, raw_output)
+        return format_rte_count(rt, os_type, raw_output)
 
     ### ROUTE: {vrf: {route/prefix: type: x, nh: y}})
     elif sub_feature == "route":

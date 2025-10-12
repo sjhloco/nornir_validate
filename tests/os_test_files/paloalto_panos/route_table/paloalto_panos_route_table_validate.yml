@@ -1,0 +1,4 @@
+all:
+  route_table:
+    route_count:
+      global: 18

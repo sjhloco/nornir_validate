@@ -11,5 +11,9 @@ asa_host:
 wlc_host:
   hostname: 10.10.10.1
   groups: [wlc]
-
-
+panos_host:
+  hostname: 10.10.10.1
+  groups: [panos]
+viptela_host:
+  hostname: 10.10.10.1
+  groups: [viptela]

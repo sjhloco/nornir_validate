@@ -13,6 +13,8 @@
 {% set route_count_cmd = "show  route summary | in maximum-paths|Total" %}
 {% set route_cmd = "show route" %}
 {% elif 'wlc' in os_type |string %}
+{% elif 'panos' in os_type |string %}
+{% set route_count_cmd = "show routing  resource" %}
 {% endif %}
 
 

@@ -1,0 +1,4 @@
+route_table:
+  route_count:
+    show routing  resource:
+      global: 18
