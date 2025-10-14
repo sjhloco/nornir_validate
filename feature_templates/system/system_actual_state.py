@@ -34,7 +34,7 @@ def _set_keys(os_type: str) -> OsKeys:
     elif "wlc" in os_type:
         return OsKeys("product_version", "", "", "", "", "", "")
     elif "panos" in os_type:
-        return OsKeys("", "", "", "grp_name", "destination", "rtt_avg", "suc_total")
+        return OsKeys("os", "", "", "grp_name", "destination", "rtt_avg", "suc_total")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -229,6 +229,18 @@ def _acl_actual_state(
     return dict(ac_aces)
 
 
+def format_image(sytm: OsKeys, output: list[dict[str, str]]) -> str:
+    """Format image into the data structure.
+
+    Args:
+        sytm (OsKeys): Keys for the specific OS type to retrieve the output data
+        output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
+    Returns:
+        str:  {image: code_number}
+    """
+    return output[0][sytm.image_version]
+
+
 def format_acl(
     val_file: bool, sytm: OsKeys, output: list[dict[str, str]]
 ) -> dict[
@@ -351,7 +363,7 @@ def format_actual_state(
 
     ### IMAGE: {image: code_number}
     if sub_feature == "image":
-        return ntc_output[0][sytm.image_version]
+        return format_image(sytm, ntc_output)
 
     ### MGMT_ACL: {acl_name: seq_num: {protocol: ip/tcp/udp, src: src_ip (or as intf - src_ip), dst: dst_ip, dst_port: port}}
     elif sub_feature == "mgmt_acl":

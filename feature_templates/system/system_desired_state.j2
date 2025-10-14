@@ -13,6 +13,7 @@
 {% elif 'wlc' in os_type |string %}
 {% set image_cmd = "show sysinfo" %}
 {% elif 'panos' in os_type |string %}
+{% set image_cmd = "show system info" %}
 {% set sla_cmd = "show high-availability path-monitoring" %}
 {% endif %}
 

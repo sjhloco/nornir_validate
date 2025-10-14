@@ -1,5 +1,6 @@
 all:
   system:
+    image: 10.2.9-h1
     sla:
       HA_PATH_NORTH:
         8.8.8.8:

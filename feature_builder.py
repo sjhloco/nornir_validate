@@ -208,7 +208,11 @@ def create_feature_dir(
     except FileNotFoundError:
         index_data = {"all": {}}
         prt_msg = f"✅ Created the file '{index_file}'"
-    index_data["all"][feature] = [subfeat]
+    # Add sub feature to index file
+    if index_data["all"].get(feature) is None:
+        index_data["all"][feature] = [subfeat]
+    elif "subfeat" not in str(index_data["all"][feature]):
+        index_data["all"][feature].append(subfeat)
     with open(index_file, "w", encoding="utf-8") as f:
         yaml.dump(index_data, f)
 

@@ -1,4 +1,6 @@
 system:
+  image:
+    show system info: 10.2.9-h1
   sla:
     show high-availability path-monitoring:
       HA_PATH_NORTH:

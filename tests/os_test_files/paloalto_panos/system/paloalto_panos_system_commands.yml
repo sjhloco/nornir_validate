@@ -1,3 +1,5 @@
 system:
+  image:
+    show system info: VALIDATE
   sla:
     show high-availability path-monitoring: VALIDATE

@@ -1,5 +1,25 @@
 {
     "system": {
+        "image": [
+            {
+                "hostname": "dc4-pal-ins01",
+                "ip_address": "10.4.242.4",
+                "netmask": "255.255.255.248",
+                "gateway": "10.4.242.1",
+                "mac_address": "00:50:56:a9:5c:58",
+                "uptime": "319 days, 21:00:54",
+                "family": "vm",
+                "model": "PA-VM",
+                "serial": "007951000350854",
+                "vm_license": "VM-300",
+                "vm_mode": "VMware ESXi",
+                "os": "10.2.9-h1",
+                "platform_family": "vm",
+                "vpn_disable_mode": "off",
+                "multi_vsys": "off",
+                "operational_mode": "normal"
+                }
+            ],
         "sla": [
             {
                 "grp_name": "HA_PATH_NORTH",
