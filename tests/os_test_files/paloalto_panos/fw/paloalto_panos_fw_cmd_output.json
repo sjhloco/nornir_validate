@@ -1,0 +1,8 @@
+{
+    "fw": {
+        "conn_count": [
+            "VSYS          Maximum         Current            Throttled",
+            "1                   0            4285                    0"
+        ]
+    }
+}

@@ -4,6 +4,8 @@
 {% elif 'asa' in os_type |string %}
 {% set conn_count_cmd = "show conn all | count flags" %}
 {% elif 'wlc' in os_type |string %}
+{% elif 'panos' in os_type |string %}
+{% set conn_count_cmd = "show session meter | except --" %}
 {% endif %}
 
 

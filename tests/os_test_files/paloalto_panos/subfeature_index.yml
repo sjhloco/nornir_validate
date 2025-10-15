@@ -1,5 +1,16 @@
 all:
   route_table:
     - route_count
+    - route
   system:
+    - image
     - sla
+  redundancy:
+    - ha_state
+  interface:
+    - intf
+    - ip_brief
+  route_protocol:
+    - bgp_peer
+  fw:
+    - conn_count

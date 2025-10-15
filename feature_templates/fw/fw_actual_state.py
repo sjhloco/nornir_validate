@@ -1,4 +1,59 @@
-from typing import Union
+from typing import NamedTuple, Union
+
+
+# ----------------------------------------------------------------------------
+# KEY: Set dictionary keys on a per-os_type basis
+# ----------------------------------------------------------------------------
+class OsKeys(NamedTuple):
+    conn_line: int
+    conn_pos: int
+
+
+def _set_keys(os_type: str) -> OsKeys:
+    """Based on the OS type set the set the dictionary keys when gleaning data from NTC data structures.
+
+    Args:
+        os_type (str): A list of strings that are the OS types of the devices in the inventory
+    Returns:
+        OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
+    """
+    if "asa" in os_type:
+        return OsKeys(0, -1)
+    elif "panos" in os_type:
+        return OsKeys(1, -2)
+    # Fallback if nothing matched
+    msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
+    raise NotImplementedError(msg)
+
+
+# ----------------------------------------------------------------------------
+# OUTPUT: Creates str or ntc output dictionaries based on device command output
+# ----------------------------------------------------------------------------
+def _format_output(
+    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+) -> tuple[list[str], list[dict[str, str]]]:
+    """Screen scraping return different data structures, they need defining to make function typing easier.
+
+    Args:
+        os_type (str): A list of strings that are the OS types of the devices in the inventory
+        sub_feature (str): The name of the sub-feature that is being validated
+        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+    Raises:
+        ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
+    Returns:
+        tuple[list[str], list[dict[str, str]]]: Returns either RAW list[str] or NTC list[dict], the other non-matched one will be empty
+    """
+    raw_output = [o for o in output if isinstance(o, str)]
+    ntc_output = [o for o in output if isinstance(o, dict)]
+    if (
+        len(raw_output) != 0
+        and output != raw_output
+        or len(ntc_output) != 0
+        and output != ntc_output
+    ):
+        msg = f"{os_type} {sub_feature} _format_output is malformed"
+        raise ValueError(msg)
+    return raw_output, ntc_output
 
 
 # ----------------------------------------------------------------------------
@@ -18,14 +73,26 @@ def _make_int(input_data: str) -> Union[int, str]:
         return input_data
 
 
+def format_conn_count(fw: OsKeys, output: list[str]) -> Union[str, int]:
+    """Format FW conns into the data structure.
+
+    Args:
+        fw (OsKeys): Keys for the specific OS type to retrieve the output data
+        output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
+    Returns:
+        str:  {conn_count: xx}
+    """
+    return _make_int(output[fw.conn_line].split()[fw.conn_pos])
+
+
 # ----------------------------------------------------------------------------
 # ACTUAL_STATE: Engine use to create sub-feature actual state or validation file
 # ----------------------------------------------------------------------------
 def format_actual_state(
     val_file: bool,  # noqa: ARG001
-    os_type: str,  # noqa: ARG001
+    os_type: str,
     sub_feature: str,
-    output: list[str],
+    output: list[Union[str, dict[str, str]]],
 ) -> Union[int, str]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -37,9 +104,12 @@ def format_actual_state(
     Returns:
         dict[str, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
+    fw = _set_keys(os_type)
+    raw_output, ntc_output = _format_output(os_type, sub_feature, output)
+
     ### FW_CONN_COUNT: {conn_count: xx}
     if sub_feature == "conn_count":
-        return _make_int(output[0].split()[-1])
+        return format_conn_count(fw, raw_output)
 
     ### CatchAll
     else:
