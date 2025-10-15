@@ -1,0 +1,72 @@
+{
+    "route_protocol": {
+        "bgp_peer": [
+            {
+                "router_id": "1.1.1.1",
+                "virtual_router": "VR_HANDOFF",
+                "local_as": "65253",
+                "neighbor_name": "DC-N9K-BGW01 - BLU 301",
+                "neighbor_as": "65253",
+                "bgp_neighbor": "192.168.1.1",
+                "address_family": "bgpAfiIpv4/unicast",
+                "accepted_pfx": "4",
+                "advertised_pfx": "4"
+            },
+            {
+                "router_id": "1.1.1.1",
+                "virtual_router": "VR_HANDOFF",
+                "local_as": "65253",
+                "neighbor_name": "DC-N9K-BGW02 - BLU 301",
+                "neighbor_as": "65301",
+                "bgp_neighbor": "192.168.1.2",
+                "address_family": "bgpAfiIpv4/unicast",
+                "accepted_pfx": "4",
+                "advertised_pfx": "4"
+            },
+            {
+                "router_id": "1.1.1.1",
+                "virtual_router": "VR_HANDOFF",
+                "local_as": "65253",
+                "neighbor_name": "DC-N9K-BGW01 - GRN 302",
+                "neighbor_as": "65253",
+                "bgp_neighbor": "192.168.2.9",
+                "address_family": "bgpAfiIpv4/unicast",
+                "accepted_pfx": "3",
+                "advertised_pfx": "4"
+            },
+            {
+                "router_id": "1.1.1.1",
+                "virtual_router": "VR_HANDOFF",
+                "local_as": "65253",
+                "neighbor_name": "DC-N9K-BGW02 - GRN 302",
+                "neighbor_as": "65302",
+                "bgp_neighbor": "192.168.2.10",
+                "address_family": "bgpAfiIpv4/unicast",
+                "accepted_pfx": "3",
+                "advertised_pfx": "4"
+            },
+            {
+                "router_id": "1.1.1.1",
+                "virtual_router": "VR_HANDOFF",
+                "local_as": "65253",
+                "neighbor_name": "DC-N9K-BGW01 - AMB 303",
+                "neighbor_as": "65253",
+                "bgp_neighbor": "192.168.3.17",
+                "address_family": "bgpAfiIpv4/unicast",
+                "accepted_pfx": "2",
+                "advertised_pfx": "3"
+            },
+            {
+                "router_id": "1.1.1.1",
+                "virtual_router": "VR_HANDOFF",
+                "local_as": "65253",
+                "neighbor_name": "DC-N9K-BGW02 - AMB 303",
+                "neighbor_as": "65303",
+                "bgp_neighbor": "192.168.3.18",
+                "address_family": "bgpAfiIpv4/unicast",
+                "accepted_pfx": "2",
+                "advertised_pfx": "3"
+            }
+        ]
+    }
+}

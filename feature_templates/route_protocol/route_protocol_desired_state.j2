@@ -4,18 +4,20 @@
 {% set ospf_intf_cmd = "show ip ospf interface brief" %}
 {% set ospf_nbr_cmd = "show ip ospf neighbor" %}
 {% set ospf_lsdb_cmd = "show ip ospf database database-summary | in Process ID|Total" %}
-{% set bgp_cmd =  "show ip bgp all summary" %}
+{% set bgp_cmd = "show ip bgp all summary" %}
 {% elif 'nxos' in os_type |string %}
 {% set ospf_intf_cmd = "show ip ospf interface brief vrf all" %}
 {% set ospf_nbr_cmd = "show ip ospf neighbor vrf all" %}
 {% set ospf_lsdb_cmd = "show ip ospf database database-summary vrf all | in \"Process ID|Total\"" %}
-{% set bgp_cmd =  "show ip bgp all summary vrf all" %}
+{% set bgp_cmd = "show ip bgp all summary vrf all" %}
 {% elif 'asa' in os_type |string %}
 {% set ospf_intf_cmd = "show ospf interface brief" %}
 {% set ospf_nbr_cmd = "show ospf neighbor" %}
 {% set ospf_lsdb_cmd = "show ospf database database-summary | in Process ID|Total" %}
-{% set bgp_cmd =  "show bgp summary" %}
+{% set bgp_cmd = "show bgp summary" %}
 {% elif 'wlc' in os_type |string %}
+{% elif 'panos' in os_type |string %}
+{% set bgp_cmd = "show routing protocol bgp summary" %}
 {% endif %}
 
 

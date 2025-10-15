@@ -1,0 +1,22 @@
+route_protocol:
+  bgp_peer:
+    show routing protocol bgp summary:
+      _mode: strict
+      192.168.1.1:
+        asn: 65253
+        rcv_pfx: 4
+      192.168.1.2:
+        asn: 65301
+        rcv_pfx: 4
+      192.168.2.9:
+        asn: 65253
+        rcv_pfx: 3
+      192.168.2.10:
+        asn: 65302
+        rcv_pfx: 3
+      192.168.3.17:
+        asn: 65253
+        rcv_pfx: 2
+      192.168.3.18:
+        asn: 65303
+        rcv_pfx: 2

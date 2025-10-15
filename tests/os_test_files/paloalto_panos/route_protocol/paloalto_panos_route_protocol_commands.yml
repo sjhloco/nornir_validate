@@ -1,0 +1,3 @@
+route_protocol:
+  bgp_peer:
+    show routing protocol bgp summary: VALIDATE
