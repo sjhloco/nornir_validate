@@ -1,0 +1,27 @@
+all:
+  interface:
+    intf:
+      ethernet1/4:
+        duplex: full
+        speed: 10000
+      ethernet1/5:
+        duplex: full
+        speed: 10000
+      ethernet1/6:
+        duplex: full
+        speed: 10000
+      ethernet1/7:
+        duplex: full
+        speed: 10000
+      ethernet1/8:
+        duplex: full
+        speed: 10000
+      ethernet1/9:
+        duplex: full
+        speed: 10000
+    ip_brief:
+      ethernet1/4: 192.168.16.59/29
+      ethernet1/5: 192.168.16.67/29
+      ethernet1/6: 192.168.16.75/29
+      ethernet1/8: 192.168.4.20/29
+      ethernet1/9: 192.168.4.52/29

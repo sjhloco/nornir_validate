@@ -1,0 +1,6 @@
+interface:
+  intf:
+    show interface hardware: VALIDATE
+  ip_brief:
+    show interface hardware: SUB_FEATURE_COMBINED_CMD
+    show interface logical: VALIDATE

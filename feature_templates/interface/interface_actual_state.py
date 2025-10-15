@@ -40,7 +40,8 @@ def _set_keys(os_type: str) -> OsKeys:
         return OsKeys(
             "port", "stp_status", "link_status", "name", "ip_address", "status"
         )
-
+    elif "panos" in os_type:
+        return OsKeys("interface", "", "state", "interface", "ip_address", "state")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -189,7 +190,7 @@ def format_intf(
         elif not val_file:
             result[intf_name]["type"] = _make_none(each_intf, intf.intf_type)
         # TYPE: VAL_file only
-        elif len(each_intf[intf.intf_type]) != 0:
+        elif len(each_intf.get(intf.intf_type, "")) != 0:
             result[intf_name]["type"] = each_intf[intf.intf_type]
         # STATUS: Applies all Actual_state
         if not val_file:
@@ -249,7 +250,7 @@ def format_ipbrief(
     """
     result: dict[str, dict[str, str]] = defaultdict(dict)
     skip_conditions = {
-        intf.ip_ip: ["unassigned"],
+        intf.ip_ip: ["unassigned", "N/A"],
         intf.ip_status: ["administratively down", "admin-down"],
     }
     if bool(re.search("nxos", os_type)):
@@ -263,14 +264,25 @@ def format_ipbrief(
             ):
                 continue
             else:
-                result[each_intf[intf.ip_name]] = each_intf.get(
-                    intf.ip_ip, each_intf.get("unnum-intf")
-                )
+                # As palo gets state from intf cmd, needed to stop IP from being wiped
+                if (
+                    bool(re.search("panos", os_type))
+                    and each_intf.get(intf.ip_ip) is None
+                ):
+                    pass
+                else:
+                    result[each_intf[intf.ip_name]] = each_intf.get(
+                        intf.ip_ip, each_intf.get("unnum-intf")
+                    )
         # Actual state only
         elif not val_file:
-            result[each_intf[intf.ip_name]]["ip"] = each_intf.get(
-                intf.ip_ip, each_intf.get("unnum-intf")
-            )
+            # As palo gets state from intf cmd, needed to stop IP from being wiped
+            if bool(re.search("panos", os_type)) and each_intf.get(intf.ip_ip) is None:
+                pass
+            else:
+                result[each_intf[intf.ip_name]]["ip"] = each_intf.get(
+                    intf.ip_ip, each_intf.get("unnum-intf")
+                )
             result[each_intf[intf.ip_name]]["status"] = each_intf.get(
                 intf.ip_status, "up"
             )

@@ -1,0 +1,158 @@
+{
+    "interface": {
+        "intf": [
+            {
+                "interface": "ethernet1/4",
+                "id": "19",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:41:03"
+            },
+            {
+                "interface": "ethernet1/5",
+                "id": "20",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:97:2b"
+            },
+            {
+                "interface": "ethernet1/6",
+                "id": "21",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:8f:ac"
+            },
+            {
+                "interface": "ethernet1/7",
+                "id": "22",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:d6:ae"
+            },
+            {
+                "interface": "ethernet1/8",
+                "id": "23",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:48:2f"
+            },
+            {
+                "interface": "ethernet1/9",
+                "id": "24",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:36:87"
+                }
+            ],
+        "ip_brief": [
+            {
+                "interface": "ethernet1/4",
+                "id": "19",
+                "vsys": "1",
+                "zone": "",
+                "forwarding": "ha",
+                "vlan_id": "0",
+                "ip_address": "192.168.16.59/29"
+            },
+            {
+                "interface": "ethernet1/5",
+                "id": "20",
+                "vsys": "1",
+                "zone": "",
+                "forwarding": "ha",
+                "vlan_id": "0",
+                "ip_address": "192.168.16.67/29"
+            },
+            {
+                "interface": "ethernet1/6",
+                "id": "21",
+                "vsys": "1",
+                "zone": "",
+                "forwarding": "ha",
+                "vlan_id": "0",
+                "ip_address": "192.168.16.75/29"
+            },
+            {
+                "interface": "ethernet1/7",
+                "id": "22",
+                "vsys": "1",
+                "zone": "",
+                "forwarding": "ha",
+                "vlan_id": "0",
+                "ip_address": "N/A"
+            },
+            {
+                "interface": "ethernet1/8",
+                "id": "23",
+                "vsys": "1",
+                "zone": "SOUTH",
+                "forwarding": "vr:VR_HANDOFF",
+                "vlan_id": "0",
+                "ip_address": "192.168.4.20/29"
+            },
+            {
+                "interface": "ethernet1/9",
+                "id": "24",
+                "vsys": "1",
+                "zone": "NORTH",
+                "forwarding": "vr:VR_HANDOFF",
+                "vlan_id": "0",
+                "ip_address": "192.168.4.52/29"
+            },
+            {
+                "interface": "ethernet1/4",
+                "id": "19",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:41:03"
+            },
+            {
+                "interface": "ethernet1/5",
+                "id": "20",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:97:2b"
+            },
+            {
+                "interface": "ethernet1/6",
+                "id": "21",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:8f:ac"
+            },
+            {
+                "interface": "ethernet1/7",
+                "id": "22",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:d6:ae"
+            },
+            {
+                "interface": "ethernet1/8",
+                "id": "23",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:48:2f"
+            },
+            {
+                "interface": "ethernet1/9",
+                "id": "24",
+                "speed": "10000",
+                "duplex": "full",
+                "state": "up",
+                "mac_address": "00:50:56:a9:36:87"
+                }
+        ]
+    }
+}

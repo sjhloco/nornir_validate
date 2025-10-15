@@ -1,0 +1,51 @@
+interface:
+  intf:
+    ethernet1/4:
+      duplex: full
+      speed: 10000
+      type: null
+      status: connected
+    ethernet1/5:
+      duplex: full
+      speed: 10000
+      type: null
+      status: connected
+    ethernet1/6:
+      duplex: full
+      speed: 10000
+      type: null
+      status: connected
+    ethernet1/7:
+      duplex: full
+      speed: 10000
+      type: null
+      status: connected
+    ethernet1/8:
+      duplex: full
+      speed: 10000
+      type: null
+      status: connected
+    ethernet1/9:
+      duplex: full
+      speed: 10000
+      type: null
+      status: connected
+  ip_brief:
+    ethernet1/4:
+      ip: 192.168.16.59/29
+      status: up
+    ethernet1/5:
+      ip: 192.168.16.67/29
+      status: up
+    ethernet1/6:
+      ip: 192.168.16.75/29
+      status: up
+    ethernet1/7:
+      ip: N/A
+      status: up
+    ethernet1/8:
+      ip: 192.168.4.20/29
+      status: up
+    ethernet1/9:
+      ip: 192.168.4.52/29
+      status: up

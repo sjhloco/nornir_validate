@@ -13,6 +13,9 @@
 {% elif 'wlc' in os_type |string %}
 {% set intf_cmd = "show port summary" %}
 {% set ip_brief_cmd = "show interface summary" %}
+{% elif 'panos' in os_type |string %}
+{% set intf_cmd = "show interface hardware" %}
+{% set ip_brief_cmd = "show interface logical" %}
 {% endif %}
 
 
@@ -28,6 +31,10 @@
       {{ switchport_cmd }}: VALIDATE
 {% elif sub_feat == 'ip_brief' and ip_brief_cmd is defined %}
     ip_brief: 
+{# Needed as panos in_brief doesnt have intf status #}
+{% if 'panos' in os_type |string %}
+      {{ intf_cmd }}: SUB_FEATURE_COMBINED_CMD
+{% endif %}
       {{ ip_brief_cmd }}: VALIDATE
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
@@ -65,6 +72,11 @@
 {# ### IP_BRIEF: {cmd: {intf: {ip:x, status: x}}} ### #}
 {% elif sub_feat == 'ip_brief' %}
     ip_brief: 
+{# Needed as panos in_brief doesnt have intf status #}
+{% if 'panos' in os_type |string %}
+      {{ intf_cmd }}: 
+        SUB_FEATURE_COMBINED_CMD
+{% endif %}
       {{ ip_brief_cmd }}: 
 {% for each_intf, each_ip in input_vars.items() %}
         {{ each_intf }}:
