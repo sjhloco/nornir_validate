@@ -1,0 +1,3 @@
+redundancy:
+  ha_state:
+    show high-availability all: VALIDATE

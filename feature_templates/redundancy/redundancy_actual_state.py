@@ -25,6 +25,8 @@ def _set_keys(os_type: str) -> OsKeys:
         return OsKeys("service_state", "service_state_mate")
     elif "wlc" in os_type:
         return OsKeys("local_state", "peer_state")
+    elif "panos" in os_type:
+        return OsKeys("state", "")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -93,6 +95,10 @@ def format_ha_state(
     if bool(re.search("asa", os_type)):
         result["local"] = output[0][rdny.ha_state_local][0]
         result["peer"] = output[0][rdny.ha_state_peer][0]
+    elif bool(re.search("panos", os_type)):
+        state = output[0][rdny.ha_state_local].split("-")[0]
+        result["local"] = state
+        result["peer"] = "standby" if state == "active" else "active"
     else:
         result["local"] = output[0][rdny.ha_state_local]
         result["peer"] = output[0][rdny.ha_state_peer]
