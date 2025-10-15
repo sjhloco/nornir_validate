@@ -2,3 +2,89 @@ all:
   route_table:
     route_count:
       global: 18
+    route:
+      global:
+        0.0.0.0/0:
+          nh: 192.168.2.49
+          rtype: B
+        10.0.0.0/8:
+          nh: discard
+          rtype: S
+        10.0.0.1/32:
+          nh: 192.168.2.44
+          rtype: B
+        10.0.0.2/32:
+          nh: 192.168.2.44
+          rtype: B
+        10.3.0.0/16:
+          nh: discard
+          rtype: S
+        10.3.0.0/20:
+          nh: 192.168.2.1
+          rtype: B
+        10.3.0.0/21:
+          nh: 192.168.2.1
+          rtype: B
+        10.3.252.0/23:
+          nh: 192.168.2.49
+          rtype: B
+        10.3.252.0/24:
+          nh: 192.168.2.49
+          rtype: B
+        10.3.252.0/28:
+          nh: discard
+          rtype: S
+        10.3.253.0/28:
+          nh: discard
+          rtype: S
+        10.3.255.0/24:
+          nh: 192.168.2.25
+          rtype: B
+        10.3.255.0/25:
+          nh: 192.168.2.25
+          rtype: B
+        172.16.0.0/12:
+          nh: discard
+          rtype: S
+        172.17.0.0/16:
+          nh: discard
+          rtype: S
+        172.17.0.0/17:
+          nh: 192.168.2.1
+          rtype: B
+        172.17.128.0/18:
+          nh: 192.168.2.9
+          rtype: B
+        172.30.0.0/18:
+          nh: 192.168.2.49
+          rtype: B
+        172.30.0.0/19:
+          nh: 192.168.2.49
+          rtype: B
+        192.168.0.0/16:
+          nh: discard
+          rtype: S
+        192.168.2.0/29:
+          nh: ethernet1/8.3111
+          rtype: C
+        192.168.2.3/32:
+          nh: 0.0.0.0
+          rtype: H
+        192.168.2.8/29:
+          nh: ethernet1/8.3112
+          rtype: C
+        192.168.2.11/32:
+          nh: 0.0.0.0
+          rtype: H
+        192.168.2.16/29:
+          nh: ethernet1/8.3113
+          rtype: C
+        192.168.2.19/32:
+          nh: 0.0.0.0
+          rtype: H
+        192.168.5.10/31:
+          nh: 192.168.2.41
+          rtype: B
+        192.168.5.26/31:
+          nh: 192.168.2.41
+          rtype: B

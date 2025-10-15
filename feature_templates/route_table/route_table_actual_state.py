@@ -13,6 +13,7 @@ class OsKeys(NamedTuple):
     route_mask: str
     route_nhip: str
     route_nhif: str
+    route_type: str
 
 
 def _set_keys(os_type: str) -> OsKeys:
@@ -24,13 +25,13 @@ def _set_keys(os_type: str) -> OsKeys:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
     if "ios" in os_type:
-        return OsKeys("IP", 2, "prefix_length", "nexthop_ip", "nexthop_if")
+        return OsKeys("IP", 2, "prefix_length", "nexthop_ip", "nexthop_if", "protocol")
     elif "nxos" in os_type:
-        return OsKeys("IP", -1, "prefix_length", "nexthop_ip", "nexthop_if")
+        return OsKeys("IP", -1, "prefix_length", "nexthop_ip", "nexthop_if", "protocol")
     elif "asa" in os_type:
-        return OsKeys("IP", 2, "netmask", "nexthopip", "nexthopif")
+        return OsKeys("IP", 2, "netmask", "nexthopip", "nexthopif", "protocol")
     elif "panos" in os_type:
-        return OsKeys("IPv6", 3, "", "", "")
+        return OsKeys("IPv6", 3, "prefix_length", "nexthop_ip", "nexthop_if", "flags")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -148,17 +149,17 @@ def format_route(rt: OsKeys, output: list[dict[str, Any]]) -> dict[str, Any]:
 
     def _select_next_hop(each_rte: dict[str, str]) -> str:
         """Determine next-hop IP or interface."""
-        proto_regex = re.compile(r"^L$|^local$|^C$|^direct$")
-        if proto_regex.search(each_rte["protocol"]) or not each_rte[rt.route_nhip]:
+        proto_regex = re.compile(r"^L$|^local$|^C$|^direct$|A C")
+        if proto_regex.search(each_rte[rt.route_type]) or not each_rte[rt.route_nhip]:
             return each_rte[rt.route_nhif]
         return each_rte[rt.route_nhip]
 
     def _format_route_type(each_rte: dict[str, str]) -> str:
         """Format route type string."""
         return (
-            each_rte["protocol"]
-            if not each_rte["type"]
-            else f"{each_rte['protocol']} {each_rte['type']}"
+            each_rte[rt.route_type].replace("A ", "").replace("A?", "")
+            if not each_rte.get("type", "")
+            else f"{each_rte[rt.route_type]} {each_rte['type']}"
         )
 
     for each_rte in output:

@@ -1,3 +1,5 @@
 route_table:
   route_count:
     show routing  resource: VALIDATE
+  route:
+    show routing route: VALIDATE

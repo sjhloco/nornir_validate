@@ -15,6 +15,7 @@
 {% elif 'wlc' in os_type |string %}
 {% elif 'panos' in os_type |string %}
 {% set route_count_cmd = "show routing  resource" %}
+{% set route_cmd = "show routing route" %}
 {% endif %}
 
 

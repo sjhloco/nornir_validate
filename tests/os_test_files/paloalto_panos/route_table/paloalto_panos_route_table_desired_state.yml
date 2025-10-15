@@ -2,3 +2,90 @@ route_table:
   route_count:
     show routing  resource:
       global: 18
+  route:
+    show routing route:
+      global:
+        0.0.0.0/0:
+          rtype: B
+          nh: 192.168.2.49
+        10.0.0.0/8:
+          rtype: S
+          nh: discard
+        10.0.0.1/32:
+          rtype: B
+          nh: 192.168.2.44
+        10.0.0.2/32:
+          rtype: B
+          nh: 192.168.2.44
+        10.3.0.0/16:
+          rtype: S
+          nh: discard
+        10.3.0.0/20:
+          rtype: B
+          nh: 192.168.2.1
+        10.3.0.0/21:
+          rtype: B
+          nh: 192.168.2.1
+        10.3.252.0/23:
+          rtype: B
+          nh: 192.168.2.49
+        10.3.252.0/24:
+          rtype: B
+          nh: 192.168.2.49
+        10.3.252.0/28:
+          rtype: S
+          nh: discard
+        10.3.253.0/28:
+          rtype: S
+          nh: discard
+        10.3.255.0/24:
+          rtype: B
+          nh: 192.168.2.25
+        10.3.255.0/25:
+          rtype: B
+          nh: 192.168.2.25
+        172.16.0.0/12:
+          rtype: S
+          nh: discard
+        172.17.0.0/16:
+          rtype: S
+          nh: discard
+        172.17.0.0/17:
+          rtype: B
+          nh: 192.168.2.1
+        172.17.128.0/18:
+          rtype: B
+          nh: 192.168.2.9
+        172.30.0.0/18:
+          rtype: B
+          nh: 192.168.2.49
+        172.30.0.0/19:
+          rtype: B
+          nh: 192.168.2.49
+        192.168.0.0/16:
+          rtype: S
+          nh: discard
+        192.168.2.0/29:
+          rtype: C
+          nh: ethernet1/8.3111
+        192.168.2.3/32:
+          rtype: H
+          nh: 0.0.0.0
+        192.168.2.8/29:
+          rtype: C
+          nh: ethernet1/8.3112
+        192.168.2.11/32:
+          rtype: H
+          nh: 0.0.0.0
+        192.168.2.16/29:
+          rtype: C
+          nh: ethernet1/8.3113
+        192.168.2.19/32:
+          rtype: H
+          nh: 0.0.0.0
+        192.168.5.10/31:
+          rtype: B
+          nh: 192.168.2.41
+        192.168.5.26/31:
+          rtype: B
+          nh: 192.168.2.41
