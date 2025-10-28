@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -80,7 +80,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -116,7 +116,7 @@ def _fix_nxos(
 
 def _make_none(
     input_dict: dict[str, str | int | None], dict_key: str
-) -> Union[str, int, None]:
+) -> str | int | None:
     """Checks dict key value and if empty returns None.
 
     Args:
@@ -134,19 +134,19 @@ def _make_none(
 
 
 def format_intf(
-    val_file: bool, os_type: str, intf: OsKeys, output: list[dict[str, Any]]
-) -> dict[Union[str, int], Any]:
+    val_file: bool, os_type: str, key: OsKeys, output: list[dict[str, Any]]
+) -> dict[str | int, Any]:
     """Format interface output into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
-        intf (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, Any]]): The command output from the device in ntc data structure
     Returns:
         dict[Union[str, int], Any]:  {intf: {duplex: x, speed: x, type:x, status: connected }}, val_file doesn't have 'status'
     """
-    result: dict[Union[str, int], dict[str, Union[str, int, None]]] = defaultdict(dict)
+    result: dict[str | int, dict[str, str | int | None]] = defaultdict(dict)
     skip_statuses = {
         "disabled",
         "xcvrAbsen",
@@ -158,9 +158,9 @@ def format_intf(
         "down",
     }
     for each_intf in output:
-        intf_name = _make_int(each_intf[intf.intf_name])
+        intf_name = _make_int(each_intf[key.intf_name])
         # BYPASS: Dont include disabled ports when building val_file
-        if val_file and each_intf[intf.intf_status] in skip_statuses:
+        if val_file and each_intf[key.intf_status] in skip_statuses:
             continue
         # SPEED/DUPLEX: WLC doesnt have standard duplex and speed NTC keys
         if bool(re.search("wlc", os_type)):
@@ -184,18 +184,18 @@ def format_intf(
             if len(each_intf["speed"]) != 0:
                 result[intf_name]["speed"] = _make_int(each_intf["speed"])
         # TYPE: Applies to actual_state and val_file
-        if isinstance(_make_int(each_intf.get(intf.intf_type, "x")), int):
+        if isinstance(_make_int(each_intf.get(key.intf_type, "x")), int):
             result[intf_name]["type"] = "access"
         # TYPE: Actual_state only
         elif not val_file:
-            result[intf_name]["type"] = _make_none(each_intf, intf.intf_type)
+            result[intf_name]["type"] = _make_none(each_intf, key.intf_type)
         # TYPE: VAL_file only
-        elif len(each_intf.get(intf.intf_type, "")) != 0:
-            result[intf_name]["type"] = each_intf[intf.intf_type]
+        elif len(each_intf.get(key.intf_type, "")) != 0:
+            result[intf_name]["type"] = each_intf[key.intf_type]
         # STATUS: Applies all Actual_state
         if not val_file:
             result[intf_name]["status"] = (
-                each_intf[intf.intf_status].lower().replace("up", "connected")
+                each_intf[key.intf_status].lower().replace("up", "connected")
             )
     return dict(result)
 
@@ -209,7 +209,7 @@ def format_swport(val_file: bool, output: list[dict[str, Any]]) -> dict[str, Any
     Returns:
         dict[str, Any]:  {intf: {mode: access or trunk, vlan: x or [x,y]}}
     """
-    result: dict[str, dict[str, Union[str, int, list[str], None]]] = defaultdict(dict)
+    result: dict[str, dict[str, str | int | list[str] | None]] = defaultdict(dict)
 
     for each_intf in output:
         # BYPASS: Dont include disabled ports when building val_file
@@ -236,22 +236,22 @@ def format_swport(val_file: bool, output: list[dict[str, Any]]) -> dict[str, Any
 
 
 def format_ipbrief(
-    val_file: bool, os_type: str, intf: OsKeys, output: list[dict[str, Any]]
+    val_file: bool, os_type: str, key: OsKeys, output: list[dict[str, Any]]
 ) -> dict[str, Any]:
     """Format ip interface brief output into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
-        intf (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, Any]]): The command output from the device in ntc data structure
     Returns:
         dict[str, Any]: {intf: {ip:x, status: x}}, val_file is {intfx: ipx, intfy: ipy}
     """
     result: dict[str, dict[str, str]] = defaultdict(dict)
     skip_conditions = {
-        intf.ip_ip: ["unassigned", "N/A"],
-        intf.ip_status: ["administratively down", "admin-down"],
+        key.ip_ip: ["unassigned", "N/A"],
+        key.ip_status: ["administratively down", "admin-down"],
     }
     if bool(re.search("nxos", os_type)):
         output = _fix_nxos(output[0], "TABLE_intf", "ROW_intf")
@@ -267,24 +267,24 @@ def format_ipbrief(
                 # As palo gets state from intf cmd, needed to stop IP from being wiped
                 if (
                     bool(re.search("panos", os_type))
-                    and each_intf.get(intf.ip_ip) is None
+                    and each_intf.get(key.ip_ip) is None
                 ):
                     pass
                 else:
-                    result[each_intf[intf.ip_name]] = each_intf.get(
-                        intf.ip_ip, each_intf.get("unnum-intf")
+                    result[each_intf[key.ip_name]] = each_intf.get(
+                        key.ip_ip, each_intf.get("unnum-intf")
                     )
         # Actual state only
         elif not val_file:
             # As palo gets state from intf cmd, needed to stop IP from being wiped
-            if bool(re.search("panos", os_type)) and each_intf.get(intf.ip_ip) is None:
+            if bool(re.search("panos", os_type)) and each_intf.get(key.ip_ip) is None:
                 pass
             else:
-                result[each_intf[intf.ip_name]]["ip"] = each_intf.get(
-                    intf.ip_ip, each_intf.get("unnum-intf")
+                result[each_intf[key.ip_name]]["ip"] = each_intf.get(
+                    key.ip_ip, each_intf.get("unnum-intf")
                 )
-            result[each_intf[intf.ip_name]]["status"] = each_intf.get(
-                intf.ip_status, "up"
+            result[each_intf[key.ip_name]]["status"] = each_intf.get(
+                key.ip_status, "up"
             )
     return dict(result)
 
@@ -296,7 +296,7 @@ def format_actual_state(
     val_file: bool,
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[Any, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -308,18 +308,18 @@ def format_actual_state(
     Returns:
         dict[Union[str, int], Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    intf = _set_keys(os_type)
+    key = _set_keys(os_type)
     aw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### INTF: {intf: {duplex: x, speed: x, type:x, connected }}
     if sub_feature == "intf":
-        return format_intf(val_file, os_type, intf, ntc_output)
+        return format_intf(val_file, os_type, key, ntc_output)
     ### SWITCHPORT: {intf: {mode: access or trunk, vlan: x or [x,y]}}
     elif sub_feature == "switchport":
         return format_swport(val_file, ntc_output)
     ### IP_BRIEF: {intf: {ip:x, status: x}}}
     elif sub_feature == "ip_brief":
-        return format_ipbrief(val_file, os_type, intf, ntc_output)
+        return format_ipbrief(val_file, os_type, key, ntc_output)
     ### CatchAll
     else:
         msg = f"Unsupported sub_feature: {sub_feature}"

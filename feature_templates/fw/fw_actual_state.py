@@ -1,4 +1,4 @@
-from typing import NamedTuple, Union
+from typing import NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -59,7 +59,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -73,16 +73,16 @@ def _make_int(input_data: str) -> Union[int, str]:
         return input_data
 
 
-def format_conn_count(fw: OsKeys, output: list[str]) -> Union[str, int]:
+def format_conn_count(key: OsKeys, output: list[str]) -> str | int:
     """Format FW conns into the data structure.
 
     Args:
-        fw (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
     Returns:
         str:  {conn_count: xx}
     """
-    return _make_int(output[fw.conn_line].split()[fw.conn_pos])
+    return _make_int(output[key.conn_line].split()[key.conn_pos])
 
 
 # ----------------------------------------------------------------------------
@@ -92,8 +92,8 @@ def format_actual_state(
     val_file: bool,  # noqa: ARG001
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
-) -> Union[int, str]:
+    output: list[str | dict[str, str]],
+) -> int | str:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
     Args:
@@ -104,12 +104,12 @@ def format_actual_state(
     Returns:
         dict[str, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    fw = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### FW_CONN_COUNT: {conn_count: xx}
     if sub_feature == "conn_count":
-        return format_conn_count(fw, raw_output)
+        return format_conn_count(key, raw_output)
 
     ### CatchAll
     else:

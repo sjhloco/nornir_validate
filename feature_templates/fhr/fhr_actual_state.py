@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -66,7 +66,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -101,20 +101,20 @@ def _fix_nxos(
 
 
 def format_hsrp(
-    fhr: OsKeys, output: list[dict[str, Any]]
-) -> dict[str, dict[str, Union[str, int]]]:
+    key: OsKeys, output: list[dict[str, Any]]
+) -> dict[str, dict[str, str | int]]:
     """Format HSRP output into the data structure.
 
     Args:
-        fhr (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, Any]]): The command output from the device in ntc data structure
     Returns:
         dict[str, dict[str, Union[str, int]]]: {intf: {priority: x, state: y}
     """
-    result: dict[str, dict[str, Union[str, int]]] = defaultdict(dict)
+    result: dict[str, dict[str, str | int]] = defaultdict(dict)
     for each_nbr in output:
-        result[each_nbr[fhr.hsrp_intf]]["priority"] = _make_int(each_nbr[fhr.hsrp_prio])
-        result[each_nbr[fhr.hsrp_intf]]["state"] = each_nbr[fhr.hsrp_state]
+        result[each_nbr[key.hsrp_intf]]["priority"] = _make_int(each_nbr[key.hsrp_prio])
+        result[each_nbr[key.hsrp_intf]]["state"] = each_nbr[key.hsrp_state]
     return dict(result)
 
 
@@ -125,8 +125,8 @@ def format_actual_state(
     val_file: bool,  # noqa: ARG001
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
-) -> dict[str, dict[str, Union[str, int]]]:
+    output: list[str | dict[str, str]],
+) -> dict[str, dict[str, str | int]]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
     Args:
@@ -137,14 +137,14 @@ def format_actual_state(
     Returns:
         dict[str, dict[str, Union[str, int]]]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    fhr = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### HSRP: {intf: {priority: x, state: y})
     if sub_feature == "hsrp":  # noqa: SIM102
         if bool(re.search("nxos", os_type)):
             ntc_output = _fix_nxos(ntc_output[0], "TABLE_grp_detail", "ROW_grp_detail")
-        return format_hsrp(fhr, ntc_output)
+        return format_hsrp(key, ntc_output)
 
     ### CatchAll
     else:

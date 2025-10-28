@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -61,19 +61,19 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def format_cdp_lldp_nbr(nbr: OsKeys, output: list[dict[str, str]]) -> dict[str, Any]:
+def format_cdp_lldp_nbr(key: OsKeys, output: list[dict[str, str]]) -> dict[str, Any]:
     """Format CDP or LLDP neighbors into the data structure.
 
     Args:
-        nbr (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, Any]]): The command output from the device in ntc data structure
     Returns:
         dict[str, Any]: {intf: {nbr_name: xx, nbr_intf: yy}}
     """
     result: dict[str, dict[str, str]] = defaultdict(dict)
     for each_nbr in output:
-        result[each_nbr[nbr.cdp_local]]["nbr_name"] = each_nbr[nbr.cdp_nbr]
-        result[each_nbr[nbr.cdp_local]]["nbr_intf"] = each_nbr[nbr.cdp_remote]
+        result[each_nbr[key.cdp_local]]["nbr_name"] = each_nbr[key.cdp_nbr]
+        result[each_nbr[key.cdp_local]]["nbr_intf"] = each_nbr[key.cdp_remote]
     return dict(result)
 
 
@@ -84,7 +84,7 @@ def format_actual_state(
     val_file: bool,  # noqa: ARG001
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[str, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -96,12 +96,12 @@ def format_actual_state(
     Returns:
         dict[str, dict[str, str]]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    nbr = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### CDP/LLDP: {intf: {nbr_name: xx, nbr_intf: yy}}
     if sub_feature == "cdp" or sub_feature == "lldp":
-        return format_cdp_lldp_nbr(nbr, ntc_output)
+        return format_cdp_lldp_nbr(key, ntc_output)
     ### CatchAll
     else:
         msg = f"Unsupported sub_feature: {sub_feature}"

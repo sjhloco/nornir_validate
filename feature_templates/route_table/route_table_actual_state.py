@@ -1,7 +1,7 @@
 import ipaddress
 import re
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -70,7 +70,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -84,7 +84,7 @@ def _make_int(input_data: str) -> Union[int, str]:
         return input_data
 
 
-def format_vrf(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
+def format_vrf(output: list[dict[str, Any]]) -> dict[str | int, Any]:
     """Format VRF output into the data structure.
 
     Args:
@@ -92,7 +92,7 @@ def format_vrf(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
     Returns:
         dict[str, Any]: {vrf: [intfx, intfy]}
     """
-    result: dict[Union[str, int], list[str]] = {}
+    result: dict[str | int, list[str]] = {}
     for each_vrf in output:
         vrf_name = _make_int(each_vrf["name"])
         if result.get(vrf_name) is None:
@@ -105,40 +105,40 @@ def format_vrf(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
     return dict(result)
 
 
-def format_rte_count(rt: OsKeys, os_type: str, output: list[str]) -> dict[str, Any]:
+def format_rte_count(key: OsKeys, os_type: str, output: list[str]) -> dict[str, Any]:
     """Format route count output into the data structure.
 
     Args:
-        rt (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         os_type (str): The different Nornir platforms which are OS type of the device
         output (list[dict[str, str]]): The command output from the device in raw data structure
     Returns:
         dict[str, Any]: {global_subnets: x, xx_subnets: x}
     """
-    result: dict[str, Union[int, str]] = {}
+    result: dict[str, int | str] = {}
     for idx, each_item in enumerate(output):
-        if rt.count_match in each_item:
+        if key.count_match in each_item:
             # Needed for Panos as no VRFs
             if bool(re.search("panos", os_type)):
                 vrf = "global"
             else:
                 tmp = each_item.replace("maximum-paths is", "name is default")
                 vrf = tmp.split()[5].replace('"', "").replace("default", "global")
-            result[vrf] = _make_int(output[idx + 1].split()[rt.count_iter])
+            result[vrf] = _make_int(output[idx + 1].split()[key.count_iter])
     return dict(result)
 
 
-def format_route(rt: OsKeys, output: list[dict[str, Any]]) -> dict[str, Any]:
+def format_route(key: OsKeys, output: list[dict[str, Any]]) -> dict[str, Any]:
     """Format table output into a structured route dictionary.
 
     Args:
-        rt (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, Any]]): The command output from the device in ntc data structure
 
     Returns:
         dict[str, Any]: {vrf: {route/prefix: type: x, nh: y}})
     """
-    result: dict[str, dict[str, dict[str, Union[str, list[str]]]]] = defaultdict(dict)
+    result: dict[str, dict[str, dict[str, str | list[str]]]] = defaultdict(dict)
 
     # Helper functions used only by this function
     def _get_pfxlen(network: str, mask: str) -> str:
@@ -150,16 +150,16 @@ def format_route(rt: OsKeys, output: list[dict[str, Any]]) -> dict[str, Any]:
     def _select_next_hop(each_rte: dict[str, str]) -> str:
         """Determine next-hop IP or interface."""
         proto_regex = re.compile(r"^L$|^local$|^C$|^direct$|A C")
-        if proto_regex.search(each_rte[rt.route_type]) or not each_rte[rt.route_nhip]:
-            return each_rte[rt.route_nhif]
-        return each_rte[rt.route_nhip]
+        if proto_regex.search(each_rte[key.route_type]) or not each_rte[key.route_nhip]:
+            return each_rte[key.route_nhif]
+        return each_rte[key.route_nhip]
 
     def _format_route_type(each_rte: dict[str, str]) -> str:
         """Format route type string."""
         return (
-            each_rte[rt.route_type].replace("A ", "").replace("A?", "")
+            each_rte[key.route_type].replace("A ", "").replace("A?", "")
             if not each_rte.get("type", "")
-            else f"{each_rte[rt.route_type]} {each_rte['type']}"
+            else f"{each_rte[key.route_type]} {each_rte['type']}"
         )
 
     for each_rte in output:
@@ -168,7 +168,7 @@ def format_route(rt: OsKeys, output: list[dict[str, Any]]) -> dict[str, Any]:
         # VRF Handling
         vrf = each_rte.get("vrf", "global").replace("default", "global") or "global"
         # Route + Next-Hop
-        rte = _get_pfxlen(each_rte["network"], each_rte[rt.route_mask])
+        rte = _get_pfxlen(each_rte["network"], each_rte[key.route_mask])
         nh = _select_next_hop(each_rte)
         rte_type = _format_route_type(each_rte)
 
@@ -194,7 +194,7 @@ def format_actual_state(
     val_file: bool,  # noqa: ARG001
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[Any, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -206,7 +206,7 @@ def format_actual_state(
     Returns:
         dict[str, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    rt = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### VRF: {vrf: [intfx, intfy]}
@@ -215,11 +215,11 @@ def format_actual_state(
 
     ### RTE_COUNT: {global_subnets: x, xx_subnets: x}
     elif sub_feature == "route_count":
-        return format_rte_count(rt, os_type, raw_output)
+        return format_rte_count(key, os_type, raw_output)
 
     ### ROUTE: {vrf: {route/prefix: type: x, nh: y}})
     elif sub_feature == "route":
-        return format_route(rt, ntc_output)
+        return format_route(key, ntc_output)
 
     ### CatchAll
     else:

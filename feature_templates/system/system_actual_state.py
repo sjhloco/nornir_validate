@@ -1,7 +1,7 @@
 import ipaddress
 import re
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -34,7 +34,9 @@ def _set_keys(os_type: str) -> OsKeys:
     elif "wlc" in os_type:
         return OsKeys("product_version", "", "", "", "", "", "")
     elif "panos" in os_type:
-        return OsKeys("os", "", "", "grp_name", "destination", "rtt_avg", "suc_total")
+        return OsKeys(
+            "os", "", "", "grp_name", "destination", "rtt_avg", "success_rate"
+        )
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -44,7 +46,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -73,7 +75,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -206,7 +208,7 @@ def _acl_val_file(ace: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
 
 def _acl_actual_state(
     ace: list[dict[str, str]], mgmt_acl_seq: str
-) -> dict[Union[int, str], dict[str, str]]:
+) -> dict[int | str, dict[str, str]]:
     """Creates a dict of ace statements from an ACL for the actual state grouped by seq (key).
 
     Args:
@@ -215,7 +217,7 @@ def _acl_actual_state(
     Returns:
         dict[Union[int, str], dict[str, str]]: Cleaned up ACL ACEs grouped by seq {seq: {'action': x, 'protocol': y, 'dst': 'any', 'src': address/pfx}}
     """
-    ac_aces: defaultdict[Union[int, str], dict[str, str]] = defaultdict(dict)
+    ac_aces: defaultdict[int | str, dict[str, str]] = defaultdict(dict)
     for each_ace in ace:
         seq = _make_int(each_ace[mgmt_acl_seq])
         ac_aces[seq]["action"] = each_ace["action"]
@@ -229,28 +231,26 @@ def _acl_actual_state(
     return dict(ac_aces)
 
 
-def format_image(sytm: OsKeys, output: list[dict[str, str]]) -> str:
+def format_image(key: OsKeys, output: list[dict[str, str]]) -> str:
     """Format image into the data structure.
 
     Args:
-        sytm (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
     Returns:
         str:  {image: code_number}
     """
-    return output[0][sytm.image_version]
+    return output[0][key.image_version]
 
 
 def format_acl(
-    val_file: bool, sytm: OsKeys, output: list[dict[str, str]]
-) -> dict[
-    str, Union[dict[str, list[dict[str, str]]], dict[Union[int, str], dict[str, str]]]
-]:
+    val_file: bool, key: OsKeys, output: list[dict[str, str]]
+) -> dict[str, dict[str, list[dict[str, str]]] | dict[int | str, dict[str, str]]]:
     """Format management ACL into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
-        sytm (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device
     Returns:
         dict[str, Union[list[dict[str, str]], dict[Union[int, str], dict[str, str]]]]: {seq: {'action': x, 'protocol': y, 'dst': 'any', 'src': address/pfx}},
@@ -258,10 +258,10 @@ def format_acl(
     """
     result: dict[
         str,
-        Union[dict[str, list[dict[str, str]]], dict[Union[int, str], dict[str, str]]],
+        dict[str, list[dict[str, str]]] | dict[int | str, dict[str, str]],
     ] = {}
     # Cleanup up data structure
-    acl = _acl_format_into_dict(output, sytm.mgmt_acl_name)
+    acl = _acl_format_into_dict(output, key.mgmt_acl_name)
     acl = _acl_remove_remark(acl)
     # Separate functions to create val file actual state
     for name, ace in acl.items():
@@ -270,13 +270,11 @@ def format_acl(
             result[name] = _acl_val_file(ace)
         #  If creating the actual state
         elif not val_file:
-            result[name] = _acl_actual_state(ace, sytm.mgmt_acl_seq)
+            result[name] = _acl_actual_state(ace, key.mgmt_acl_seq)
     return result
 
 
-def format_module(
-    val_file: bool, output: list[dict[str, str]]
-) -> dict[Union[str, int], Any]:
+def format_module(val_file: bool, output: list[dict[str, str]]) -> dict[str | int, Any]:
     """Format module into the data structure.
 
     Args:
@@ -285,7 +283,7 @@ def format_module(
     Returns:
         dict[Union[str, int], Any]:  {module_num: {model: xxx, status, ok}}, val_file is {module_num: {model: xxx}}
     """
-    result: dict[Union[int, str], dict[str, str]] = defaultdict(dict)
+    result: dict[int | str, dict[str, str]] = defaultdict(dict)
     for each_mod in output:
         mod = _make_int(each_mod["module"])
         result[mod]["model"] = each_mod["model"]
@@ -304,38 +302,38 @@ def format_module(
 
 
 def format_sla(
-    val_file: bool, sytm: OsKeys, output: list[dict[str, str]]
+    val_file: bool, key: OsKeys, output: list[dict[str, str]]
 ) -> dict[str, Any]:
     """Format SLA monitoring into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
-        sytm (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
     Returns:
         Union[dict[str, str], list[str]]:  {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}, val_file is {cmd: {grp_name: {dst: {rtt: x}}}}
     """
-    result: dict[str, dict[str, dict[str, Union[str, int]]]] = defaultdict(dict)
+    result: dict[str, dict[str, dict[str, str | int]]] = defaultdict(dict)
     for probe in output:
         try:
             # Round up/down floats as needs to be integer to all for =>, =<, etc
-            rtt_num = float(probe[sytm.sla_rtt])
-            result[probe[sytm.sla_grp]][probe[sytm.sla_dst]] = {"rtt": round(rtt_num)}
+            rtt_num = float(probe[key.sla_rtt])
+            result[probe[key.sla_grp]][probe[key.sla_dst]] = {"rtt": round(rtt_num)}
         except (ValueError, TypeError):
-            result[probe[sytm.sla_grp]][probe[sytm.sla_dst]] = {
-                "rtt": _make_int(probe[sytm.sla_rtt])
+            result[probe[key.sla_grp]][probe[key.sla_dst]] = {
+                "rtt": _make_int(probe[key.sla_rtt])
             }
         # Add state if it is the actual state
         if not val_file:
             state1 = (
-                probe[sytm.sla_state].split("/")[0]
-                if len(probe[sytm.sla_state].split("/")) > 1
+                probe[key.sla_state].split("/")[0]
+                if len(probe[key.sla_state].split("/")) > 1
                 else None
             )
-            if probe[sytm.sla_state].split("/")[0] == state1:
-                result[probe[sytm.sla_grp]][probe[sytm.sla_dst]]["state"] = "Up"
+            if probe[key.sla_state].split("/")[0] == state1:
+                result[probe[key.sla_grp]][probe[key.sla_dst]]["state"] = "Up"
             else:
-                result[probe[sytm.sla_grp]][probe[sytm.sla_dst]]["state"] = "Down"
+                result[probe[key.sla_grp]][probe[key.sla_dst]]["state"] = "Down"
     return dict(result)
 
 
@@ -346,8 +344,8 @@ def format_actual_state(
     val_file: bool,
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
-) -> Union[str, dict[Any, Any]]:
+    output: list[str | dict[str, str]],
+) -> str | dict[Any, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
     Args:
@@ -358,19 +356,19 @@ def format_actual_state(
     Returns:
         Union[str, dict[Any, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    sytm = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### IMAGE: {image: code_number}
     if sub_feature == "image":
-        return format_image(sytm, ntc_output)
+        return format_image(key, ntc_output)
 
     ### MGMT_ACL: {acl_name: seq_num: {protocol: ip/tcp/udp, src: src_ip (or as intf - src_ip), dst: dst_ip, dst_port: port}}
     elif sub_feature == "mgmt_acl":
         if bool(re.search("asa", os_type)):
             ntc_output = _acl_asa_format(raw_output, "ssh")
             ntc_output.extend(_acl_asa_format(raw_output, "http"))
-        return format_acl(val_file, sytm, ntc_output)
+        return format_acl(val_file, key, ntc_output)
 
     ### MODULE: {module_num: {model: xxx, status, ok}}
     elif sub_feature == "module":
@@ -378,7 +376,7 @@ def format_actual_state(
 
     ### SLA: {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}
     if sub_feature == "sla":
-        return format_sla(val_file, sytm, ntc_output)
+        return format_sla(val_file, key, ntc_output)
 
     ### CatchAll
     else:

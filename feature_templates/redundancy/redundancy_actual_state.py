@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -65,7 +65,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -80,12 +80,12 @@ def _make_int(input_data: str) -> Union[int, str]:
 
 
 def format_ha_state(
-    rdny: OsKeys, os_type: str, output: list[dict[str, Any]]
+    key: OsKeys, os_type: str, output: list[dict[str, Any]]
 ) -> dict[str, str]:
     """Format HA state into the data structure.
 
     Args:
-        rdny (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         os_type (str): The different Nornir platforms which are OS type of the device
         output (list[dict[str, Any]]): The command output from the device in ntc data structure
     Returns:
@@ -93,15 +93,15 @@ def format_ha_state(
     """
     result = {}
     if bool(re.search("asa", os_type)):
-        result["local"] = output[0][rdny.ha_state_local][0]
-        result["peer"] = output[0][rdny.ha_state_peer][0]
+        result["local"] = output[0][key.ha_state_local][0]
+        result["peer"] = output[0][key.ha_state_peer][0]
     elif bool(re.search("panos", os_type)):
-        state = output[0][rdny.ha_state_local].split("-")[0]
+        state = output[0][key.ha_state_local].split("-")[0]
         result["local"] = state
         result["peer"] = "standby" if state == "active" else "active"
     else:
-        result["local"] = output[0][rdny.ha_state_local]
-        result["peer"] = output[0][rdny.ha_state_peer]
+        result["local"] = output[0][key.ha_state_local]
+        result["peer"] = output[0][key.ha_state_peer]
     return dict(result)
 
 
@@ -114,7 +114,7 @@ def format_sw_stack(val_file: bool, output: list[dict[str, Any]]) -> dict[str, A
     Returns:
         dict[str, Any]: {switchx: {priority: x, role: x, state: x}}, val)file doesn't have 'state: x'
     """
-    result: dict[str, dict[str, Union[str, int]]] = defaultdict(dict)
+    result: dict[str, dict[str, str | int]] = defaultdict(dict)
     for each_swi in output:
         swi = f"switch{_make_int(each_swi['switch'])}"
         result[swi]["role"] = each_swi["role"]
@@ -133,7 +133,7 @@ def format_actual_state(
     val_file: bool,  # noqa: ARG001
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[str, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -145,12 +145,12 @@ def format_actual_state(
     Returns:
         dict[str, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    rdny = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### HA_STATE: {local_state: x, peer_state: x}
     if sub_feature == "ha_state":
-        return format_ha_state(rdny, os_type, ntc_output)
+        return format_ha_state(key, os_type, ntc_output)
     ### SWI_STACK: show switch - {switchx: {priority: x, role: x, state: x}}, val_file doesn't have 'state: x'.
     elif sub_feature == "sw_stack":
         return format_sw_stack(val_file, ntc_output)

@@ -1,6 +1,6 @@
 import re
 from collections import Counter, defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ def _set_keys(os_type: str) -> OsKeys:
         return OsKeys(
             "neighbor_id", "bgp_neighbor", "neighbor_as", "state_or_prefixes_received"
         )
-    elif "nxos" in os_type:
+    elif "nxos" in os_type:  # noqa: SIM114
         return OsKeys("neighbor_id", "bgp_neigh", "neigh_as", "state_pfxrcd")
     elif "asa" in os_type:
         return OsKeys("neighbor_id", "bgp_neigh", "neigh_as", "state_pfxrcd")
@@ -40,7 +40,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -69,7 +69,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -92,7 +92,7 @@ def format_eigrp_nhbr(val_file: bool, output: list[dict[str, Any]]) -> dict[str,
     Returns:
         dict[str, Any]: {intf: {asn: x, nbr: {nbr_ip: up}}, val_file is {intf: {asn: x, nbr: nbr_ip}}
     """
-    result: dict[str, dict[str, Union[str, int, dict[str, str]]]] = defaultdict(dict)
+    result: dict[str, dict[str, str | int | dict[str, str]]] = defaultdict(dict)
     for each_nbr in output:
         intf = each_nbr["interface"]
         state = "down" if len(each_nbr["uptime"]) == 0 else "up"
@@ -108,14 +108,14 @@ def format_eigrp_nhbr(val_file: bool, output: list[dict[str, Any]]) -> dict[str,
 
 
 def format_ospf_nhbr(
-    val_file: bool, os_type: str, rp: OsKeys, output: list[dict[str, Any]]
+    val_file: bool, os_type: str, key: OsKeys, output: list[dict[str, Any]]
 ) -> dict[str, Any]:
     """Format OSPF interface and neighbor outputs into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
-        rp (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
         dict[str, Any]: {intf: {pid, x, area: x, nbr: {nbr_ip: FULL}}, val file is {intf: {pid, x, area: x, nbr: [nbr_ip, nbr_ip]}}
@@ -134,7 +134,7 @@ def format_ospf_nhbr(
         neighbor_id: str,
         output: list[dict[str, Any]],
         tmp_dict_nbr: defaultdict[str, Any],
-    ) -> dict[str, Union[list[str], dict[str, Union[str, int, dict[str, str]]]]]:
+    ) -> dict[str, list[str] | dict[str, str | int | dict[str, str]]]:
         """Returns formatted OSPF neighbors combined and grouped by interface."""
         for each_intf in output:
             # Data from "show ip int br" is saved in result
@@ -155,9 +155,9 @@ def format_ospf_nhbr(
 
     # INTF: Add OSPF intf and process/area to results and neigbors per interface to dict_nbr
     if val_file:
-        dict_nbr = _ospf_nhbr(rp.neighbor_id, output, defaultdict(list))
+        dict_nbr = _ospf_nhbr(key.neighbor_id, output, defaultdict(list))
     elif not val_file:
-        dict_nbr = _ospf_nhbr(rp.neighbor_id, output, defaultdict(dict))
+        dict_nbr = _ospf_nhbr(key.neighbor_id, output, defaultdict(dict))
     # NBR: Add neighbors based on matching interfaces in results and dict_nbr
     for intf in result.keys():  # noqa: SIM118
         for intf1, nbr in dict_nbr.items():
@@ -174,7 +174,7 @@ def format_ospf_nhbr(
     return dict(result)
 
 
-def format_ospf_lsdb(output: list[str]) -> dict[Union[str, int], Any]:
+def format_ospf_lsdb(output: list[str]) -> dict[str | int, Any]:
     """Format OSPF LSDB count output into the data structure.
 
     Args:
@@ -182,7 +182,7 @@ def format_ospf_lsdb(output: list[str]) -> dict[Union[str, int], Any]:
     Returns:
         ict[Union[str, int], Any]: {process: total_lsa: x}
     """
-    result: dict[Union[str, int], dict[str, Union[str, int]]] = {}
+    result: dict[str | int, dict[str, str | int]] = {}
     for idx, each_item in enumerate(output):
         if "Process ID" in each_item:
             proc = _make_int(each_item.split("s ID")[1].replace(")", "").split()[0])
@@ -191,13 +191,13 @@ def format_ospf_lsdb(output: list[str]) -> dict[Union[str, int], Any]:
 
 
 def format_bgp(
-    os_type: str, rp: OsKeys, output: list[dict[str, Any]]
+    os_type: str, key: OsKeys, output: list[dict[str, Any]]
 ) -> dict[str, Any]:
     """Format BGP peers into the data structure.
 
     Args:
         os_type (str): The different Nornir platforms which are OS type of the device
-        rp (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
         dict[str, Any]:
@@ -221,12 +221,14 @@ def format_bgp(
         return cln_output
 
     if not bool(re.search("asa", os_type)):
-        cln_output = _remove_dup_peers(output, rp.bgp_nhbr)
+        cln_output = _remove_dup_peers(output, key.bgp_nhbr)
     else:
         cln_output = output
     for each_peer in cln_output:
-        result[each_peer[rp.bgp_nhbr]]["asn"] = _make_int(each_peer[rp.bgp_nhbr_as])
-        result[each_peer[rp.bgp_nhbr]]["rcv_pfx"] = _make_int(each_peer[rp.bgp_pfxrcd])
+        result[each_peer[key.bgp_nhbr]]["asn"] = _make_int(each_peer[key.bgp_nhbr_as])
+        result[each_peer[key.bgp_nhbr]]["rcv_pfx"] = _make_int(
+            each_peer[key.bgp_pfxrcd]
+        )
     return dict(result)
 
 
@@ -237,7 +239,7 @@ def format_actual_state(
     val_file: bool,
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[Any, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -249,7 +251,7 @@ def format_actual_state(
     Returns:
         dict[Union[str, int], Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    rp = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### EIGRP_INTF_NBR: {intf: {asn: x, nbr: {nbr_ip: up}}
@@ -258,7 +260,7 @@ def format_actual_state(
 
     ### OSPF_INTF_NBR: {intf: {pid, x, area: x, nbr: {nbr_ip: FULL}}
     elif sub_feature == "ospf_intf_nbr":
-        return format_ospf_nhbr(val_file, os_type, rp, ntc_output)
+        return format_ospf_nhbr(val_file, os_type, key, ntc_output)
 
     ### OSPF_LSDB_COUNT: {process: total_lsa: x}
     elif sub_feature == "ospf_lsdb_count":
@@ -266,7 +268,7 @@ def format_actual_state(
 
     ### BGP_PEER: {peer: {asn:x, rcv_pfx:x}}
     elif sub_feature == "bgp_peer":
-        return format_bgp(os_type, rp, ntc_output)
+        return format_bgp(os_type, key, ntc_output)
 
     ### CatchAll
     else:

@@ -39,7 +39,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -68,7 +68,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -83,13 +83,13 @@ def _make_int(input_data: str) -> Union[int, str]:
 
 
 def format_sub_feat_a(
-    val_file: bool, newfeat: OsKeys, output: list[dict[str, str]]
+    val_file: bool, key: OsKeys, output: list[dict[str, str]]
 ) -> dict[str, Any]:
     """Format SUB_FEAT_A into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
-        newfeat (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
     Returns:
         Union[dict[str, str], list[str]]:  {x: {y: z}}
@@ -97,7 +97,7 @@ def format_sub_feat_a(
     result: dict[str, dict[str, str]] = defaultdict(dict)
     # If is val_file
     if val_file:
-        newfeat.key1
+        key.key1
         pass
     # If is actual_state
     if not val_file:
@@ -112,7 +112,7 @@ def format_actual_state(
     val_file: bool,
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[str, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -124,12 +124,12 @@ def format_actual_state(
     Returns:
         Union[dict[Any, Any], list[str]]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    newfeat = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### SUB_FEAT_A: {x: {y: z}}
     if sub_feature == "sub_feat_a":
-        return format_sub_feat_a(val_file, newfeat, ntc_output)
+        return format_sub_feat_a(val_file, key, ntc_output)
     ### CatchAll
     else:
         msg = f"Unsupported sub_feature: {sub_feature}"

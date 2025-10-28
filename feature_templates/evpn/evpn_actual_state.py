@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -59,7 +59,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -74,24 +74,24 @@ def _make_int(input_data: str) -> Union[int, str]:
 
 
 def format_nve_vni(
-    val_file: bool, evpn: OsKeys, output: list[dict[str, str]]
-) -> dict[Union[str, int], Any]:
+    val_file: bool, key: OsKeys, output: list[dict[str, str]]
+) -> dict[str | int, Any]:
     """Format NVE VNI into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
-        evpn (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
         dict[Union[str, int], Any]: {l3vni: {bdi_vrf: z, state: Up}}, val file doesn't include state
     """
-    result: dict[Union[str, int], dict[str, Union[str | int]]] = defaultdict(dict)
+    result: dict[str | int, dict[str, str | int]] = defaultdict(dict)
     for each_vni in output:
         vni = _make_int(each_vni["vni"])
         if "L2" in each_vni["mode"]:
             result[vni]["bd_vrf"] = _make_int(each_vni["bd"])
         else:
-            result[vni]["bd_vrf"] = _make_int(each_vni[evpn.nve_vni_bd_vrf])
+            result[vni]["bd_vrf"] = _make_int(each_vni[key.nve_vni_bd_vrf])
         # If creating actual state
         if not val_file:
             result[vni]["state"] = each_vni["state"]
@@ -100,7 +100,7 @@ def format_nve_vni(
 
 def format_nve_peer(
     val_file: bool, output: list[dict[str, str]]
-) -> Union[dict[str, str], list[str]]:
+) -> dict[str, str] | list[str]:
     """Format NVE VNI into the data structure.
 
     Args:
@@ -129,8 +129,8 @@ def format_actual_state(
     val_file: bool,  # noqa: ARG001
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
-) -> Union[dict[Any, Any], list[str]]:
+    output: list[str | dict[str, str]],
+) -> dict[Any, Any] | list[str]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
     Args:
@@ -141,12 +141,12 @@ def format_actual_state(
     Returns:
         Union[dict[Any, Any], list[str]]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    evpn = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### NVE_VNI: {l3vni: {bdi_vrf: z, state: Up}}, val file doesn't include state
     if sub_feature == "nve_vni":
-        return format_nve_vni(val_file, evpn, ntc_output)
+        return format_nve_vni(val_file, key, ntc_output)
     ### NVE_PEER: {peer1_ip: state: Up}, val file is just list a [peer_ip, peer_ip]
     elif sub_feature == "nve_peer":
         return format_nve_peer(val_file, ntc_output)

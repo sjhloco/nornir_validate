@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ def _set_keys(os_type: str) -> OsKeys:
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
@@ -58,7 +58,7 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
@@ -72,7 +72,7 @@ def _make_int(input_data: str) -> Union[int, str]:
         return input_data
 
 
-def format_vlan(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
+def format_vlan(output: list[dict[str, Any]]) -> dict[str | int, Any]:
     """Format vlan output into the data structure.
 
     Args:
@@ -80,7 +80,7 @@ def format_vlan(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
     Returns:
         dict[Union[str, int], Any]: {vlan: {name: x, intf:[x,y]}}
     """
-    result: dict[Union[str, int], dict[str, dict[str, list[str]]]] = defaultdict(dict)
+    result: dict[str | int, dict[str, dict[str, list[str]]]] = defaultdict(dict)
     for each_vl in output:
         vl_id = _make_int(each_vl["vlan_id"])
         result[vl_id]["name"] = each_vl["vlan_name"]
@@ -91,9 +91,7 @@ def format_vlan(output: list[dict[str, Any]]) -> dict[Union[str, int], Any]:
     return dict(result)
 
 
-def format_stp(
-    val_file: bool, output: list[dict[str, Any]]
-) -> dict[Union[str, int], Any]:
+def format_stp(val_file: bool, output: list[dict[str, Any]]) -> dict[str | int, Any]:
     """Format STP into the data structure.
 
     Args:
@@ -102,7 +100,7 @@ def format_stp(
     Returns:
         dict[Union[str, int], Any]: {vlan: {intfx: FWD, intfy: FWD}}, if val_file is {vlan: {'intf': [intfx, intfy]}}
     """
-    result: dict[Union[str, int], dict[str, Any]] = defaultdict(dict)
+    result: dict[str | int, dict[str, Any]] = defaultdict(dict)
     for each_vl in output:
         # If creating actual state
         if not val_file:
@@ -120,11 +118,11 @@ def format_stp(
     return dict(result)
 
 
-def format_mac_table(l2: OsKeys, output: list[str]) -> dict[str, Union[str, int]]:
+def format_mac_table(key: OsKeys, output: list[str]) -> dict[str, str | int]:
     """Format MAC table count into the data structure.
 
     Args:
-        l2 (OsKeys): Keys for the specific OS type to retrieve the output data
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[str]): The command output from the device raw data structure
     Results:
         dict[str, Union[str, int]]: {total_mac_count: x, vlx_mac_count: x}
@@ -138,9 +136,9 @@ def format_mac_table(l2: OsKeys, output: list[str]) -> dict[str, Union[str, int]
     # Per-VLAN MAC count are in 2 consecutive cmds, first VL to match on and second the count
     for idx, each_item in enumerate(output):
         each_item = str(each_item)
-        if l2.mac_table_match in each_item:
-            name = f"vl{each_item.split()[l2.mac_table_element].replace(':', '')}_mac_count"
-            result[name] = _make_int(output[idx + l2.mac_table_idx].split()[-1])
+        if key.mac_table_match in each_item:
+            name = f"vl{each_item.split()[key.mac_table_element].replace(':', '')}_mac_count"
+            result[name] = _make_int(output[idx + key.mac_table_idx].split()[-1])
             output[idx] = ""
             output[idx + 1] = ""
     return dict(result)
@@ -153,7 +151,7 @@ def format_actual_state(
     val_file: bool,
     os_type: str,
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[Any, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -165,7 +163,7 @@ def format_actual_state(
     Returns:
         dict[Any, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
-    l2 = _set_keys(os_type)
+    key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)
 
     ### VLAN: {vlan: {name: x, intf:[x,y]}}
@@ -178,7 +176,7 @@ def format_actual_state(
 
     ### MAC TABLE COUNT: {total_mac_count: x, vlx_mac_count: x}
     elif sub_feature == "mac_table":
-        return format_mac_table(l2, raw_output)
+        return format_mac_table(key, raw_output)
 
     ### CatchAll
     else:
