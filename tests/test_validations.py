@@ -7,13 +7,10 @@ actual_state.py is used for formatting the actual_state and the validation file.
 
 import json
 import os
-from collections.abc import Generator
 from glob import glob
 from os import DirEntry
-from pprint import pprint
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import ipdb
 import pytest
 import yaml
 from nornir import InitNornir
@@ -29,6 +26,9 @@ from nr_val import (
     task_desired_state,
     task_template,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # ----------------------------------------------------------------------------
 # Directory that holds inventory files and load ACL dict (show, delete, wcard, mask, prefix)
@@ -57,13 +57,8 @@ def form_file_names(dvc_os: DirEntry[Any], feature: DirEntry[Any]) -> dict[str, 
         dict[str, Any]: All the details needed to do validation for a feature (cmd_file, val_file, feature, vendor_os, etc)
     """
     input_data = {}
-    try:
-        input_data["os_type"] = dvc_os.name.split("_")[1]
-    except:
-        #! Waiting to find what hits this
-        print("!!!FIX EXCEPT IF THIS IS EVET HIT")
-        breakpoint()
-        input_data["os_type"] = dvc_os.name
+    parts = dvc_os.name.split("_")
+    input_data["os_type"] = parts[1] if len(parts) > 1 else dvc_os.name
     os_feat_name = os.path.join(feature.path, f"{dvc_os.name}_{feature.name}")
     input_data["cmd_output_file"] = f"{os_feat_name}_cmd_output.json"
     input_data["cmd_file"] = f"{os_feat_name}_commands.yml"
@@ -107,7 +102,7 @@ def get_os_feat_name() -> list[str]:
     return all_os_feat_names
 
 
-def loop_os_feature_names() -> Generator[str, None, None]:
+def loop_os_feature_names() -> Generator[str]:
     """Loops through all_os_feature_names returning each one which is eventually called desired or actual state test method."""
     all_os_feat_names = get_os_feat_name()
     return (each_os_feat_name for each_os_feat_name in all_os_feat_names)

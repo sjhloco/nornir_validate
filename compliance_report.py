@@ -2,7 +2,7 @@ import json
 import os
 import re
 from datetime import datetime
-from typing import Any, Union
+from typing import Any
 
 from napalm.base import validate
 
@@ -84,7 +84,7 @@ def generate_validate_report(
     d_state: dict[str, Any],
     a_state: dict[str, Any],
     hostname: str,
-    directory: Union[str | None],
+    directory: str | None,
 ) -> dict[str, Any]:
     """Runs the napalm-validate compare method on each feature, adds skipped key if cant be run producing compliance report output based on all features.
 
@@ -92,7 +92,7 @@ def generate_validate_report(
         d_state (dict[str, Any]): Desired state got from the user input
         a_state (dict[str, Any]): Actual state got from the device
         hostname (str): Hostname of the device being validated
-        directory (Union[str | None]): If specified the directory where the report will be saved
+        directory (str | None): If specified the directory where the report will be saved
 
     Returns (dict[str, Any]): A dictionary of report details result (compliance state) and tasks status, all all fed into Nornir Result
     """
@@ -137,7 +137,6 @@ def generate_validate_report(
             report=report,
             report_text=report_text,
         )
-    # if complies == False or skipped == True:              # ! Check still works before deleting
     if not complies or skipped:
         my_report = dict(
             failed=True, result=report, report=report, report_text=report_text

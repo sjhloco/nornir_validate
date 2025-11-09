@@ -7,13 +7,11 @@ import os
 import re
 from collections import defaultdict
 from glob import glob
-from typing import Any, Callable, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 # import ipdb
 import yaml
-from nornir.core import Nornir
 from nornir.core.exceptions import NornirSubTaskError
-from nornir.core.inventory import Host
 from nornir.core.task import AggregatedResult, Result, Task
 from nornir_jinja2.plugins.tasks import template_file
 from nornir_netmiko.tasks import netmiko_send_command
@@ -22,17 +20,23 @@ from nornir_utils.plugins.tasks.files import write_file
 
 from compliance_report import generate_validate_report
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from nornir.core import Nornir
+    from nornir.core.inventory import Host
+
 
 # ----------------------------------------------------------------------------
 # IMPORT: Import all the actual_state modules required based on validation input data
 # ----------------------------------------------------------------------------
 def import_actual_state_modules(
-    input_data: Union[str, dict[str, Any], set[str]],
+    input_data: str | dict[str, Any] | set[str],
 ) -> None:
     """Imports the actual_state.py modules for all the features used in the validation input file.
 
     Args:
-        input_data (str): File path to the validation input file or the validation input data itself
+        input_data (str | dict[str, Any] | set[str]): File path to the validation input file or the validation input data itself
         directory (str): The path to the data directory where the input file might be located
     """
     # Load the validation input file (dont need to serialize yaml as just searching it)
@@ -65,7 +69,7 @@ def merge_os_types(host: Host) -> list[str]:
     Returns:
         list[str]: List of the connection handlers for the different connection plugins
     """
-    tmp_os_type: list[Union[str, None]] = []
+    tmp_os_type: list[str | None] = []
     tmp_os_type.append(host.platform)
     tmp_os_type.append(host.get_connection_parameters("scrapli").platform)
     tmp_os_type.append(host.get_connection_parameters("netmiko").platform)
@@ -204,7 +208,7 @@ def task_desired_state(
     task: Task,
     validations: dict[str, Any],
     task_template: Callable[[Task, str, str, dict[str, Any]], str],
-) -> Optional[Result]:
+) -> Result | None:
     """Uses nornir-template (task_template method) to produce host_var of combined desired states (exits if nothing to be validated).
 
     Args:
@@ -329,14 +333,14 @@ def actual_state_engine(
 # 4. ENGINE: Formats gathered output as actual state and runs compliance report - Only one that prints (logging debug)
 # ----------------------------------------------------------------------------
 def validate(
-    task: Task, input_data: dict[str, Any], save_report: Union[str | None] = None
+    task: Task, input_data: dict[str, Any], save_report: str | None = None
 ) -> Result:
     """The main engine that runs file formatting, nornir tasks and compliance report.
 
     Args:
         task (Task): The nornir tasks that implements (runs) this the nornir tasks
         input_data (str): The User defined input data from input file
-        save_report (Union[str | None]): To optionally save compliance reports to the directory specified in this variable
+        save_report (str | None): To optionally save compliance reports to the directory specified in this variable
     Returns:
         Result: The final result of nornir_validate (all tasks), a special Nornir Result object passed back to the main() method to be printed
     """
@@ -393,13 +397,13 @@ def validate(
 # 5. VAL_FILE_BUILDER: Builds validation files based on the actual state
 # ----------------------------------------------------------------------------
 def val_file_builder(
-    task: Task, input_data: Union[dict[str, Any], str] = "", directory: str = ""
+    task: Task, input_data: dict[str, Any] | str = "", directory: str = ""
 ) -> Result:
     """Generates a validation file based on what features are enabled on a device (gathered from actual state).
 
     Args:
         task (Task): The Nornir task that executes host actions and stores the results
-        input_data (Union[dict[str, Any], str]): Validations or if an empty string if dynamically creating a validation file
+        input_data (dict[str, Any] | str): Validations or if an empty string if dynamically creating a validation file
         directory (str): Working directory where the file will be saved
     Returns:
         Result: The nornir result from the execution of the task, so list of enabled and not enabled features as well as val file name

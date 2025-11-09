@@ -53,7 +53,7 @@ def _format_output(
     Args:
         os_type (str): A list of strings that are the OS types of the devices in the inventory
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
     Raises:
         ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
     Returns:
@@ -81,7 +81,7 @@ def _make_int(input_data: str) -> int | str:
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)
@@ -215,7 +215,7 @@ def _acl_actual_state(
         ace (list[dict[str, str]]): List of all ACEs for a ACL
         mgmt_acl_seq (str): os-specific name used to call the ACL
     Returns:
-        dict[Union[int, str], dict[str, str]]: Cleaned up ACL ACEs grouped by seq {seq: {'action': x, 'protocol': y, 'dst': 'any', 'src': address/pfx}}
+        dict[int | str, dict[str, str]]: Cleaned up ACL ACEs grouped by seq {seq: {'action': x, 'protocol': y, 'dst': 'any', 'src': address/pfx}}
     """
     ac_aces: defaultdict[int | str, dict[str, str]] = defaultdict(dict)
     for each_ace in ace:
@@ -253,7 +253,7 @@ def format_acl(
         key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device
     Returns:
-        dict[str, Union[list[dict[str, str]], dict[Union[int, str], dict[str, str]]]]: {seq: {'action': x, 'protocol': y, 'dst': 'any', 'src': address/pfx}},
+        dict[str, dict[str, list[dict[str, str]]] | dict[int | str, dict[str, str]]]: {seq: {'action': x, 'protocol': y, 'dst': 'any', 'src': address/pfx}},
         val_file is [{action: address/pfx}]
     """
     result: dict[
@@ -281,7 +281,7 @@ def format_module(val_file: bool, output: list[dict[str, str]]) -> dict[str | in
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
-        dict[Union[str, int], Any]:  {module_num: {model: xxx, status, ok}}, val_file is {module_num: {model: xxx}}
+        dict[str | int, Any]:  {module_num: {model: xxx, status, ok}}, val_file is {module_num: {model: xxx}}
     """
     result: dict[int | str, dict[str, str]] = defaultdict(dict)
     for each_mod in output:
@@ -311,7 +311,7 @@ def format_sla(
         key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
     Returns:
-        Union[dict[str, str], list[str]]:  {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}, val_file is {cmd: {grp_name: {dst: {rtt: x}}}}
+        dict[str, Any]:  {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}, val_file is {cmd: {grp_name: {dst: {rtt: x}}}}
     """
     result: dict[str, dict[str, dict[str, str | int]]] = defaultdict(dict)
     for probe in output:
@@ -352,9 +352,9 @@ def format_actual_state(
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
     Returns:
-        Union[str, dict[Any, Any]: Returns cmd output formatted into the data structure of actual state or validation file
+        str | dict[Any, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
     key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)

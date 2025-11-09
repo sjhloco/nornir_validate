@@ -42,7 +42,7 @@ def _create_parser() -> dict[str, None | list[str]]:
     """Takes input arguments to use as flags to run the relevant functions as well as os_type and feature_name.
 
     Returns:
-        dict[str, Union[None, list[str]]]: All args have dict value of None except for used arg that has a list [os_type, feature_name]
+        dict[str, None | list[str]]: All args have dict value of None except for used arg that has a list [os_type, feature_name]
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(

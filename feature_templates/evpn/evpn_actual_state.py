@@ -37,7 +37,7 @@ def _format_output(
     Args:
         os_type (str): A list of strings that are the OS types of the devices in the inventory
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
     Raises:
         ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
     Returns:
@@ -65,7 +65,7 @@ def _make_int(input_data: str) -> int | str:
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)
@@ -83,7 +83,7 @@ def format_nve_vni(
         key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
-        dict[Union[str, int], Any]: {l3vni: {bdi_vrf: z, state: Up}}, val file doesn't include state
+        dict[str | int, Any]: {l3vni: {bdi_vrf: z, state: Up}}, val file doesn't include state
     """
     result: dict[str | int, dict[str, str | int]] = defaultdict(dict)
     for each_vni in output:
@@ -107,7 +107,7 @@ def format_nve_peer(
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
-        Union[dict[str, str], list[str]]: {peer1_ip: state: Up}, val file is just list a [peer_ip, peer_ip]
+        dict[str, str] | list[str]: {peer1_ip: state: Up}, val file is just list a [peer_ip, peer_ip]
     """
     result = {}
     val_file_list: list[str] = []
@@ -137,9 +137,9 @@ def format_actual_state(
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
     Returns:
-        Union[dict[Any, Any], list[str]]: Returns cmd output formatted into the data structure of actual state or validation file
+        dict[Any, Any] | list[str]: Returns cmd output formatted into the data structure of actual state or validation file
     """
     key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)

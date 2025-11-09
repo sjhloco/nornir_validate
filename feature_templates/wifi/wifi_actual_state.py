@@ -1,19 +1,19 @@
 from collections import defaultdict
-from typing import Any, Union
+from typing import Any
 
 
 # ----------------------------------------------------------------------------
 # OUTPUT: Creates str or ntc output dictionaries based on device command output
 # ----------------------------------------------------------------------------
 def _format_output(
-    os_type: str, sub_feature: str, output: list[Union[str, dict[str, str]]]
+    os_type: str, sub_feature: str, output: list[str | dict[str, str]]
 ) -> tuple[list[str], list[dict[str, str]]]:
     """Screen scraping return different data structures, they need defining to make function typing easier.
 
     Args:
         os_type (str): A list of strings that are the OS types of the devices in the inventory
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
     Raises:
         ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
     Returns:
@@ -35,13 +35,13 @@ def _format_output(
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)
@@ -49,18 +49,16 @@ def _make_int(input_data: str) -> Union[int, str]:
         return input_data
 
 
-def format_wlan(
-    val_file: bool, output: list[dict[str, str]]
-) -> dict[Union[str, int], Any]:
+def format_wlan(val_file: bool, output: list[dict[str, str]]) -> dict[str | int, Any]:
     """Format WLANs into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
-        dict[Union[str, int], Any]: {wlan_id: {intf: x, ssid: xy, status: Enabled}}, if val_file is {wlan_id: {interface: x, ssid: xy}}
+        dict[str | int, Any]: {wlan_id: {intf: x, ssid: xy, status: Enabled}}, if val_file is {wlan_id: {interface: x, ssid: xy}}
     """
-    result: dict[Union[str, int], dict[str, str]] = defaultdict(dict)
+    result: dict[str | int, dict[str, str]] = defaultdict(dict)
     for each_wlan in output:
         wlanid = _make_int(each_wlan["wlanid"])
         result[wlanid]["ssid"] = each_wlan["ssid"]
@@ -84,7 +82,7 @@ def format_ap(output: list[dict[str, str]]) -> dict[str, Any]:
     Returns:
         dict[str, Any]: {ap_name: {model: x, ip: x, clients: x}}}
     """
-    result: dict[str, dict[str, Union[str | int]]] = defaultdict(dict)
+    result: dict[str, dict[str, str | int]] = defaultdict(dict)
     for each_ap in output:
         result[each_ap["ap_name"]]["model"] = each_ap["ap_model"]
         result[each_ap["ap_name"]]["ip"] = each_ap["ip_address"]
@@ -92,13 +90,13 @@ def format_ap(output: list[dict[str, str]]) -> dict[str, Any]:
     return dict(result)
 
 
-def format_client_count(output: list[str]) -> dict[str, Union[str, int]]:
+def format_client_count(output: list[str]) -> dict[str, str | int]:
     """Format client count into the data structure.
 
     Args:
         output (list[str]): The command output from the device in raw data structure
     Returns:
-        dict[str, Union[str, int]]: {total_count: x, wlxx_count: x}
+        dict[str, str | int]: {total_count: x, wlxx_count: x}
     """
     result = {}
     tmp_output = []
@@ -126,7 +124,7 @@ def format_flexconnect(output: list[dict[str, str]]) -> dict[str, Any]:
     Returns:
         dict[str, Any]: {grp_name: {ap_count: x}}}
     """
-    result: dict[str, dict[str, Union[str | int]]] = defaultdict(dict)
+    result: dict[str, dict[str, str | int]] = defaultdict(dict)
     for each_grp in output:
         name = each_grp["flexconnect_group_name"]
         result[name]["ap_count"] = _make_int(each_grp["ap_count"])
@@ -141,7 +139,7 @@ def format_intf_grp(output: list[dict[str, str]]) -> dict[str, Any]:
     Returns:
         dict[str, Any]: {ap_count: x, intf_count: x, wlan_count: x}}}
     """
-    result: dict[str, dict[str, Union[str | int]]] = defaultdict(dict)
+    result: dict[str, dict[str, str | int]] = defaultdict(dict)
     for each_grp in output:
         name = each_grp["interface_group_name"]
         result[name]["ap_grp_count"] = _make_int(each_grp["total_ap_groups"])
@@ -157,7 +155,7 @@ def format_actual_state(
     val_file: bool,
     os_type: str,  # noqa: ARG001
     sub_feature: str,
-    output: list[Union[str, dict[str, str]]],
+    output: list[str | dict[str, str]],
 ) -> dict[Any, Any]:
     """Engine to run all the actual state and validation file sub-feature formatting.
 
@@ -165,7 +163,7 @@ def format_actual_state(
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
     Returns:
         dict[str, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """

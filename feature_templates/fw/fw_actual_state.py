@@ -37,7 +37,7 @@ def _format_output(
     Args:
         os_type (str): A list of strings that are the OS types of the devices in the inventory
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
     Raises:
         ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
     Returns:
@@ -65,7 +65,7 @@ def _make_int(input_data: str) -> int | str:
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, NamedTuple, Union
+from typing import Any, NamedTuple
 
 
 # ----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ def _format_output(
     Args:
         os_type (str): A list of strings that are the OS types of the devices in the inventory
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
     Raises:
         ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
     Returns:
@@ -74,7 +74,7 @@ def _make_int(input_data: str) -> int | str:
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)
@@ -92,7 +92,7 @@ def format_sub_feat_a(
         key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
     Returns:
-        Union[dict[str, str], list[str]]:  {x: {y: z}}
+        dict[str, Any]: {x: {y: z}}
     """
     result: dict[str, dict[str, str]] = defaultdict(dict)
     # If is val_file
@@ -120,9 +120,9 @@ def format_actual_state(
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
     Returns:
-        Union[dict[Any, Any], list[str]]: Returns cmd output formatted into the data structure of actual state or validation file
+        dict[str, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
     key = _set_keys(os_type)
     raw_output, ntc_output = _format_output(os_type, sub_feature, output)

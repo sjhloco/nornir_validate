@@ -41,7 +41,7 @@ def _format_output(
     Args:
         os_type (str): A list of strings that are the OS types of the devices in the inventory
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
     Raises:
         ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
     Returns:
@@ -69,7 +69,7 @@ def _make_int(input_data: str) -> int | str:
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)
@@ -182,7 +182,7 @@ def format_vpcs(val_file: bool, output: list[dict[str, str]]) -> dict[str | int,
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
-        dict[Union[str, int], Any]: {vpc_xx: {'po': x, 'vlans': [x,y], 'port_state': x, 'consistency_status': x}, val_file {vpc_xx: {'po': x, 'vlans': [x,y]}
+        dict[str | int, Any]: {vpc_xx: {'po': x, 'vlans': [x,y], 'port_state': x, 'consistency_status': x}, val_file {vpc_xx: {'po': x, 'vlans': [x,y]}
     """
     result: dict[str | int, dict[str, str | int | list[str | int]]] = defaultdict(dict)
     all_vpcs = _fix_nxos(output[0], "TABLE_vpc", "ROW_vpc")
@@ -213,7 +213,7 @@ def format_actual_state(
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
     Returns:
         dict[str, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
@@ -226,8 +226,7 @@ def format_actual_state(
 
     ### VPC: see below
     elif sub_feature == "vpc":
-        # dict[str, Union[str, int, list[Union[str, int]], dict[str, str]]]: {role: x, 'peerlink_vlans': [x,y], 'peerlink_port_state': x, 'peer_status': x,
-        # 'keepalive_status': x, 'vlan_consistency': x, 'peer_consistency': x, 'type2_consistency': x}, val_file is just {role: x, 'peerlink_vlans': [x,y]}
+        # {role: x, 'peerlink_vlans': [x,y], 'peerlink_port_state': x, 'peer_status': x,'keepalive_status': x, 'vlan_consistency': x, 'peer_consistency': x, 'type2_consistency': x}, val_file is just {role: x, 'peerlink_vlans': [x,y]}
         vpc_result = format_vpc_peer(val_file, ntc_output)
         # TABLE_vpc is only present if are vPCs configured
         if ntc_output[0].get("TABLE_vpc") is not None:

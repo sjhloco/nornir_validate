@@ -1,16 +1,13 @@
-from typing import Union
-
-
 # ----------------------------------------------------------------------------
 # DEF: Mini-functions used by the main function
 # ----------------------------------------------------------------------------
-def _make_int(input_data: str) -> Union[int, str]:
+def _make_int(input_data: str) -> int | str:
     """Takes a string and returns an integer if it can, otherwise it returns the original string.
 
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)
@@ -26,7 +23,7 @@ def format_actual_state(
     os_type: str,  # noqa: ARG001
     sub_feature: str,
     output: list[str],
-) -> Union[int, str]:
+) -> int | str:
     """Takes cmd output and just returns the numerical value.
 
     Args:
@@ -35,7 +32,7 @@ def format_actual_state(
         sub_feature (str): The name of the sub-feature that is being validated
         output (list[str]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
     Returns:
-        Union[int, str]: {mab_count: xx}
+        int | str: {mab_count: xx}
     """
     ### MAB_COUNT: {mab_count: xx}
     if sub_feature == "mab_count" or sub_feature == "dot1x_count":

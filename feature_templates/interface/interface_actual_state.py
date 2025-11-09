@@ -58,7 +58,7 @@ def _format_output(
     Args:
         os_type (str): A list of strings that are the OS types of the devices in the inventory
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str from raw) command output from the device
     Raises:
         ValueError: Errors if the new output variable doesn't match the input as not meant to be changing it, just defining it for MYPY
     Returns:
@@ -86,7 +86,7 @@ def _make_int(input_data: str) -> int | str:
     Args:
         input_data (str): The data to be converted to an integer
     Returns:
-        Union[int, str]: The input_data as a integer if possible, if not as the original string
+        int | str: The input_data as a integer if possible, if not as the original string
     """
     try:
         return int(input_data)
@@ -123,7 +123,7 @@ def _make_none(
         input_dict(dict[str, str | int | None]): Input dictionary of key-value pairs
         dict_key(key): The dict key that want to check
     Returns:
-        Union[str, int, None]: The key value or if empty None
+        str | int | None: The key value or if empty None
     """
     tmp_value = input_dict.get(dict_key, "")
     if tmp_value is None:
@@ -144,7 +144,7 @@ def format_intf(
         key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, Any]]): The command output from the device in ntc data structure
     Returns:
-        dict[Union[str, int], Any]:  {intf: {duplex: x, speed: x, type:x, status: connected }}, val_file doesn't have 'status'
+        dict[str | int, Any]:  {intf: {duplex: x, speed: x, type:x, status: connected }}, val_file doesn't have 'status'
     """
     result: dict[str | int, dict[str, str | int | None]] = defaultdict(dict)
     skip_statuses = {
@@ -248,7 +248,7 @@ def format_ipbrief(
     Returns:
         dict[str, Any]: {intf: {ip:x, status: x}}, val_file is {intfx: ipx, intfy: ipy}
     """
-    result: dict[str, dict[str, str]] = defaultdict(dict)
+    result: dict[str, Any] = defaultdict(dict)
     skip_conditions = {
         key.ip_ip: ["unassigned", "N/A"],
         key.ip_status: ["administratively down", "admin-down"],
@@ -304,9 +304,9 @@ def format_actual_state(
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
         os_type (str): The different Nornir platforms which are OS type of the device
         sub_feature (str): The name of the sub-feature that is being validated
-        output (list[Union[str, dict[str, str]]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
+        output (list[str | dict[str, str]]): The structured (dict from NTC template) or unstructured (str/int from raw) command output from the device
     Returns:
-        dict[Union[str, int], Any]: Returns cmd output formatted into the data structure of actual state or validation file
+        dict[str | int, Any]: Returns cmd output formatted into the data structure of actual state or validation file
     """
     key = _set_keys(os_type)
     aw_output, ntc_output = _format_output(os_type, sub_feature, output)

@@ -1,3 +1,26 @@
+[project]
+name = "nornir-validate"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "napalm>=5.1.0",
+    "nornir-jinja2>=0.2.0",
+    "nornir-netmiko>=1.0.1",
+    "nornir-rich",
+    "nornir-utils>=0.2.0",
+    "pyaml>=25.7.0",
+]
+[dependency-groups]
+dev = [
+    "ipdb>=0.13.13",
+    "mypy>=1.18.2",
+    "pytest>=8.4.2",
+    "ruff>=0.14.4",
+    "typing>=3.10.0.0",
+]
+
 [tool.mypy]
 ignore_missing_imports = true # stops missing library stubs or py.typed marker warning
 
@@ -32,16 +55,10 @@ select = [
 ignore = [
     "E501",  # Pycodestyle - line too long
     "D1",    # Pydocstyle - missing docstring in public module, class, or function
-#    "D203",  # Pydocstyle - one blank line required before class docstring
-#    "D212",  # Pydocstyle - summary line should be immediately after the opening quotes.
-#    "D401",  # Pydocstyle - Checks for docstring first lines that are not in an imperative mood.
-#    "TRY003", # Tryceratops - Checks for long exception messages that are not defined in the exception class itself.
-#    "PERF401", # Perflint - Checks for for loops that can be replaced by a list comprehension.
-#    FBT003", # Flake8-boolean-trap - boolean position value in function call
-#    "S311",  # Flake8-bandit - Standard pseudo-random generators are not suitable for security/cryptographic purposes
-#    "RET504", # Flake8-return - Checks for variable assignments that immediately precede a return of the assigned variable.
-#    "FA102", # Flake8-future-annotations - Missing `from __future__ import annotations`, but uses PEP 604 union
-#    "EM101", # Flake8-errmsg - Checks for the use of string literals in exception constructors.
 ]
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.uv.sources]
+nornir-rich = { git = "https://github.com/sjhloco/nornir_rich", rev = "format_string_result" }
+
