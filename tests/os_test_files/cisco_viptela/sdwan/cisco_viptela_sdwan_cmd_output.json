@@ -1,0 +1,150 @@
+{
+    "sdwan": {
+        "omp_peer": [
+            {
+                "peer": "10.7.55.1",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65251",
+                "state": "up",
+                "uptime": "17:00:21:34",
+                "routes_received": "30",
+                "routes_installed": "0",
+                "routes_sent": "542"
+            },
+            {
+                "peer": "10.7.55.6",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65251",
+                "state": "up",
+                "uptime": "17:00:21:21",
+                "routes_received": "30",
+                "routes_installed": "0",
+                "routes_sent": "542"
+            },
+            {
+                "peer": "10.8.55.1",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65252",
+                "state": "up",
+                "uptime": "20:00:39:42",
+                "routes_received": "30",
+                "routes_installed": "0",
+                "routes_sent": "542"
+            },
+            {
+                "peer": "10.8.55.6",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65252",
+                "state": "up",
+                "uptime": "20:00:39:37",
+                "routes_received": "30",
+                "routes_installed": "0",
+                "routes_sent": "542"
+            },
+            {
+                "peer": "10.51.55.1",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65241",
+                "state": "up",
+                "uptime": "24:00:43:10",
+                "routes_received": "32",
+                "routes_installed": "0",
+                "routes_sent": "334"
+            },
+            {
+                "peer": "10.94.2.247",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "125",
+                "state": "up",
+                "uptime": "108:21:17:49",
+                "routes_received": "6",
+                "routes_installed": "0",
+                "routes_sent": "301"
+            },
+            {
+                "peer": "10.94.3.247",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "225",
+                "state": "up",
+                "uptime": "39:05:26:24",
+                "routes_received": "6",
+                "routes_installed": "0",
+                "routes_sent": "301"
+            },
+            {
+                "peer": "10.94.3.250",
+                "type": "vsmart",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "222",
+                "state": "up",
+                "uptime": "108:21:31:58",
+                "routes_received": "1031",
+                "routes_installed": "0",
+                "routes_sent": "1031"
+            },
+            {
+                "peer": "192.168.255.1",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65153",
+                "state": "up",
+                "uptime": "108:21:32:16",
+                "routes_received": "201",
+                "routes_installed": "0",
+                "routes_sent": "732"
+            },
+            {
+                "peer": "192.168.255.6",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65153",
+                "state": "up",
+                "uptime": "108:21:31:55",
+                "routes_received": "219",
+                "routes_installed": "0",
+                "routes_sent": "714"
+            },
+            {
+                "peer": "192.168.127.1",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65154",
+                "state": "up",
+                "uptime": "108:21:32:09",
+                "routes_received": "180",
+                "routes_installed": "0",
+                "routes_sent": "726"
+            },
+            {
+                "peer": "192.168.127.6",
+                "type": "vedge",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "65154",
+                "state": "up",
+                "uptime": "108:21:32:15",
+                "routes_received": "183",
+                "routes_installed": "0",
+                "routes_sent": "723"
+            }
+        ]
+    }
+}

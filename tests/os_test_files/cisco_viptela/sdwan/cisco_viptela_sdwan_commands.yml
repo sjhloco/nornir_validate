@@ -1,0 +1,3 @@
+sdwan:
+  omp_peer:
+    show omp peers: VALIDATE

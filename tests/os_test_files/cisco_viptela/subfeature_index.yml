@@ -1,0 +1,3 @@
+all:
+  sdwan:
+    - omp_peer

@@ -1,0 +1,36 @@
+{# ####### CMD: Set command variables on a per-os_type basis ####### #}
+{% if 'ios' in os_type |string %}
+{% elif 'nxos' in os_type |string %}
+{% elif 'asa' in os_type |string %}
+{% elif 'wlc' in os_type |string %}
+{% elif 'panos' in os_type |string %}
+{% elif 'viptela' in os_type |string %}
+{% set omp_peer_cmd = "show omp peers" %}
+{% endif %}
+
+
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
+- {{ feature }}:
+{% set is_command = sub_features.__class__.__name__ == 'list' %}
+{% for sub_feat in (sub_features if is_command else sub_features.items()) %}
+{% set input_vars = None if is_command else sub_feat[1] %}
+{% set sub_feat = sub_feat if is_command else sub_feat[0] %}
+{# ### OMP_PEER: {cmd: {peer: {site_id:x, routes_received:x, routes_installed:x:, routes_sent:x, state:up}} ### #}
+{% if sub_feat == 'omp_peer' and omp_peer_cmd is defined %}
+    omp_peer:
+      {{ omp_peer_cmd }}:
+{% if is_command %}
+        VALIDATE
+{% else %}
+        _mode: strict
+{% for each_peer, peer_info in input_vars.items() %}
+        {{ each_peer }}:
+          site_id: {{ peer_info.site_id }}
+          routes_received: {{ peer_info.routes_received }}
+          routes_installed: {{ peer_info.routes_installed }}
+          routes_sent: {{ peer_info.routes_sent }}
+          state: up
+{% endfor %}{% endif %}
+
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}

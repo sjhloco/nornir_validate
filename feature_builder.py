@@ -289,11 +289,15 @@ def create_commands(os_type: str, feature: str, test_path: str, tmpl_path: str) 
     # If file exists check if file contents have changed
     if os.path.exists(cmds_file):
         file_change = _check_file_change(cmds_file, commands)
+        print_msg = f"✅ Updated the file '{cmds_file}'"
+    else:
+        file_change = True
+        print_msg = f"✅ Created the file '{cmds_file}'"
     # Save to yaml file if file contents have changed
     if file_change:
         with open(cmds_file, "w") as yaml_file:
             yaml.dump(commands, yaml_file, sort_keys=False)
-        rc.print(f"✅ Created the file '{cmds_file}'")
+        rc.print(print_msg)
 
 
 # ----------------------------------------------------------------------------
@@ -385,11 +389,15 @@ def create_val_file(os_type: str, feature: str, test_path: str) -> None:
     # If file exists check if file contents have changed
     if os.path.exists(val_file):
         file_change = _check_file_change(val_file, val_data)
+        print_msg = f"✅ Updated the file '{val_file}'"
+    else:
+        file_change = True
+        print_msg = f"✅ Created the file '{val_file}'"
     # Save to yaml file if file contents have changed
     if file_change:
         with open(val_file, "w") as yaml_file:
             yaml.dump(dict(all=dict(val_data)), yaml_file, sort_keys=False)
-        rc.print(f"✅ Created the file '{val_file}'")
+        rc.print(print_msg)
 
 
 # ----------------------------------------------------------------------------
@@ -416,11 +424,15 @@ def create_desired_state(
     # If file exists check if file contents have changed
     if os.path.exists(ds_file):
         file_change = _check_file_change(ds_file, desired_state)
+        print_msg = f"✅ Updated the file '{ds_file}'"
+    else:
+        file_change = True
+        print_msg = f"✅ Created the file '{ds_file}'"
     # Save to yaml file if file contents have changed
     if file_change:
         with open(ds_file, "w") as yaml_file:
             yaml.dump(desired_state, yaml_file, sort_keys=False)
-        rc.print(f"✅ Created the file '{ds_file}'")
+        rc.print(print_msg)
 
 
 # ----------------------------------------------------------------------------
@@ -444,11 +456,15 @@ def format_actual_state(os_type: str, feature: str, test_path: str) -> None:
     # If file exists check if file contents have changed
     if os.path.exists(as_file):
         file_change = _check_file_change(as_file, actual_state)
+        print_msg = f"✅ Updated the file '{as_file}'"
+    else:
+        file_change = True
+        print_msg = f"✅ Created the file '{as_file}'"
     # Save to yaml file if file contents have changed
     if file_change:
         with open(as_file, "w") as yaml_file:
             yaml.dump(dict(actual_state), yaml_file, sort_keys=False)
-        rc.print(f"✅ Created the file '{as_file}'")
+        rc.print(print_msg)
 
 
 # ----------------------------------------------------------------------------

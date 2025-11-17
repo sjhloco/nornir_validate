@@ -200,7 +200,7 @@ def format_bgp(
         key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure
     Returns:
-        dict[str, Any]:
+        dict[str, Any]: {peer: {asn:x, rcv_pfx:x}}
     """
     result: dict[str, Any] = defaultdict(dict)
 
