@@ -1,0 +1,4 @@
+all:
+  sdwan:
+    # OMP Peers (strict): OMP peers and prefix count
+    - omp_peer

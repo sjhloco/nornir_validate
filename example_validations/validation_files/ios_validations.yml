@@ -1,8 +1,14 @@
-
+# ----------------------------------------------------------------------------
+# Information
+# ----------------------------------------------------------------------------
+## The validation file is structured by feature and then within the feature the sub-features that will be validated
+## Both features and sub-features are optional, you don't have to define all features or all sub-features within a feature
+### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
+### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
 
 all:
   # ----------------------------------------------------------------------------
-  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # System Validations
   # ----------------------------------------------------------------------------
   system:
     ## Software image: The current software image running on the device
@@ -24,7 +30,7 @@ all:
         model: C6880-X-LE-SUP
 
   # ----------------------------------------------------------------------------
-  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Redundancy Validations
   # ----------------------------------------------------------------------------
   redundancy:
     ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
@@ -44,7 +50,7 @@ all:
         role: Standby
 
   # ----------------------------------------------------------------------------
-  # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
+  # Neighbor Validations
   # ----------------------------------------------------------------------------
   neighbor:
     ## CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
@@ -68,7 +74,7 @@ all:
         nbr_intf: Gi1/1/1
 
   # ----------------------------------------------------------------------------
-  # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
+  # Bonded interface Validations
   # ----------------------------------------------------------------------------
   intf_bonded:
   ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
@@ -84,10 +90,10 @@ all:
         members: [Te1/0/2, Te2/0/2]
 
   # ----------------------------------------------------------------------------
-  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Interface Validations
   # ----------------------------------------------------------------------------
   interface:
-  # INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+  # INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex don't need to be defined if a virtual port)
     intf:
       Te1/0/11:
         duplex: a-full
@@ -134,7 +140,7 @@ all:
       Te1/0/1 : unassigned
 
   # ----------------------------------------------------------------------------
-  # Layer2 Validations - IOS/IOS-XE, NXOS
+  # Layer2 Validations
   # ----------------------------------------------------------------------------
   layer2:
     ## VLANs (strict intf): VLAN name and list of interfaces in that VLAN (strict interfaces, so those exact interfaces)
@@ -164,7 +170,7 @@ all:
       vll10_mac_count: 21
 
   # ----------------------------------------------------------------------------
-  # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
+  # First Hop Redundancy Validations
   # ----------------------------------------------------------------------------
   fhr:
     ## HSRP: For each HSRP interface the priority and state
@@ -177,7 +183,7 @@ all:
         state: Active
 
   # ----------------------------------------------------------------------------
-  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Table Validations
   # ----------------------------------------------------------------------------
   route_table:
     ## VRF (strict): List of member interfaces for each VRF - Not ASA
@@ -190,7 +196,7 @@ all:
       global: 21
       BLU: 4
       AMB: 15
-    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    ## Routing table entries: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
     route:
       global:
         192.168.11.3/32: 
@@ -217,7 +223,7 @@ all:
           nh: Vlan710
 
   # ----------------------------------------------------------------------------
-  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Protocol Validations
   # ----------------------------------------------------------------------------
   route_protocol:
     ## EIGRP Interface/Neighbor (strict): List of EIGRP enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors) - Not NXOS
@@ -258,7 +264,7 @@ all:
         rcv_pfx: 6
 
   # ----------------------------------------------------------------------------
-  # Switchport authentication Validations - IOS/IOS-XE
+  # Switchport authentication Validations
   # ----------------------------------------------------------------------------
   auth_session:
     ## MAB auth sessions: Total number of MAB authenticated sessions
@@ -267,7 +273,7 @@ all:
     dot1x_count: 22
 
   # ----------------------------------------------------------------------------
-  # EVPN/VXLAN Validations - IOS/IOS-XE, NXOS
+  # EVPN/VXLAN Validations
   # ----------------------------------------------------------------------------
   evpn:
     ## NVE VNIs - Dictionary of L2/L3VNIs and the associated BDI/VRF, state is expected top be Up
@@ -280,7 +286,7 @@ all:
     nve_peer: [192.168.11.41, 192.168.11.47, 192.168.11.81]
 
   # ----------------------------------------------------------------------------
-  # VPN Validations - IOS/IOS-XE, ASA
+  # VPN Validations
   # ----------------------------------------------------------------------------
   vpn:
     # StS VPN PEERS (strict): List of VPN peers, status is expected to be UP-ACTIVE on IOS or ASA to have tx/rx

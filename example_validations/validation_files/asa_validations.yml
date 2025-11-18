@@ -2,13 +2,13 @@
 # Information
 # ----------------------------------------------------------------------------
 ## The validation file is structured by feature and then within the feature the sub-features that will be validated
-## Both features and sub-features are optional, you dont have to define all features or all sub-features within a feature
+## Both features and sub-features are optional, you don't have to define all features or all sub-features within a feature
 ### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
 ### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
 
 all:
   # ----------------------------------------------------------------------------
-  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # System Validations
   # ----------------------------------------------------------------------------
   system:
     ## Software image: The current software image running on the device
@@ -24,7 +24,7 @@ all:
           - permit: inside - any
 
   # ----------------------------------------------------------------------------
-  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Redundancy Validations
   # ----------------------------------------------------------------------------
   redundancy:
     ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
@@ -33,7 +33,7 @@ all:
       peer: Standby Ready
 
   # ----------------------------------------------------------------------------
-  # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
+  # Bonded interface Validations
   # ----------------------------------------------------------------------------
   intf_bonded:
   ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
@@ -49,10 +49,10 @@ all:
         members: [Gi0/5, Gi0/6, Gi0/7]
 
   # ----------------------------------------------------------------------------
-  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Interface Validations
   # ----------------------------------------------------------------------------
   interface:
-  ## INTF: Physical interface attributes, type (firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+  ## INTF: Physical interface attributes, type (firewall zone), speed and duplex (speed and duplex don't need to be defined if a virtual port)
     intf:
       GigabitEthernet0/4:
         duplex: Full-duplex
@@ -78,13 +78,13 @@ all:
       Tunnel0: unassigned
 
   # ----------------------------------------------------------------------------
-  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Table Validations
   # ----------------------------------------------------------------------------
   route_table:
     ## Route Table count: Total number of subnets either in global (default) RT or the name of the vrf
     route_count:
       global: 138
-    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    ## Routing table entries: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
     route:
       global:
         192.168.111.3/32: 
@@ -107,7 +107,7 @@ all:
           nh: Null0
 
   # ----------------------------------------------------------------------------
-  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Protocol Validations
   # ----------------------------------------------------------------------------
   route_protocol:
     ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers (RID) off them (no need for nbr dict if no neighbors)
@@ -137,14 +137,14 @@ all:
         rcv_pfx: 6
 
   # ----------------------------------------------------------------------------
-  # Firewall Validations - ASA
+  # Firewall Validations
   # ----------------------------------------------------------------------------
   fw:
     # CONN_COUNT: Total number of connections
     conn_count: 10064
 
   # ----------------------------------------------------------------------------
-  # VPN Validations - IOS/IOS-XE, ASA
+  # VPN Validations
   # ----------------------------------------------------------------------------
   vpn:
     ## StS VPN PEERS (strict): List of VPN peers, status is expected to be UP-ACTIVE on IOS or ASA to have tx/rx

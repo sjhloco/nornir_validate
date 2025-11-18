@@ -110,10 +110,10 @@ def _acl_format_into_dict(
             else:
                 tmp_ace_dict = {}
                 for ace_key, ace_val in each_ace.items():
-                    # Add none blank ACE entires to dict of ACEs
+                    # Add none blank ACE entries to dict of ACEs
                     if len(ace_val) != 0:
                         tmp_ace_dict[ace_key] = ace_val
-                # Add dict of all none blank ACE entires to list of ACLs
+                # Add dict of all none blank ACE entries to list of ACLs
                 if each_acl_name == each_ace[name]:
                     tmp_acl_list.append(tmp_ace_dict)
             # Add all ACLs to dict of ACL names

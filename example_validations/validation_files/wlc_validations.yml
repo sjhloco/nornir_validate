@@ -2,20 +2,20 @@
 # Information
 # ----------------------------------------------------------------------------
 ## The validation file is structured by feature and then within the feature the sub-features that will be validated
-## Both features and sub-features are optional, you dont have to define all features or all sub-features within a feature
+## Both features and sub-features are optional, you don't have to define all features or all sub-features within a feature
 ### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
 ### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
 
 all:
   # ----------------------------------------------------------------------------
-  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # System Validations
   # ----------------------------------------------------------------------------
   system:
     ## Software image: The current software image running on the device
     image: 8.10.171.0
 
   # ----------------------------------------------------------------------------
-  # Redundancy Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Redundancy Validations
   # ----------------------------------------------------------------------------
   redundancy:
     ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
@@ -24,7 +24,7 @@ all:
       peer: STANDBY HOT
 
   # ----------------------------------------------------------------------------
-  # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
+  # Neighbor Validations
   # ----------------------------------------------------------------------------
   neighbor: 
     # CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface (is from detail cmd so needs long interface names)
@@ -37,10 +37,10 @@ all:
         nbr_intf: Ethernet1/22
 
   # ----------------------------------------------------------------------------
-  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Interface Validations
   # ----------------------------------------------------------------------------
   interface:
-  ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+  ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex don't need to be defined if a virtual port)
     intf:
       1:
         duplex: Full
@@ -56,7 +56,7 @@ all:
       int_blu: 10.10.108.10
 
   # ----------------------------------------------------------------------------
-  # WIFI Validations - WLC
+  # WIFI Validations
   # ----------------------------------------------------------------------------
   wifi:
     wlan: 

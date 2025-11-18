@@ -8,7 +8,7 @@
 
 all:
   # ----------------------------------------------------------------------------
-  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC, PALO
   # ----------------------------------------------------------------------------
   system:
     ## Software image: The current software image running on the device
@@ -39,7 +39,7 @@ all:
         model: N7K-F248XP-25
 
   # ----------------------------------------------------------------------------
-  # Redundancy Validations - IOS/IOS-XE, ASA, WLC
+  # Redundancy Validations - IOS/IOS-XE, ASA, WLC, PALO
   # ----------------------------------------------------------------------------
   redundancy:
     ## High Availability state: The redundancy state of the local and peered devices - Not NXOS
@@ -107,7 +107,7 @@ all:
           vlans: [1102]
 
   # ----------------------------------------------------------------------------
-  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC, PALO
   # ----------------------------------------------------------------------------
   interface:
   ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined for virtual interface)
@@ -181,7 +181,7 @@ all:
         state: Active
 
   # ----------------------------------------------------------------------------
-  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Table Validations - IOS/IOS-XE, NXOS, ASA, PALO
   # ----------------------------------------------------------------------------
   route_table:
     ## VRF (strict): List of member interfaces for each VRF - Not ASA
@@ -194,7 +194,7 @@ all:
       global: 21
       BLU: 4
       AMB: 15
-    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    ## Routing table entries: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
     route:
       global:
         0.0.0.0/0: 
@@ -224,7 +224,7 @@ all:
           nh: [192.168.12.1, 192.168.12.5]
 
   # ----------------------------------------------------------------------------
-  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA, PALO
   # ----------------------------------------------------------------------------
   route_protocol:
     ## EIGRP Interface/Neighbor (strict): List of EIGRP enabled interfaces and optional strict peers off them (no need for nbr dict if no neighbors)
@@ -266,7 +266,7 @@ all:
         rcv_pfx: 6
 
   # ----------------------------------------------------------------------------
-  # Firewall Validations - ASA
+  # Firewall Validations - ASA, PALO
   # ----------------------------------------------------------------------------
   fw:
     # CONN_COUNT: Total number of connections
@@ -360,3 +360,30 @@ all:
         ap_grp_count: 11
         intf_count: 1
         wlan_count: 2
+
+  # ----------------------------------------------------------------------------
+  # SDWAN: Validations - Viptela
+  # ----------------------------------------------------------------------------
+  sdwan:
+    ## OMP Peers (strict): Strict dictionary of OMP peers, the associated site-ID and number of received, installed and sent prefixes
+    omp_peer:
+      10.7.55.1:
+        site_id: 65251
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542
+      10.7.55.6:
+        site_id: 65251
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542
+      10.8.55.1:
+        site_id: 65252
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542
+      10.8.55.6:
+        site_id: 65252
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542

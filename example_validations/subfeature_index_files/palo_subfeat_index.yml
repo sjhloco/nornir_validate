@@ -1,0 +1,25 @@
+all:
+  system:
+    # Software image: Current image
+    - image
+    # SLA: Path monitoring group, IP, RTT & status
+    - sla
+  redundancy:
+    # High Availability state: The redundancy state of the local and peered devices
+    - ha_state
+  interface:
+    # INTF: Physical interface attributes
+    - intf
+    # IP_BRIEF: L3 interface
+    - ip_brief
+  route_table:
+    # Route Table count: Total number of subnets (global implicit)
+    - route_count
+    # Routing table entries: Route and next-hop (global implicit)
+    - route
+  route_protocol:
+    # BGP Peers/Neighbors (strict): BGP peers
+    - bgp_peer
+  fw:
+    # CONN_COUNT: Total connections
+    - conn_count

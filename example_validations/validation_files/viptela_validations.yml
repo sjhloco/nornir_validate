@@ -1,0 +1,35 @@
+# ----------------------------------------------------------------------------
+# Information
+# ----------------------------------------------------------------------------
+## The validation file is structured by feature and then within the feature the sub-features that will be validated
+## Both features and sub-features are optional, you don't have to define all features or all sub-features within a feature
+### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
+### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+
+all:
+  # ----------------------------------------------------------------------------
+  # SDWAN: Validations
+  # ----------------------------------------------------------------------------
+  sdwan:
+    ## OMP Peers (strict): Strict dictionary of OMP peers, the associated site-ID and number of received, installed and sent prefixes
+    omp_peer:
+      10.7.55.1:
+        site_id: 65251
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542
+      10.7.55.6:
+        site_id: 65251
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542
+      10.8.55.1:
+        site_id: 65252
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542
+      10.8.55.6:
+        site_id: 65252
+        routes_received: 30
+        routes_installed: 0
+        routes_sent: 542

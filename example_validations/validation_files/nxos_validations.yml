@@ -2,13 +2,13 @@
 # Information
 # ----------------------------------------------------------------------------
 ## The validation file is structured by feature and then within the feature the sub-features that will be validated
-## Both features and sub-features are optional, you dont have to define all features or all sub-features within a feature
+## Both features and sub-features are optional, you don't have to define all features or all sub-features within a feature
 ### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
 ### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
 
 all:
   # ----------------------------------------------------------------------------
-  # System Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # System Validations
   # ----------------------------------------------------------------------------
   system:
     ## Software image: The current software image running on the device
@@ -29,7 +29,7 @@ all:
         status: active *
 
   # ----------------------------------------------------------------------------
-  # Neighbor Validations - IOS/IOS-XE, NXOS, WLC
+  # Neighbor Validations
   # ----------------------------------------------------------------------------
   neighbor:
     ## CDP neighbors: Local interface, the remote neighbor connected and the remote neighbors interface
@@ -53,7 +53,7 @@ all:
         nbr_intf: Ethernet1/2
 
   # ----------------------------------------------------------------------------
-  # Bonded interface Validations - IOS/IOS-XE, NXOS, ASA
+  # Bonded interface Validations
   # ----------------------------------------------------------------------------
   intf_bonded:
   ## Port-channels (strict members): Port-channel, mode, member interfaces and status (strict members, so exact member interfaces)
@@ -81,10 +81,10 @@ all:
           vlans: [105]
 
   # ----------------------------------------------------------------------------
-  # Interface Validations - IOS/IOS-XE, NXOS, ASA, WLC
+  # Interface Validations
   # ----------------------------------------------------------------------------
   # interface:
-  ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex dont need to be defined if a virtual port)
+  ## INTF: Physical interface attributes, type (routed, trunk or firewall zone), speed and duplex (speed and duplex don't need to be defined if a virtual port)
     intf:
       Eth1/1:
         duplex: full
@@ -126,7 +126,7 @@ all:
       Vlan3007: forward-enabled
       Vlan1100: 10.110.100.1
   # ----------------------------------------------------------------------------
-  # Layer2 Validations - IOS/IOS-XE, NXOS
+  # Layer2 Validations
   # ----------------------------------------------------------------------------
   layer2:
     ## VLANs (strict intf): VLAN name and list of interfaces in that VLAN (strict interfaces, so those exact interfaces)
@@ -145,7 +145,7 @@ all:
       vl5_mac_count: 20
 
   # ----------------------------------------------------------------------------
-  # First Hop Redundancy Validations - IOS/IOS-XE, NXOS
+  # First Hop Redundancy Validations
   # ----------------------------------------------------------------------------
   fhr:
     ## HSRP: For each HSRP interface the priority and state
@@ -158,7 +158,7 @@ all:
         state: Active
 
   # ----------------------------------------------------------------------------
-  # Route Table Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Table Validations
   # ----------------------------------------------------------------------------
   route_table:
     ## VRF (strict): List of member interfaces for each VRF - Not ASA
@@ -170,7 +170,7 @@ all:
       global: 21
       BLU: 4
       AMB: 15
-    ## Routing table entires: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    ## Routing table entries: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
     route:
       global:
         192.168.121.81/32: 
@@ -201,7 +201,7 @@ all:
           nh: Vlan1101
 
   # ----------------------------------------------------------------------------
-  # Route Protocol Validations - IOS/IOS-XE, NXOS, ASA
+  # Route Protocol Validations
   # ----------------------------------------------------------------------------
   route_protocol:
     ## OSPF Interface/Neighbor (strict): List of OSPF enabled interfaces and optional strict peers (RID) off them (no need for nbr dict if no neighbors)
@@ -240,7 +240,7 @@ all:
         rcv_pfx: 25
         
   # ----------------------------------------------------------------------------
-  # EVPN/VXLAN Validations - IOS/IOS-XE, NXOS
+  # EVPN/VXLAN Validations
   # ----------------------------------------------------------------------------
   evpn:
     ## NVE VNIs - Dictionary of L2/L3VNIs and the associated BDI/VRF, state is expected top be Up

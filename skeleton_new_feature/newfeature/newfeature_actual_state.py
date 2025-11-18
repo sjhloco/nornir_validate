@@ -83,7 +83,9 @@ def _make_int(input_data: str) -> int | str:
 
 
 def format_sub_feat_a(
-    val_file: bool, key: OsKeys, output: list[dict[str, str]]
+    val_file: bool,
+    key: OsKeys,
+    output: list[dict[str, str]],  # noqa: ARG001
 ) -> dict[str, Any]:
     """Format SUB_FEAT_A into the data structure.
 
@@ -97,7 +99,7 @@ def format_sub_feat_a(
     result: dict[str, dict[str, str]] = defaultdict(dict)
     # If is val_file
     if val_file:
-        key.key1
+        key.key1  # noqa: B018
         pass
     # If is actual_state
     if not val_file:

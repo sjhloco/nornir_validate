@@ -1,0 +1,118 @@
+# ----------------------------------------------------------------------------
+# Information
+# ----------------------------------------------------------------------------
+## The validation file is structured by feature and then within the feature the sub-features that will be validated
+## Both features and sub-features are optional, you don't have to define all features or all sub-features within a feature
+### Strict: Any validation that is strict means it must be an exact match, no more, no less. Applies to lists or dictionaries of things such as OSPF neighbors or BGP peers
+### Integers: Numerical values can be an exact match (must be an integer), less than a value ("<15"), more than a value (">15"), between a range ("10<->20") or tolerance percentage either side of a value ("10%15")
+
+all:
+  # ----------------------------------------------------------------------------
+  # System Validations
+  # ----------------------------------------------------------------------------
+  system:
+    ## Software image: The current software image running on the device
+    image: 10.2.9-h1
+    ## SLA: The high-availability path monitoring group, IPs it is testing, RTT (rounded to nearest integer) & status
+    sla:
+      HA_PATH_NORTH:
+        8.8.8.8:
+          rtt: 4
+        217.111.187.217:
+          rtt: 3
+
+  # ----------------------------------------------------------------------------
+  # Redundancy Validations
+  # ----------------------------------------------------------------------------
+  redundancy:
+    ## High Availability state: The redundancy state of the local and peered devices
+    ha_state:
+      local: active
+      peer: standby
+
+  # ----------------------------------------------------------------------------
+  # Interface Validations
+  # ----------------------------------------------------------------------------
+  interface:
+  ## INTF: Physical interface attributes, so speed and duplex
+    intf:
+      ethernet1/4:
+        duplex: full
+        speed: 10000
+      ethernet1/5:
+        duplex: full
+        speed: 10000
+  ## IP_BRIEF: L3 interface and IP address, status is expected to be up (only checks for the specified interfaces)
+    ip_brief:
+      ethernet1/4: 192.168.16.59/29
+      ethernet1/5: 192.168.16.67/29
+
+  # ----------------------------------------------------------------------------
+  # Route Table Validations
+  # ----------------------------------------------------------------------------
+  route_table:
+    ## Route Table count: Total number of routes (IPv4 and IPv6)
+    route_count:
+      global: 18
+    ## Routing table entries: Route and next-hop (next-hop can be a 'strict' list of many) for all subnets (directly connected use interface as next-hop) 
+    route:
+      global:
+        0.0.0.0/0:
+          nh: 192.168.2.49
+          rtype: B
+        10.0.0.0/8:
+          nh: discard
+          rtype: S
+        10.0.0.1/32:
+          nh: 192.168.2.44
+          rtype: B
+        10.3.0.0/16:
+          nh: discard
+          rtype: S
+        192.168.2.0/29:
+          nh: ethernet1/8.3111
+          rtype: C
+        192.168.2.3/32:
+          nh: 0.0.0.0
+          rtype: H
+        10.21.0.11/32: 
+          rtype: O N2
+          nh: 10.23.1.18
+        10.25.11.1/32:
+          rtype: L
+          nh: DC1_AMB_F5_LB
+        10.252.0.0/19: 
+          rtype: S
+          nh: Null0
+
+  # ----------------------------------------------------------------------------
+  # Route Protocol Validations
+  # ----------------------------------------------------------------------------
+  route_protocol:
+    ## BGP Peers/Neighbors (strict): Strict dictionary of BGP peers, the associated ASN and number of received prefixes
+    bgp_peer:
+      192.168.1.1:
+        asn: 65253
+        rcv_pfx: 4
+      192.168.1.2:
+        asn: 65301
+        rcv_pfx: 4
+      192.168.2.9:
+        asn: 65253
+        rcv_pfx: 3
+      192.168.2.10:
+        asn: 65302
+        rcv_pfx: 3
+      192.168.3.17:
+        asn: 65253
+        rcv_pfx: 2
+      192.168.3.18:
+        asn: 65303
+        rcv_pfx: 2
+
+  # ----------------------------------------------------------------------------
+  # Firewall Validations
+  # ----------------------------------------------------------------------------
+  fw:
+    # CONN_COUNT: Total number of connections
+    conn_count: 4285
