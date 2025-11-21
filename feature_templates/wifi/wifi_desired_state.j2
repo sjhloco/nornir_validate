@@ -11,61 +11,54 @@
 {% endif %}
 
 
-{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% for sub_feat in sub_features %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+
+
+
+
+{# ### WLAN: {cmd: {wlan_id: {intf: x, ssid: xy, status: Enabled}}} #}
 {% if sub_feat == 'wlan' and wlan_cmd is defined %}
     wlan: 
-      {{ wlan_cmd }}: VALIDATE
+      {{ wlan_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %} 
+{% for each_wlan, wlan_info in input_vars.items() %}
+        {{ each_wlan }}:
+          intf: {{ wlan_info.interface }}
+          ssid: {{ wlan_info.ssid }}
+          status: Enabled
+{% endfor %}{% endif %}
+{# ### AP: {cmd: {ap_name: {model: x, ip: x, clients: x}}} #}
 {% elif sub_feat == 'ap' and ap_cmd is defined %}
     ap: 
-      {{ ap_cmd }}: VALIDATE
+      {{ ap_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}  
+{% for each_ap, ap_info in input_vars.items() %}
+        {{ each_ap }}:
+          model: {{ ap_info.model }}
+          ip: {{ ap_info.ip }}
+          client_count: {{ ap_info.client_count }}
+{% endfor %}{% endif %}
+{# ### CLIENT_COUNT: {cmd: {total_count: x, wlxx_count: x}} #}
 {% elif 'client_count' in sub_feat and client_count_cmd is defined %}
     client_count:
+{% if generate_val_file %}
       {{ client_count_cmd }} summary: VALIDATE
 {% if sub_feat.client_count.__class__.__name__ == 'list' %}
 {% for each_wlan in sub_feat.client_count %}
       {{ client_count_cmd }} wlan {{ each_wlan.replace("wl", "999").replace("_count", "") }}: VALIDATE
       {{ client_count_cmd }} wlan {{ each_wlan.replace("wl", "").replace("_count", "") }}: VALIDATE
 {% endfor %}{% endif %}
-{% elif sub_feat == 'flexconnect' and flexconn_cmd is defined %}
-    flexconnect: 
-      {{ flexconn_cmd }}: VALIDATE
-{% elif sub_feat == 'intf_grp' and intf_grp_cmd is defined %}
-    intf_grp: 
-      {{ intf_grp_cmd }}: VALIDATE
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
-
-
-{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
-{% else %}
-- {{ feature }}:
-{% for sub_feat, input_vars in sub_features.items() %}
-{# ### WLAN: {cmd: {wlan_id: {intf: x, ssid: xy, status: Enabled}}} #}
-{% if sub_feat == 'wlan' %}
-    wlan: 
-      {{ wlan_cmd }}:  
-{% for each_wlan, wlan_info in input_vars.items() %}
-        {{ each_wlan }}:
-          intf: {{ wlan_info.interface }}
-          ssid: {{ wlan_info.ssid }}
-          status: Enabled
-{% endfor %}
-{# ### AP: {cmd: {ap_name: {model: x, ip: x, clients: x}}} #}
-{% elif sub_feat == 'ap' %}
-    ap: 
-      {{ ap_cmd }}:  
-{% for each_ap, ap_info in input_vars.items() %}
-        {{ each_ap }}:
-          model: {{ ap_info.model }}
-          ip: {{ ap_info.ip }}
-          client_count: {{ ap_info.client_count }}
-{% endfor %}
-{# ### CLIENT_COUNT: {cmd: {total_count: x, wlxx_count: x}} #}
-{% elif sub_feat == 'client_count' %}
-    client_count:
+{% elif desired_state %} 
 {% for wlan, cnt in input_vars.items() %}
 {% if wlan == "total_count" %}
       {{ client_count_cmd }} summary:
@@ -75,25 +68,31 @@
         SUB_FEATURE_COMBINED_CMD
       {{ client_count_cmd }} wlan {{ wlan.replace("wl", "").replace("_count", "") }}:
         {{ wlan }}: {{ cnt }}
-{% endif %}{% endfor %}
+{% endif %}{% endfor %}{% endif %}
 {# ### FLEXCONN: {cmd: {grp_name: {ap_count: x}}} #}
-{% elif sub_feat == 'flexconnect' %}
+{% elif sub_feat == 'flexconnect' and flexconn_cmd is defined %}
     flexconnect: 
-      {{ flexconn_cmd }}:  
+      {{ flexconn_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}   
 {% for each_grp, grp_info in input_vars.items() %}
         {{ each_grp }}:
           ap_count: {{ grp_info.ap_count }}
-{% endfor %}
+{% endfor %}{% endif %}
 {# ### INTF_GRP: {cmd: {grp_name: {ap_count: x, intf_count: x, wlan_count: x}}} #}
-{% elif sub_feat == 'intf_grp' %}
+{% elif sub_feat == 'intf_grp' and intf_grp_cmd is defined %}
     intf_grp: 
-      {{ intf_grp_cmd }}:  
+      {{ intf_grp_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}    
 {% for each_grp, grp_info in input_vars.items() %}
         {{ each_grp }}:
           ap_grp_count: {{ grp_info.ap_grp_count }}
           intf_count: {{ grp_info.intf_count }}
           wlan_count: {{ grp_info.wlan_count }}
-{% endfor %}
+{% endfor %}{% endif %}
+
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-{% endif %}

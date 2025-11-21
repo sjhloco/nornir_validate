@@ -8,30 +8,26 @@
 {% endif %}
 
 
-{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% for sub_feat in sub_features %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+
+{# ### HSRP: {cmd: {intf: {priority: x, state: y} ### #}
 {% if sub_feat == 'hsrp' and hsrp_cmd is defined %}
     hsrp:
-      {{ hsrp_cmd }}: VALIDATE
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
-
-
-{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
-{% else %}
-- {{ feature }}:
-{% for sub_feat, input_vars in sub_features.items() %}
-{# ### HSRP: {cmd: {intf: {priority: x, state: y} ### #}
-{% if sub_feat == 'hsrp' %}
-    hsrp:
-      {{ hsrp_cmd }}: 
+      {{ hsrp_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_hsrp, hsrp_info in input_vars.items() %}
         {{ each_hsrp }}:
           priority: {{ hsrp_info.priority }}
           state: {{ hsrp_info.state }}
-{% endfor %}
+{% endfor %}{% endif %}
+
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-{% endif %}

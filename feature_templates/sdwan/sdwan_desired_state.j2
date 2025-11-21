@@ -11,17 +11,19 @@
 
 {# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% set is_command = sub_features.__class__.__name__ == 'list' %}
-{% for sub_feat in (sub_features if is_command else sub_features.items()) %}
-{% set input_vars = None if is_command else sub_feat[1] %}
-{% set sub_feat = sub_feat if is_command else sub_feat[0] %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+
 {# ### OMP_PEER: {cmd: {peer: {site_id:x, routes_received:x, routes_installed:x:, routes_sent:x, state:up}} ### #}
 {% if sub_feat == 'omp_peer' and omp_peer_cmd is defined %}
     omp_peer:
       {{ omp_peer_cmd }}:
-{% if is_command %}
+{% if generate_val_file %}
         VALIDATE
-{% else %}
+{% elif desired_state %}
         _mode: strict
 {% for each_peer, peer_info in input_vars.items() %}
         {{ each_peer }}:

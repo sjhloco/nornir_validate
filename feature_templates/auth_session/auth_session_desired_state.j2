@@ -11,34 +11,32 @@
 {% endif %}
 
 
-{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% for sub_feat in sub_features %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+
+{# ### MAB_COUNT: {cmd: xx} ### #}
 {% if sub_feat == 'mab_count' and mab_count_cmd is defined %}
     mab_count: 
-      {{ mab_count_cmd }}: VALIDATE
+      {{ mab_count_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
+        {{ input_vars }}
+{% endif %}
+{# ### DOT1X_COUNT: {cmd: xx} ### #}
 {% elif sub_feat == 'dot1x_count' and dot1x_count_cmd is defined %}
     dot1x_count: 
-      {{ dot1x_count_cmd }}: VALIDATE
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
-
-
-{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
-{% else %}
-- {{ feature }}:
-{% for sub_feat, input_vars in sub_features.items() %}
-{# ### MAB_COUNT: {cmd: xx} ### #}
-{% if sub_feat == 'mab_count' %}
-    mab_count: 
-      {{ mab_count_cmd }}: 
+      {{ dot1x_count_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
         {{ input_vars }}
-{# ### DOT1X_COUNT: {cmd: xx} ### #}
-{% elif sub_feat == 'dot1x_count' %}
-    dot1x_count: 
-      {{ dot1x_count_cmd }}: 
-        {{ input_vars }}
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
 {% endif %}
+
+{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
+{% endif %}{% endfor %}

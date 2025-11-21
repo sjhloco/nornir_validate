@@ -4,6 +4,6 @@ layer2:
   mac_table:
     show mac address-table | in dynamic | count: VALIDATE
     show vlan id 6 | in enet: SUB_FEATURE_COMBINED_CMD
-    show mac address-table vlan 6 | in dynamic | count: VALIDATE
+    show mac address-table vlan 6 | in dynamic | count: SUB_FEATURE_COMBINED_CMD
     show vlan id 24 | in enet: SUB_FEATURE_COMBINED_CMD
-    show mac address-table vlan 24 | in dynamic | count: VALIDATE
+    show mac address-table vlan 24 | in dynamic | count: SUB_FEATURE_COMBINED_CMD

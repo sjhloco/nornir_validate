@@ -19,46 +19,34 @@
 {% endif %}
 
 
-{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% for sub_feat in sub_features %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+{# ### INTF: {cmd: {intf: {duplex: x, speed: x, type:x, connected }} ### #}
 {% if sub_feat == 'intf' and intf_cmd is defined %}
     intf: 
-      {{ intf_cmd }}: VALIDATE
-{% elif sub_feat == 'switchport' and switchport_cmd is defined %}
-    switchport: 
-      {{ switchport_cmd }}: VALIDATE
-{% elif sub_feat == 'ip_brief' and ip_brief_cmd is defined %}
-    ip_brief: 
-{# Needed as panos in_brief doesnt have intf status #}
-{% if 'panos' in os_type |string %}
-      {{ intf_cmd }}: SUB_FEATURE_COMBINED_CMD
-{% endif %}
-      {{ ip_brief_cmd }}: VALIDATE
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
-
-
-{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
-{% else %}
-- {{ feature }}:
-{% for sub_feat, input_vars in sub_features.items() %}
-{# ### INTF: {cmd: {intf: {duplex: x, speed: x, type:x, connected }} ### #}
-{% if sub_feat == 'intf' %}
-    intf: 
-      {{ intf_cmd }}: 
+      {{ intf_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_intf, intf_info in input_vars.items() %}
         {{ each_intf }}:
           duplex: {{ intf_info.duplex | default('') }}
           speed: {{ intf_info.speed | default('') }}
           type: {{ intf_info.type | default('') }}
           status: connected
-{% endfor %}
+{% endfor %}{% endif %}
 {# ### SWITCHPORT: {cmd: {intf: {mode: access or trunk, vlan: x or [x,y]}} ### #}
-{% elif sub_feat == 'switchport' %}
+{% elif sub_feat == 'switchport' and switchport_cmd is defined %}
     switchport: 
-      {{ switchport_cmd }}: 
+      {{ switchport_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_intf, intf_info in input_vars.items() %}
         {{ each_intf }}: 
           mode: {{ intf_info.mode }}
@@ -68,21 +56,23 @@
           vlan: 
             _mode: strict
             list: {{ intf_info.vlan }}
-{% endif %}{% endfor %}
+{% endif %}{% endfor %}{% endif %}
 {# ### IP_BRIEF: {cmd: {intf: {ip:x, status: x}}} ### #}
-{% elif sub_feat == 'ip_brief' %}
+{% elif sub_feat == 'ip_brief' and ip_brief_cmd is defined %}
     ip_brief: 
 {# Needed as panos in_brief doesnt have intf status #}
 {% if 'panos' in os_type |string %}
-      {{ intf_cmd }}: 
-        SUB_FEATURE_COMBINED_CMD
+      {{ intf_cmd }}: SUB_FEATURE_COMBINED_CMD
 {% endif %}
-      {{ ip_brief_cmd }}: 
+      {{ ip_brief_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_intf, each_ip in input_vars.items() %}
         {{ each_intf }}:
           ip: {{ each_ip }}
           status: up
-{% endfor %}
+{% endfor %}{% endif %}
+
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-{% endif %}

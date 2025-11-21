@@ -18,15 +18,28 @@
 {% endif %}
 
 
-{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% for sub_feat in sub_features %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+
+{# ### IMAGE: {cmd: code_number}} ### #}
 {% if sub_feat == 'image' and image_cmd is defined %}
     image: 
-      {{ image_cmd }}: VALIDATE
+      {{ image_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
+        {{ input_vars }}
+{% endif %}
+
+{# ### MGMT ACL: {cmd: {acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}}} ### #}
 {% elif 'mgmt_acl' in sub_feat and mgmt_acl_cmd is defined %}
     mgmt_acl:
+{% if generate_val_file %}
 {% if sub_feat.mgmt_acl.__class__.__name__ == 'list' %}
 {% for each_acl in sub_feat.mgmt_acl %}
       {{ mgmt_acl_cmd }} {{ each_acl }}: VALIDATE
@@ -34,28 +47,7 @@
 {% else %}
       {{ mgmt_acl_cmd }}: VALIDATE
 {% endif %}
-{% elif sub_feat == 'module' and module_cmd is defined %}
-    module:
-      {{ module_cmd }}: VALIDATE
-{% elif sub_feat == 'sla' and sla_cmd is defined %}
-    sla:
-      {{ sla_cmd }}: VALIDATE
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
-
-
-{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
-{% else %}
-- {{ feature }}:
-{% for sub_feat, input_vars in sub_features.items() %}
-{# ### IMAGE: {cmd: code_number}} ### #}
-{% if sub_feat == 'image' %}
-    image: 
-      {{ image_cmd }}: 
-        {{ input_vars }}
-{# ### MGMT ACL: {cmd: {acl_name: {seq_num: {protocol: ip/tcp/udp, src: src_ip, dst: dst_ip, dst_port: port}}} ### #}
-{% elif sub_feat == 'mgmt_acl' %}
-    mgmt_acl:
+{% elif desired_state %}
 {% for acl_name, ace_info in input_vars.items() %}
       {{ mgmt_acl_cmd }} {{ acl_name }}:
         {{ acl_name }}:
@@ -69,27 +61,33 @@
             src: {{ each_ace.values() | list | first }}
             dst: any
 {% set seq.cnt = seq.cnt + 10 %}
-{% endif %}{% endfor %}{% endfor %}
+{% endif %}{% endfor %}{% endfor %}{% endif %}
 {# ### MODULE: {module_num: {model: xxx, status, ok}} ### #}
-{% elif sub_feat == 'module' %}
+{% elif sub_feat == 'module' and module_cmd is defined %}
     module:
       {{ module_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_mod, mod_info in input_vars.items() %}
         {{ each_mod }}:
           model: {{ mod_info.model }}
           status: {{ mod_info.status | default('ok') }}
-{% endfor %}
+{% endfor %}{% endif %}
 {# ### SLA: {cmd: {grp_name: {dst: {rtt: x, State: Up}}}} ### #}
-{% elif sub_feat == 'sla' %}
+{% elif sub_feat == 'sla' and sla_cmd is defined %}
     sla:
       {{ sla_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for grp, dst in input_vars.items() %}
         {{ grp }}:
 {% for name, values in dst.items() %}
           {{ name }}:
             rtt: {{ values.rtt | round | int }}
             state: Up
-{% endfor %}{% endfor %}
+{% endfor %}{% endfor %}{% endif %}
+
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-{% endif %}

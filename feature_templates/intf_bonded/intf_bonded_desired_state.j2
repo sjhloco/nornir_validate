@@ -10,28 +10,21 @@
 {% endif %}
 
 
-{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% for sub_feat in sub_features %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+
+{# ### PORT_CHANNEL: {cmd: {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}} ### #}
 {% if sub_feat == 'port_channel' and port_channel_cmd is defined %}
     port_channel:
-      {{ port_channel_cmd }}: VALIDATE
-{% elif sub_feat == 'vpc' and vpc_cmd is defined %}
-    vpc:
-      {{ vpc_cmd }}: VALIDATE
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
-
-
-{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
-{% else %}
-- {{ feature }}:
-{% for sub_feat, input_vars in sub_features.items() %}
-{# ### PORT_CHANNEL: {cmd: {po_name: {protocol: type, status: code, members: {intf_name: {mbr_status: code}}}}} ### #}
-{% if sub_feat == 'port_channel' %}
-    port_channel:
       {{ port_channel_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_po_name, each_po_info in input_vars.items() %}
         {{ each_po_name }}:
           status: U
@@ -41,12 +34,15 @@
 {% for each_member in each_po_info.members %}
             {{ each_member }}:
               mbr_status: P
-{% endfor %}{% endfor %}
+{% endfor %}{% endfor %}{% endif %}
 {# ### VPC: {role: x, peer-status: peer-ok, keepalive-status: peer-alive, vlan-consistency: consistent, peer-consistency: SUCCESS, type2-consistency: SUCCESS,
     #       peer-link-port-state": 1, peer-link-vlans": x,y,z, vpcs: {vpc-id: {po: x, port-state: 1, consistency-status: SUCCESS, vlans: x,y,z} ### #}
-{% elif sub_feat == 'vpc' %}
+{% elif sub_feat == 'vpc' and vpc_cmd is defined %}
     vpc:
       {{ vpc_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
         role: {{ input_vars.role }}
         peer_status: peer-ok
         keepalive_status: peer-alive
@@ -66,7 +62,7 @@
             vlans: 
               _mode: strict
               list: {{ each_vpc_info.vlans }}
-{% endfor %}
+{% endfor %}{% endif %}
+
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-{% endif %}

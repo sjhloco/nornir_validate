@@ -21,8 +21,8 @@
 {% endif %}
 
 
-{# ###### Macro of nbr used multiple times ###### #}
-{%- macro def_nbr(intf_info, state) -%}
+{# ###### Macro for OSPF and EIGRP neighbors ###### #}
+{%- macro macro_eigrp_ospf_nbr(intf_info, state) -%}
           nbr:
             _mode: strict
 {% if intf_info.nbr.__class__.__name__ != 'list' %}
@@ -34,72 +34,66 @@
 {%- endmacro -%}
 
 
-{# ##### VAL_CMDS: Build a dictionary of commands used for creating the validation file ##### #}
-{% if sub_features.__class__.__name__ == 'list' %}
+{# ##### VAL_CMDS/DESIRED_STATE: Build a dict of validation commands or desired state of each sub-feature ##### #}
 - {{ feature }}:
-{% for sub_feat in sub_features %}
+{% set generate_val_file = sub_features.__class__.__name__ == 'list' %}
+{% set desired_state = sub_features.__class__.__name__ == 'dict' %}
+{% for sub_feat in (sub_features if generate_val_file else sub_features.items()) %}
+{% set input_vars = None if generate_val_file else sub_feat[1] %}
+{% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
+
+{# ### EIGRP_INTF_NBR: {cmd: {intf: {asn: x, nbr: {nbr_ip: up}}} ### #}
 {% if sub_feat == 'eigrp_intf_nbr' and eigrp_nbr_cmd is defined %}
     eigrp_intf_nbr:
-      {{ eigrp_nbr_cmd }}: VALIDATE
-{% elif sub_feat == 'ospf_intf_nbr' and ospf_intf_cmd is defined %}
-    ospf_intf_nbr:
-      {{ ospf_intf_cmd }}: SUB_FEATURE_COMBINED_CMD
-      {{ ospf_nbr_cmd }}: VALIDATE
-{% elif sub_feat == 'ospf_lsdb_count' and ospf_lsdb_cmd is defined %}
-    ospf_lsdb_count:
-      {{ ospf_lsdb_cmd }}: VALIDATE
-{% elif sub_feat == 'bgp_peer' and bgp_cmd is defined %}
-    bgp_peer:
-      {{ bgp_cmd }}: VALIDATE
-{# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
-{% endif %}{% endfor %}
-
-
-{# ##### DESIRED_STATE: Build desired state of the feature and each sub-feature ##### #}
-{% else %}
-- {{ feature }}:
-{% for sub_feat, input_vars in sub_features.items() %}
-{# ### EIGRP_INTF_NBR: {cmd: {intf: {asn: x, nbr: {nbr_ip: up}}} ### #}
-{% if sub_feat == 'eigrp_intf_nbr' %}
-    eigrp_intf_nbr:
-      {{ eigrp_nbr_cmd }}: 
+      {{ eigrp_nbr_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_intf, intf_info in input_vars.items() %}
         {{ each_intf }}:
           asn: {{ intf_info.asn }}
-          {{ def_nbr(intf_info, "up") }}
-{% endfor %}
+          {{ macro_eigrp_ospf_nbr(intf_info, "up") }}
+{% endfor %}{% endif %}
 {# ### OSPF_INTF_NBR: {cmd: {intf: {pid, x, area: x, nbr: {nbr_ip: FULL}}} ### #}
-{% elif sub_feat == 'ospf_intf_nbr' %}
+{% elif sub_feat == 'ospf_intf_nbr' and ospf_intf_cmd is defined %}
     ospf_intf_nbr:
-      {{ ospf_intf_cmd }}: 
-        SUB_FEATURE_COMBINED_CMD
-      {{ ospf_nbr_cmd }}: 
+      {{ ospf_intf_cmd }}: SUB_FEATURE_COMBINED_CMD
+      {{ ospf_nbr_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
 {% for each_intf, intf_info in input_vars.items() %}
         {{ each_intf }}:
           pid: {{ intf_info.pid }}
           area: {{ intf_info.area }}
 {% if intf_info.nbr is defined %}
-          {{ def_nbr(intf_info, "FULL") }}
+          {{ macro_eigrp_ospf_nbr(intf_info, "FULL") }}
 {% else %}
           nbr: {}
 {% endif %}
-{% endfor %}
+{% endfor %}{% endif %}
 {# ### OSPF_LSDB_COUNT: {cmd: {process: X, total_lsa: x}} ### #}
-{% elif sub_feat == 'ospf_lsdb_count' %}
+{% elif sub_feat == 'ospf_lsdb_count' and ospf_lsdb_cmd is defined %}
     ospf_lsdb_count:
       {{ ospf_lsdb_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
         {{ input_vars }}  
+{% endif %}
 {# ### BGP_PEER: {cmd: {peer: {asn:x, rcv_pfx:x}} ### #}
-{% elif sub_feat == 'bgp_peer' %}
+{% elif sub_feat == 'bgp_peer' and bgp_cmd is defined %}
     bgp_peer:
-      {{ bgp_cmd }}: 
+      {{ bgp_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
         _mode: strict
 {% for each_peer, peer_info in input_vars.items() %}
         {{ each_peer }}:
           asn: {{ peer_info.asn }}
           rcv_pfx: {{ peer_info.rcv_pfx }}
-{% endfor %} 
+{% endfor %}{% endif %}
 
 {# ##### End statements: for sub_feature and sub_feature conditional  ##### #}
 {% endif %}{% endfor %}
-{% endif %}
