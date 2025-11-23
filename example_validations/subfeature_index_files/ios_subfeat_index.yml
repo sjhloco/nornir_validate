@@ -67,3 +67,6 @@ all:
     - sts_peer
     # NUM_VPN: Total StS VPN peers and AnyConnect users
     - vpn_count
+  sdwan:
+    # BFD Sessions (strict): BFD sessions (system IP), color (local and remote) and their state
+    - bfd_session

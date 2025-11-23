@@ -294,3 +294,22 @@ all:
     # NUM_VPN: Total number of StS VPN peers and AnyConnect users (ASA only)
     vpn_count:
       sts: 2
+
+  # ----------------------------------------------------------------------------
+  # SDWAN: Validations
+  # ----------------------------------------------------------------------------
+  sdwan:
+    ## BFD Sessions (strict): Strict dictionary of BFD sessions, the associated site-ID, local and remote color
+    bfd_session:
+      10.9.255.1:
+        site_id: 65222
+        local_color: private6
+        remote_color: private6
+      172.47.255.1:
+        site_id: 65003
+        local_color: gold
+        remote_color: gold
+      172.47.255.6:
+        site_id: 65003
+        local_color: gold
+        remote_color: silver

@@ -1,7 +1,7 @@
 all:
   system:
     - image
-    - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
+    - mgmt_acl: [TEST_SSH_ACCESS, TEST_SNMP_ACCESS]
     - module
   redundancy:
     - ha_state
@@ -39,3 +39,5 @@ all:
   vpn:
     - sts_peer
     - vpn_count
+  sdwan:
+    - bfd_session

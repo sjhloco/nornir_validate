@@ -7,7 +7,8 @@ from typing import Any, NamedTuple
 # ----------------------------------------------------------------------------
 class OsKeys(NamedTuple):
     omp_peer: str
-    omp_site_id: str
+    cntl_nhbr: str
+    bfd_nhbr: str
 
 
 def _set_keys(os_type: str) -> OsKeys:
@@ -18,10 +19,10 @@ def _set_keys(os_type: str) -> OsKeys:
     Returns:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
-    if "ios" in os_type:
-        return OsKeys("xxx", "xxx")
+    if "ios" in os_type:  # noqa: SIM114
+        return OsKeys("peer", "system_ip", "system_ip")
     elif "viptela" in os_type:
-        return OsKeys("peer", "site_id")
+        return OsKeys("peer", "system_ip", "system_ip")
     # Fallback if nothing matched
     msg = f"Error, '_set_keys' has no match for OS type: '{os_type}'"
     raise NotImplementedError(msg)
@@ -89,13 +90,60 @@ def format_omp(
     result: dict[str, dict[str, str | int]] = defaultdict(dict)
     for entry in output:
         peer = entry[key.omp_peer]
-        result[peer]["site_id"] = _make_int(entry[key.omp_site_id])
+        result[peer]["site_id"] = _make_int(entry["site_id"])
         result[peer]["routes_received"] = _make_int(entry["routes_received"])
         result[peer]["routes_installed"] = _make_int(entry["routes_installed"])
         result[peer]["routes_sent"] = _make_int(entry["routes_sent"])
         # If is actual_state adds peer state
         if not val_file:
             result[peer]["state"] = entry["state"]
+    return dict(result)
+
+
+def format_control_conn(
+    val_file: bool, key: OsKeys, output: list[dict[str, str]]
+) -> dict[str, Any]:
+    """Format control connections into the data structure.
+
+    Args:
+        val_file (bool): Used to identify if creating validation file as sometimes need implicit values
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
+        output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
+    Returns:
+        dict[str, dict[str, str | int]]: {nhbr: {site_id:x, remote_color:x, state:x}} val file has no {state: x}
+    """
+    result: dict[str, dict[str, str | int]] = defaultdict(dict)
+    for entry in output:
+        nhbr = entry[key.cntl_nhbr]
+        result[nhbr]["site_id"] = _make_int(entry["site_id"])
+        result[nhbr]["remote_color"] = entry["remote_color"]
+        # If is actual_state adds neighbor state
+        if not val_file:
+            result[nhbr]["state"] = entry["state"]
+    return dict(result)
+
+
+def format_bfd_session(
+    val_file: bool, key: OsKeys, output: list[dict[str, str]]
+) -> dict[str, Any]:
+    """Format BFD sessions into the data structure.
+
+    Args:
+        val_file (bool): Used to identify if creating validation file as sometimes need implicit values
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
+        output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
+    Returns:
+        dict[str, dict[str, str | int]]: {nhbr: {site_id:x, local_color:x, remote_color:x, state:x}} val file has no {state: x}
+    """
+    result: dict[str, dict[str, str | int]] = defaultdict(dict)
+    for entry in output:
+        nhbr = entry[key.bfd_nhbr]
+        result[nhbr]["site_id"] = _make_int(entry["site_id"])
+        result[nhbr]["local_color"] = entry["local_color"]
+        result[nhbr]["remote_color"] = entry["remote_color"]
+        # If is actual_state adds neighbor state
+        if not val_file:
+            result[nhbr]["state"] = entry["state"]
     return dict(result)
 
 
@@ -124,6 +172,12 @@ def format_actual_state(
     ### OMP_PEER: {peer: {site_id:x, routes_received:x, routes_installed:x:, routes_sent:x, state:x}}
     if sub_feature == "omp_peer":
         return format_omp(val_file, key, ntc_output)
+    ### CONTROL_CONN: {nhbr: {site_id:x, remote_color:x, state:x}}
+    elif sub_feature == "control_conn":
+        return format_control_conn(val_file, key, ntc_output)
+    ### BFD_SESSION: {nhbr: {site_id:x, local_color:x, remote_color:x, state:x}}
+    elif sub_feature == "bfd_session":
+        return format_bfd_session(val_file, key, ntc_output)
     ### CatchAll
     else:
         msg = f"Unsupported sub_feature: {sub_feature}"

@@ -1,0 +1,3 @@
+sdwan:
+  bfd_session:
+    show sdwan bfd sessions table: VALIDATE

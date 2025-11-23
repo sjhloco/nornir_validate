@@ -1,0 +1,31 @@
+all:
+  sdwan:
+    bfd_session:
+      10.9.255.1:
+        site_id: 65222
+        local_color: private6
+        remote_color: private6
+      10.9.255.6:
+        site_id: 65222
+        local_color: private6
+        remote_color: private6
+      10.66.255.1:
+        site_id: 65211
+        local_color: gold
+        remote_color: gold
+      10.94.2.247:
+        site_id: 145
+        local_color: gold
+        remote_color: gold
+      10.94.3.247:
+        site_id: 305
+        local_color: gold
+        remote_color: gold
+      172.47.255.1:
+        site_id: 65003
+        local_color: gold
+        remote_color: gold
+      172.47.255.6:
+        site_id: 65003
+        local_color: gold
+        remote_color: silver
