@@ -68,5 +68,9 @@ all:
     # NUM_VPN: Total StS VPN peers and AnyConnect users
     - vpn_count
   sdwan:
+    # Control Connections (strict): Control Connections (system IP), color (local) and their state
+    - control_conn
+    # OMP Peers (strict): OMP peers and prefix count
+    - omp_peer
     # BFD Sessions (strict): BFD sessions (system IP), color (local and remote) and their state
     - bfd_session

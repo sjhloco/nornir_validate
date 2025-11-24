@@ -40,4 +40,7 @@ all:
     - sts_peer
     - vpn_count
   sdwan:
+    - control_conn
+    - omp_peer
     - bfd_session
+

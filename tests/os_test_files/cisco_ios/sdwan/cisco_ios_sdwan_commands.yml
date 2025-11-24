@@ -1,3 +1,7 @@
 sdwan:
+  control_conn:
+    show sdwan control connections: VALIDATE
+  omp_peer:
+    show sdwan omp peers: VALIDATE
   bfd_session:
     show sdwan bfd sessions table: VALIDATE

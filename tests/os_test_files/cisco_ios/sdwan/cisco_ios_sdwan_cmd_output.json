@@ -1,5 +1,105 @@
 {
     "sdwan": {
+        "control_conn": [
+            {
+                "type": "vsmart",
+                "protocol": "dtls",
+                "system_ip": "10.14.2.250",
+                "site_id": "102",
+                "domain_id": "1",
+                "private_ip": "10.14.2.71",
+                "private_port": "12346",
+                "public_ip": "21.254.56.204",
+                "public_port": "12346",
+                "organization": "network-SDWAN",
+                "local_color": "gold",
+                "proxy": "No",
+                "state": "up",
+                "uptime": "110:18:17:060",
+                "controller_group_id": ""
+            },
+            {
+                "type": "vsmart",
+                "protocol": "dtls",
+                "system_ip": "10.14.3.250",
+                "site_id": "202",
+                "domain_id": "1",
+                "private_ip": "10.14.3.70",
+                "private_port": "12346",
+                "public_ip": "30.238.57.220",
+                "public_port": "12346",
+                "organization": "network-SDWAN",
+                "local_color": "gold",
+                "proxy": "No",
+                "state": "up",
+                "uptime": "59:12:26:430",
+                "controller_group_id": ""
+            },
+            {
+                "type": "vbond",
+                "protocol": "dtls",
+                "system_ip": "0.0.0.0",
+                "site_id": "0",
+                "domain_id": "0",
+                "private_ip": "24.254.21.185",
+                "private_port": "12346",
+                "public_ip": "24.254.21.185",
+                "public_port": "12346",
+                "organization": "network-SDWAN",
+                "local_color": "gold",
+                "proxy": "-",
+                "state": "up",
+                "uptime": "110:18:34:340",
+                "controller_group_id": ""
+            },
+            {
+                "type": "vmanage",
+                "protocol": "dtls",
+                "system_ip": "10.14.2.248",
+                "site_id": "100",
+                "domain_id": "0",
+                "private_ip": "10.14.2.70",
+                "private_port": "12346",
+                "public_ip": "40.117.123.18",
+                "public_port": "12346",
+                "organization": "network-SDWAN",
+                "local_color": "gold",
+                "proxy": "No",
+                "state": "up",
+                "uptime": "110:18:39:240",
+                "controller_group_id": ""
+            }
+        ],
+        "omp_peer": [
+            {
+                "tenant": "0",
+                "peer": "10.94.2.240",
+                "type": "vsmart",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "142",
+                "region_id": "None",
+                "state": "up",
+                "uptime": "16:23:52:59",
+                "routes_received": "520",
+                "routes_installed": "383",
+                "routes_sent": "30"
+            },
+            {
+                "tenant": "0",
+                "peer": "10.94.3.240",
+                "type": "vsmart",
+                "domain_id": "1",
+                "overlay_id": "1",
+                "site_id": "242",
+                "region_id": "None",
+                "state": "up",
+                "uptime": "16:23:52:59",
+                "routes_received": "520",
+                "routes_installed": "0",
+                "routes_sent": "30"
+            }
+        ],
         "bfd_session": [
             {
                 "src_ip": "10.11.22.4",

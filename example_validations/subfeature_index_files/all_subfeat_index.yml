@@ -86,9 +86,9 @@ all:
     # INTF_GROUP: Number of interfaces, WLANs and APs per interface group
     - intf_grp
   sdwan:
+    # Control Connections (strict): Control Connections (system IP), color (vSmart is remote, cEdge is local) and their state
+    - control_conn
     # OMP Peers (strict): OMP peers and prefix count
     - omp_peer
-    # Control Connections (strict): Control Connections (system IP), color (remote) and their state
-    - control_conn
     # BFD Sessions (strict): BFD sessions (system IP), color (local and remote) and their state
     - bfd_session

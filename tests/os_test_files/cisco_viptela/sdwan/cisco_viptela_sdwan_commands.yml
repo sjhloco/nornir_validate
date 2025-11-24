@@ -1,5 +1,5 @@
 sdwan:
-  omp_peer:
-    show omp peers: VALIDATE
   control_conn:
     show control connections: VALIDATE
+  omp_peer:
+    show omp peers: VALIDATE

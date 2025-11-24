@@ -1,5 +1,7 @@
 {# ####### CMD: Set command variables on a per-os_type basis ####### #}
 {% if 'ios' in os_type |string %}
+{% set omp_peer_cmd = "show sdwan omp peers" %}
+{% set control_conn_cmd = "show sdwan control connections" %}
 {% set bfd_session_cmd = "show sdwan bfd sessions table" %}
 {% elif 'nxos' in os_type |string %}
 {% elif 'asa' in os_type |string %}
@@ -19,8 +21,22 @@
 {% set input_vars = None if generate_val_file else sub_feat[1] %}
 {% set sub_feat = sub_feat if generate_val_file else sub_feat[0] %}
 
+{# ### CONTROL_CONN {cmd: {nhbr: {site_id:x, color:x, state:x}}} ### #}
+{% if sub_feat == 'control_conn' and control_conn_cmd is defined %}
+    control_conn:
+      {{ control_conn_cmd }}:
+{% if generate_val_file %}
+        VALIDATE
+{% elif desired_state %}
+        _mode: strict
+{% for each_nhbr, nhbr_info in input_vars.items() %}
+        {{ each_nhbr }}:
+          site_id: {{ nhbr_info.site_id }}
+          color: {{ nhbr_info.color }}
+          state: up
+{% endfor %}{% endif %}
 {# ### OMP_PEER: {cmd: {peer: {site_id:x, routes_received:x, routes_installed:x:, routes_sent:x, state:up}}} ### #}
-{% if sub_feat == 'omp_peer' and omp_peer_cmd is defined %}
+{% elif sub_feat == 'omp_peer' and omp_peer_cmd is defined %}
     omp_peer:
       {{ omp_peer_cmd }}:
 {% if generate_val_file %}
@@ -33,20 +49,6 @@
           routes_received: {{ peer_info.routes_received }}
           routes_installed: {{ peer_info.routes_installed }}
           routes_sent: {{ peer_info.routes_sent }}
-          state: up
-{% endfor %}{% endif %}
-{# ### CONTROL_CONN {cmd: {nhbr: {site_id:x, remote_color:x, state:x}}} ### #}
-{% elif sub_feat == 'control_conn' and control_conn_cmd is defined %}
-    control_conn:
-      {{ control_conn_cmd }}:
-{% if generate_val_file %}
-        VALIDATE
-{% elif desired_state %}
-        _mode: strict
-{% for each_nhbr, nhbr_info in input_vars.items() %}
-        {{ each_nhbr }}:
-          site_id: {{ nhbr_info.site_id }}
-          remote_color: {{ nhbr_info.remote_color }}
           state: up
 {% endfor %}{% endif %}
 {# ### BFD_SESSIONS: {cmd: {nhbr: {site_id:x, local_color:x, remote_color:x, state:x}}} ### #}
