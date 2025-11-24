@@ -3,14 +3,20 @@
         "image": [
             {
                 "config_register": "0xF",
-                "hardware": ["WS-C3560CX-12PC-S"],
+                "hardware": [
+                    "WS-C3560CX-12PC-S"
+                ],
                 "hostname": "HME-C3560-SWI01",
-                "mac": ["CC:7F:75:81:98:00"],
+                "mac": [
+                    "CC:7F:75:81:98:00"
+                ],
                 "reload_reason": "power-on",
                 "restarted": "21:53:18 UTC Tue May 17 2022",
                 "rommon": "Bootstrap",
                 "running_image": "/c3560cx-universalk9-mz.152-7.E2.bin",
-                "serial": ["FOC2414L6TJ"],
+                "serial": [
+                    "FOC2414L6TJ"
+                ],
                 "uptime": "2 weeks, 2 days, 18 hours, 28 minutes",
                 "uptime_days": "2",
                 "uptime_hours": "18",
@@ -21,7 +27,10 @@
             }
         ],
         "mgmt_acl": [
-            {"acl_name": "TEST_SSH_ACCESS", "line_num": ""},
+            {
+                "acl_name": "TEST_SSH_ACCESS",
+                "line_num": ""
+            },
             {
                 "acl_name": "TEST_SSH_ACCESS",
                 "line_num": "10",
@@ -48,7 +57,10 @@
                 "src_any": "any",
                 "dst_any": "any"
             },
-            {"acl_name": "TEST_SNMP_ACCESS", "line_num": ""},
+            {
+                "acl_name": "TEST_SNMP_ACCESS",
+                "line_num": ""
+            },
             {
                 "acl_name": "TEST_SNMP_ACCESS",
                 "line_num": "10",
@@ -96,6 +108,38 @@
                 "submodule_hw": "2.1",
                 "submodule_status": "Ok",
                 "online_diag": "Pass"
+            }
+        ],
+        "sla": [
+            {
+                "name": "trkgrp_grp1",
+                "trackers": "trk_google-web, trk_umbrella",
+                "status": "UP(UP OR UP)",
+                "rtt": "16, 3",
+                "probe_id": "5, 6"
+            },
+            {
+                "name": "trkgrp_endpoint",
+                "trackers": "trk_google-web1, trk_umbrella1",
+                "status": "UP(UP AND UP)",
+                "rtt": "16, 3",
+                "probe_id": "5, 6"
+            },
+            {
+                "interface": "GigabitEthernet1",
+                "name": "trk_umbrella",
+                "status": "Up",
+                "rtt": "2",
+                "probe_id": "1",
+                "next_hop": "10.44.22.1"
+            },
+            {
+                "interface": "GigabitEthernet2",
+                "name": "trk_goolge",
+                "status": "Up",
+                "rtt": "2",
+                "probe_id": "1",
+                "next_hop": "10.2.2.1"
             }
         ]
     }

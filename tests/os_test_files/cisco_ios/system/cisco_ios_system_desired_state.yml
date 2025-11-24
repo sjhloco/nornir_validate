@@ -2,6 +2,14 @@ system:
   image:
     show version: 15.2(7)E2
   mgmt_acl:
+    show ip access-lists TEST_SNMP_ACCESS:
+      TEST_SNMP_ACCESS:
+        _mode: strict
+        10:
+          action: permit
+          protocol: ip
+          src: 10.17.10.0/24
+          dst: any
     show ip access-lists TEST_SSH_ACCESS:
       TEST_SSH_ACCESS:
         _mode: strict
@@ -20,14 +28,6 @@ system:
           protocol: ip
           src: any
           dst: any
-    show ip access-lists TEST_SNMP_ACCESS:
-      TEST_SNMP_ACCESS:
-        _mode: strict
-        10:
-          action: permit
-          protocol: ip
-          src: 10.17.10.0/24
-          dst: any
   module:
     show module:
       1:
@@ -36,3 +36,28 @@ system:
       5:
         model: VS-SUP2T-10G
         status: ok
+  sla:
+    show endpoint-tracker tracker-group: SUB_FEATURE_COMBINED_CMD
+    show endpoint-tracker:
+      trkgrp_grp1:
+        trk_google-web:
+          rtt: 16
+          state: Up
+        trk_umbrella:
+          rtt: 3
+          state: Up
+      trkgrp_endpoint:
+        trk_google-web1:
+          rtt: 16
+          state: Up
+        trk_umbrella1:
+          rtt: 3
+          state: Up
+      GigabitEthernet1:
+        trk_umbrella:
+          rtt: 2
+          state: Up
+      GigabitEthernet2:
+        trk_goolge:
+          rtt: 2
+          state: Up

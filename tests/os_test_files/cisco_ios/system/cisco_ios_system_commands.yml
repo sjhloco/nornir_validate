@@ -6,3 +6,6 @@ system:
     show ip access-lists TEST_SNMP_ACCESS: VALIDATE
   module:
     show module: VALIDATE
+  sla:
+    show endpoint-tracker tracker-group: SUB_FEATURE_COMBINED_CMD
+    show endpoint-tracker: VALIDATE

@@ -2,16 +2,33 @@ all:
   system:
     image: 15.2(7)E2
     mgmt_acl:
+      TEST_SNMP_ACCESS:
+        ace:
+        - permit: 10.17.10.0/24
       TEST_SSH_ACCESS:
         ace:
         - permit: 10.17.10.0/24
         - permit: 10.10.10.10/32
         - deny: any
-      TEST_SNMP_ACCESS:
-        ace:
-        - permit: 10.17.10.0/24
     module:
       1:
         model: WS-X6816-10GE
       5:
         model: VS-SUP2T-10G
+    sla:
+      trkgrp_grp1:
+        trk_google-web:
+          rtt: 16
+        trk_umbrella:
+          rtt: 3
+      trkgrp_endpoint:
+        trk_google-web1:
+          rtt: 16
+        trk_umbrella1:
+          rtt: 3
+      GigabitEthernet1:
+        trk_umbrella:
+          rtt: 2
+      GigabitEthernet2:
+        trk_goolge:
+          rtt: 2
