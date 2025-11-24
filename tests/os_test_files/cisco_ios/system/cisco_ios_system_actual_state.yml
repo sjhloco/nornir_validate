@@ -1,6 +1,12 @@
 system:
   image: 15.2(7)E2
   mgmt_acl:
+    TEST_SNMP_ACCESS:
+      10:
+        action: permit
+        protocol: ip
+        dst: any
+        src: 10.17.10.0/24
     TEST_SSH_ACCESS:
       10:
         action: permit
@@ -17,12 +23,6 @@ system:
         protocol: ip
         dst: any
         src: any
-    TEST_SNMP_ACCESS:
-      10:
-        action: permit
-        protocol: ip
-        dst: any
-        src: 10.17.10.0/24
   module:
     1:
       model: WS-X6816-10GE
@@ -30,3 +30,26 @@ system:
     5:
       model: VS-SUP2T-10G
       status: ok
+  sla:
+    trkgrp_grp1:
+      trk_google-web:
+        rtt: 16
+        state: Up
+      trk_umbrella:
+        rtt: 3
+        state: Up
+    trkgrp_endpoint:
+      trk_google-web1:
+        rtt: 16
+        state: Up
+      trk_umbrella1:
+        rtt: 3
+        state: Up
+    GigabitEthernet1:
+      trk_umbrella:
+        rtt: 2
+        state: Up
+    GigabitEthernet2:
+      trk_goolge:
+        rtt: 2
+        state: Up

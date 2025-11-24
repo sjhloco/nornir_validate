@@ -28,6 +28,16 @@ all:
         model: C6880-X-LE-16P10G
       5:
         model: C6880-X-LE-SUP
+    ## SLA: Endpoint tracker or Endpoint tracker-group, IPs/URLs it is testing, RTT (rounded to nearest integer) & status
+    sla:
+      trkgrp_grp:
+        trk_google-web:
+          rtt: 16
+        trk_umbrella:
+          rtt: 3
+      GigabitEthernet1:
+        trk_umbrella:
+          rtt: 2
 
   # ----------------------------------------------------------------------------
   # Redundancy Validations

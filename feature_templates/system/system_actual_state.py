@@ -1,5 +1,6 @@
 import ipaddress
 import re
+import trace
 from collections import defaultdict
 from typing import Any, NamedTuple
 
@@ -26,7 +27,9 @@ def _set_keys(os_type: str) -> OsKeys:
         OsKeys: Dictionary Keys for the specific OS type to retrieve the output data
     """
     if "ios" in os_type:
-        return OsKeys("version", "acl_name", "line_num", "", "", "", "")
+        return OsKeys(
+            "version", "acl_name", "line_num", "interface", "name", "rtt", "status"
+        )
     elif "nxos" in os_type:
         return OsKeys("os", "name", "sn", "", "", "", "")
     elif "asa" in os_type:
@@ -231,6 +234,59 @@ def _acl_actual_state(
     return dict(ac_aces)
 
 
+def _norm_ios_trk_grp(
+    key: OsKeys, output: list[dict[str, str]]
+) -> list[dict[str, str]]:
+    """Split tracker-group objects probes (trackers) into separate dictionaries.
+
+    Args:
+        key (OsKeys): Keys for the specific OS type to retrieve the output data
+        output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
+    Returns:
+        list[dict[str, str]]: List of endpoint trackers grouped by tracker group
+    """
+    norm_output = []
+    for probe in output:
+        if probe.get(key.sla_grp) is None:
+            # Split each probe element into lists
+            rtts = probe[key.sla_rtt].split(", ")
+            trackers = probe["trackers"].split(", ")
+            tmp_status = probe["status"].split("(")[1].replace(")", "")
+            statuses = (
+                tmp_status.split(" OR ")
+                if " OR " in tmp_status
+                else tmp_status.split(" AND ")
+            )
+            # Loop through all elements simultaneously
+            for rtt, status, tracker in zip(rtts, statuses, trackers, strict=False):
+                norm_output.append(
+                    {
+                        key.sla_grp: probe[key.sla_dst],
+                        key.sla_dst: tracker,
+                        key.sla_rtt: rtt,
+                        key.sla_state: status,
+                    }
+                )
+        else:
+            norm_output.append(probe)
+    return norm_output
+
+
+def _palo_sla_state(state: str) -> str:
+    """Convert Palo Alto SLA success rate state to Up/Down.
+
+    Args:
+        state (str): The SLA state from Palo Alto based on probe success rate
+    Returns:
+        str: Palo SLA state of "Up" or "Down"
+    """
+    tmp_state = state.split("/")[0] if len(state.split("/")) > 1 else None
+    if state.split("/")[0] == tmp_state:
+        return "Up"
+    else:
+        return "Down"
+
+
 def format_image(key: OsKeys, output: list[dict[str, str]]) -> str:
     """Format image into the data structure.
 
@@ -302,18 +358,23 @@ def format_module(val_file: bool, output: list[dict[str, str]]) -> dict[str | in
 
 
 def format_sla(
-    val_file: bool, key: OsKeys, output: list[dict[str, str]]
+    val_file: bool, os_type: str, key: OsKeys, output: list[dict[str, str]]
 ) -> dict[str, Any]:
     """Format SLA monitoring into the data structure.
 
     Args:
         val_file (bool): Used to identify if creating validation file as sometimes need implicit values
+        os_type (str): The different Nornir platforms which are OS type of the device
         key (OsKeys): Keys for the specific OS type to retrieve the output data
         output (list[dict[str, str]]): The command output from the device in ntc data structure OR raw data structure
     Returns:
         dict[str, Any]:  {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}, val_file is {cmd: {grp_name: {dst: {rtt: x}}}}
     """
     result: dict[str, dict[str, dict[str, str | int]]] = defaultdict(dict)
+    # Normalise IOS tracker group
+    if "ios" in os_type:
+        output = _norm_ios_trk_grp(key, output)
+    # Run function on all SLAs
     for probe in output:
         try:
             # Round up/down floats as needs to be integer to all for =>, =<, etc
@@ -325,15 +386,14 @@ def format_sla(
             }
         # Add state if it is the actual state
         if not val_file:
-            state1 = (
-                probe[key.sla_state].split("/")[0]
-                if len(probe[key.sla_state].split("/")) > 1
-                else None
-            )
-            if probe[key.sla_state].split("/")[0] == state1:
-                result[probe[key.sla_grp]][probe[key.sla_dst]]["state"] = "Up"
+            if "panos" in os_type:
+                result[probe[key.sla_grp]][probe[key.sla_dst]]["state"] = (
+                    _palo_sla_state(probe[key.sla_state])
+                )
             else:
-                result[probe[key.sla_grp]][probe[key.sla_dst]]["state"] = "Down"
+                result[probe[key.sla_grp]][probe[key.sla_dst]]["state"] = probe[
+                    key.sla_state
+                ].capitalize()
     return dict(result)
 
 
@@ -376,7 +436,7 @@ def format_actual_state(
 
     ### SLA: {cmd: {grp_name: {dst: {rtt: x, State: Up}}}}
     if sub_feature == "sla":
-        return format_sla(val_file, key, ntc_output)
+        return format_sla(val_file, os_type, key, ntc_output)
 
     ### CatchAll
     else:

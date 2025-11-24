@@ -3,6 +3,8 @@
 {% set image_cmd = "show version" %}
 {% set mgmt_acl_cmd = "show ip access-lists" %}
 {% set module_cmd = "show module" %}
+{% set sla_cmd = "show endpoint-tracker" %}
+{% set sla1_cmd = "show endpoint-tracker tracker-group" %}
 {% elif 'nxos' in os_type |string %}
 {% set image_cmd = "show version" %}
 {% set mgmt_acl_cmd = "show access-lists" %}
@@ -77,6 +79,9 @@
 {# ### SLA: {cmd: {grp_name: {dst: {rtt: x, State: Up}}}} ### #}
 {% elif sub_feat == 'sla' and sla_cmd is defined %}
     sla:
+{% if 'ios' in os_type |string %}
+      {{ sla1_cmd }}: SUB_FEATURE_COMBINED_CMD
+{% endif %}
       {{ sla_cmd }}:
 {% if generate_val_file %}
         VALIDATE

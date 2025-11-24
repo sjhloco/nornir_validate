@@ -6,6 +6,8 @@ all:
     - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
     # MODULE: Multi-chassis modules
     - module
+    # SLA: Endpoint tracker or endpoint tracker-group, IP/URL, RTT & status
+    - sla
   redundancy:
     # High Availability state: The redundancy state of the local and peered devices
     - ha_state

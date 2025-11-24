@@ -3,6 +3,7 @@ all:
     - image
     - mgmt_acl: [TEST_SSH_ACCESS, TEST_SNMP_ACCESS]
     - module
+    - sla
   redundancy:
     - ha_state
     - sw_stack
