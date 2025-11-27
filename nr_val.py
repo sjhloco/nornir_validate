@@ -411,6 +411,7 @@ def val_file_builder(
     # ERROR: Error patterns returned by devices that would mean a feature is not configured
     error_patterns = [
         "ERROR: % Invalid input detected at '^' marker.",
+        "% Invalid input detected at '^' marker.",
         "Invalid command at '^' marker.",
     ]
     # 5a. Use input input validation DM or if empty create one of all the possible validations

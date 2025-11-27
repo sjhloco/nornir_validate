@@ -221,15 +221,13 @@ def create_feature_dir(
     yaml = YAML()
     yaml.indent(mapping=2, sequence=4, offset=2)  # control indentation depth
 
-    # Create new feature and feature test folders (copies those from skeleton_new_feature so includes all files)
+    # Create new feature (copies those from skeleton_new_feature so includes all files) and feature test folders
     dir_created = []
-    feat_dir = os.path.join(os.getcwd(), "skeleton_new_feature", "newfeature")
-    feat_test_dir = os.path.join(os.getcwd(), "skeleton_new_feature", "newfeature_test")
-    for src, dst in [(feat_dir, tmpl_path), (feat_test_dir, test_path)]:
-        if not os.path.exists(dst):
-            shutil.copytree(src, dst, ignore=None, dirs_exist_ok=False)
-            dir_created.append(dst)
-
+    feat_dir = os.path.join(os.getcwd(), "skeleton_new_feature")
+    if not os.path.exists(tmpl_path):
+        shutil.copytree(feat_dir, tmpl_path, ignore=None, dirs_exist_ok=False)
+        os.makedirs(test_path, exist_ok=True)
+        dir_created.extend([tmpl_path, test_path])
     # Rename the files within the feature and feature test directories
     old_names = [
         os.path.join(tmpl_path, "newfeature_desired_state.j2"),
