@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Nornir Validate"
-copyright = "2025, sjhloco"
+copyright = "2025, sjhloco"  # noqa: A001
 author = "sjhloco"
 
 version = "v0.0.1"

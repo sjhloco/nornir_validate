@@ -38,9 +38,9 @@ The project uses `Ruff <https://ruff.rs/>`_ for linting and formatting.
 Documentation
 -------------
 
-Make the following changes to the RTD documentation that can be found in `doc <xxxxr>`_ directory.
+Make the following changes to the RTD documentation:
 
-- Update the **current validations** table (link to `validations.rst <linktotvalidations.rst>`_`)
+- Update the **current validations** table (link to `validations.rst <https://github.com/sjhloco/nornir_validate/blob/main/docs/validations.rst>`_`)
 - If you feel the validation is requires more details (unusual to need it) also add an entry in the **Validation-specific details** section
 
 Examples
