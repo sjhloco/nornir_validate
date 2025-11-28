@@ -23,8 +23,10 @@ wheels/
 # Apple
 **/.DS_Store
 
+# Sphinx (RTD) documentation
+docs/_build/
+docs/_static/
+docs/_templates/
+
 # Temp whilst building
 TODO
-still_to_do/
-**/.template_builder/
-new_features.md

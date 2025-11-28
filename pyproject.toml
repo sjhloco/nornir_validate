@@ -12,6 +12,8 @@ dependencies = [
     "nornir-utils>=0.2.0",
     "ntc-templates>=8.1.0",
     "pyaml>=25.7.0",
+    "sphinx>=8.2.3",
+    "sphinx-rtd-theme>=3.0.2",
     "types-pyyaml>=6.0.12.20250915",
 ]
 [dependency-groups]
