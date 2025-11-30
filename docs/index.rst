@@ -11,9 +11,12 @@ How It Works
 3. **Data Collection**: `Nornir <https://github.com/nornir-automation/nornir>`_ (`netmiko plugin <https://github.com/ktbyers/nornir_netmiko>`_) executes commands against target devices parsing the outputs through `ntc-templates <https://github.com/networktocode/ntc-templates>`_ to construct the *actual state*
 4. **Compliance Report**: The *desired state* and *actual state* are fed into `napalm-validate <https://github.com/napalm-automation/napalm/blob/develop/napalm/base/validate.py>`_  generating a *compliance report* of the differences
 
-.. image:: https://private-user-images.githubusercontent.com/33333983/520476424-879a2aaa-15a5-45f3-9f6d-37814f1703f4.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjQ0OTg2ODMsIm5iZiI6MTc2NDQ5ODM4MywicGF0aCI6Ii8zMzMzMzk4My81MjA0NzY0MjQtODc5YTJhYWEtMTVhNS00NWYzLTlmNmQtMzc4MTRmMTcwM2Y0LmdpZj9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMzAlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTMwVDEwMjYyM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTYzNTA4N2E0M2I0YTI2MzAxMjYwZTMzYjA4YzJjMThmOWU0M2YwYTM5ZjU4MzUxZmRlY2Y4ZGYyNTlmNjc5MjYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.LKiKujC_7UOc8z7HeiR3W3r5AASvUq3JjdsZtcIYQH0
-   
+.. figure:: /_static/images/val_example.gif
    :alt: Compliance report animation
+   :width: 100%
+   :align: center
+
+   Example of a non-compliant and compliant report
 
 Contents
 --------
