@@ -133,7 +133,7 @@ def generate_validate_report(
     if complies:
         my_report = dict(
             failed=False,
-            result="\u2705 Validation report complies, desired_state and actual_state match.",
+            result="\u2705 Compliance report complies, desired_state and actual_state match.",
             report=report,
             report_text=report_text,
         )

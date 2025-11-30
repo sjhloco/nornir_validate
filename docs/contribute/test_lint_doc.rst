@@ -14,7 +14,7 @@ Before doing the unit testing re-run the test file builds (*ds, as, vf*), unless
 
 .. code-block:: bash
 
-    python re_build_test_files.py
+    python rebuild_test_files.py
 
 Run unit tests for nr_val and all its features/sub-features.
 

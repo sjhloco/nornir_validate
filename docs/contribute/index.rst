@@ -5,7 +5,7 @@ Contribute
 
 - Formatting and linting: ``ruff format`` and ``ruff check``
 - Typing: ``mypy .``
-- Regenerate all test files: ``python re_build_test_files.py``
+- Regenerate all test files: ``python rebuild_test_files.py``
 - Unit testing: ``pytest -vv``
 
 Feature Layout
