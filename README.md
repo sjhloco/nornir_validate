@@ -11,7 +11,7 @@ For a complete list of supported validations, see the [validation reference](htt
 3. **Data Collection**: *Nornir* (*netmiko* plugin) executes commands against target devices parsing the outputs through `ntc-templates` to construct the *actual state*
 4. **Compliance Report**: The *desired state* and *actual state* are fed into *napalm_validate* generating a *compliance report* of the differences
 
-![render1680563143615](https://user-images.githubusercontent.com/33333983/229646275-869a18cd-451a-4c2b-b9fd-e1190ce10015.gif)
+![Image](https://github.com/user-attachments/assets/879a2aaa-15a5-45f3-9f6d-37814f1703f4)
 
 ## Installation
 
