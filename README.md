@@ -1,3 +1,7 @@
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+[![Documentation Status](https://readthedocs.org/projects/nornir-validate/badge/?version=latest)](https://nornir-validate.readthedocs.io/en/latest/?badge=latest)
+
 # Nornir Validate
 
 A Nornir plugin for validating network state (*actual state*) against YAML-based specifications (*desired state*). This project extends [napalm-validate](https://github.com/napalm-automation/napalm/blob/develop/napalm/base/validate.py) to perform command-based validation rather than relying solely on getters, providing greater flexibility in validating arbitrary command outputs. It leverages Nornir with `nornir-netmiko` to collect and format device data, then compares ***actual state*** against ***desired state*** to generate a ***compliance report***.
@@ -27,7 +31,7 @@ uv add nornir-validate
 
 ## Usage
 
-Below is just the bare minimum to get started, see the [documentation]() for more detailed information.
+Below is just the bare minimum to get started, see the [documentation](https://nornir-validate.readthedocs.io/en/latest/index.html#) for more detailed information.
 
 ### Generating a Compliance Report
 
@@ -51,7 +55,7 @@ By default the full compliance report will be printed to the screen if the valid
 
 ### Auto-generation of Validation Files
 
-Rather than defining validation files manually from scratch they can be automatically generated from a devices actual state based of an **index of sub-features**. If no index file is specified (omit the `input_data=` argumnet), validations will be generated for **all enabled sub-features** on the device.
+Rather than defining validation files manually from scratch they can be automatically generated from a devices actual state based of an **index of sub-features**. If no index file is specified (omit the `input_data=` argument), validations will be generated for **all enabled sub-features** on the device.
 
 ```python
 from nornir import InitNornir
@@ -70,4 +74,4 @@ Validations that have *environment-specific* elements (such as VRF route table) 
 
 ## Contributing
 
-If you want to help add any validations to the project the [Contribution Guidelines]() walk through the steps.
+If you want to help add any validations to the project the [Contribution Guidelines](https://nornir-validate.readthedocs.io/en/latest/contribute/index.html) walk through the steps.
