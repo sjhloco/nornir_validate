@@ -40,7 +40,7 @@ Documentation
 
 Make the following changes to the RTD documentation:
 
-- Update the **current validations** table (link to `validations.rst <https://github.com/sjhloco/nornir_validate/blob/main/docs/validations.rst>`_`)
+- Update the **current validations** table (link to `validations.rst <https://github.com/sjhloco/nornir-validate/blob/main/docs/validations.rst>`_`)
 - If you feel the validation is requires more details (unusual to need it) also add an entry in the **Validation-specific details** section
 
 Examples
@@ -48,5 +48,5 @@ Examples
 
 New feature/sub-feature need adding to the examples and indexes files.
 
-- `subfeature_index_files <https://github.com/sjhloco/nornir_validate/tree/main/example_validations/subfeature_index_files>`_: These indexes are used to automatically generate validation files. Add the sub-feature name to the os_specific *xx_subfeat_index.yml* file, if it is a new sub-feature it will also need adding to *all_subfeat_index.yml*
-- `validation_files <https://github.com/sjhloco/nornir_validate/tree/main/example_validations/validation_files>`_:These files contain validation examples that can be manually used by end users. Add the sub-feature validation example (can get from test files) to the os_specific *xx_validations.yml* file, if it is a new sub-feature it will also need adding to *all_validations.yml*
+- `index_files <https://github.com/sjhloco/nornir-validate/tree/main/src/nornir_validate/index_files>`_: These indexes are used to automatically generate validation files. Add the sub-feature name to the os_specific *xx_subfeat_index.yml* file, if it is a new sub-feature it will also need adding to *all_subfeat_index.yml*
+- `example_validation_files <https://github.com/sjhloco/nornir-validate/tree/main/example_validation_files>`_:These files contain validation examples that can be manually used by end users. Add the sub-feature validation example (can get from test files) to the os_specific *xx_validations.yml* file, if it is a new sub-feature it will also need adding to *all_validations.yml*

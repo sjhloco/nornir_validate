@@ -22,8 +22,11 @@ from typing import Any
 
 import yaml
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from netmiko import ConnectHandler
-from ntc_templates.parse import ParsingException, parse_output
+from netmiko import ConnectHandler  # type: ignore[import-untyped]
+from ntc_templates.parse import (  # type: ignore[import-untyped]
+    ParsingException,
+    parse_output,
+)
 from rich.console import Console
 from rich.theme import Theme
 from ruamel.yaml import YAML

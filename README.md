@@ -35,7 +35,7 @@ Below is just the bare minimum to get started, see the [documentation](https://n
 
 ### Generating a Compliance Report
 
-The compliance report is generated based on a YAML formatted validation file describing the desired state of the network. Comprehensive validation file examples for all supported operating systems and features can be found in the [validation-files](https://github.com/sjhloco/nornir_validate/tree/main/example_validations/validation_files>) directory.
+The compliance report is generated based on a YAML formatted validation file describing the desired state of the network. Comprehensive validation file examples for all supported operating systems and features can be found in the [example_validation_files](https://github.com/sjhloco/nornir-validate/tree/main/example_validation_files>) directory.
 
 ```python
 import yaml

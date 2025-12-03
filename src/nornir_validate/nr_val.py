@@ -6,25 +6,22 @@ import logging
 import os
 import re
 from collections import defaultdict
+from collections.abc import Callable
 from glob import glob
-from typing import TYPE_CHECKING, Any
+from importlib.resources import files
+from typing import Any
 
-# import ipdb
 import yaml
+from nornir.core import Nornir
 from nornir.core.exceptions import NornirSubTaskError
+from nornir.core.inventory import Host
 from nornir.core.task import AggregatedResult, Result, Task
-from nornir_jinja2.plugins.tasks import template_file
-from nornir_netmiko.tasks import netmiko_send_command
-from nornir_rich.functions import print_result
-from nornir_utils.plugins.tasks.files import write_file
+from nornir_jinja2.plugins.tasks import template_file  # type: ignore
+from nornir_netmiko.tasks import netmiko_send_command  # type: ignore
+from nornir_rich.functions import print_result  # type: ignore
+from nornir_utils.plugins.tasks.files import write_file  # type: ignore
 
-from compliance_report import generate_validate_report
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-
-    from nornir.core import Nornir
-    from nornir.core.inventory import Host
+from .compliance_report import generate_validate_report
 
 
 # ----------------------------------------------------------------------------
@@ -45,15 +42,18 @@ def import_actual_state_modules(
             validations = f.read()
     else:
         validations = str(input_data)
-    # Gather the path of the actual_state.py modules for all validation features used
     actual_state_modules = {}
-    all_features = glob("feature_templates/*/*.py")
-    if len(all_features) != 0:
-        for each_feature in all_features:
-            if each_feature.split(os.sep)[1] in validations:
-                each_module = ".".join(each_feature.split(os.sep)).replace(".py", "")
-                actual_state_modules[each_feature.split(os.sep)[1]] = each_module
-    # Import the actual_state.py modules with an alias of the feature name
+    # Get the feature_templates directory
+    feat_tmpl_dir = files("nornir_validate").joinpath("feature_templates")
+    # Loop through subdirectories
+    for each_feature in feat_tmpl_dir.iterdir():
+        if not each_feature.is_dir():
+            continue
+        feature_name = each_feature.name
+        # Only load if in validations list
+        if feature_name in validations:
+            module_path = f"nornir_validate.feature_templates.{feature_name}.{feature_name}_actual_state"
+            actual_state_modules[feature_name] = module_path
     for name, each_module in actual_state_modules.items():
         globals()[f"{name}"] = importlib.import_module(each_module)
 
@@ -188,11 +188,9 @@ def create_val_dm() -> dict[str, dict[str, list[str]]]:
     Returns:
         dict[str, Any]: Validation DM with any example data (dicts) such as route table VRF names removed
     """
-    all_index_file = os.path.join(
-        "example_validations", "subfeature_index_files", "all_subfeat_index.yml"
-    )
+    all_index_file = files("nornir_validate").joinpath("index_files", "all_index.yml")
     validations: dict[str, dict[str, list[str]]]
-    with open(all_index_file) as tmp_data:
+    with all_index_file.open("r") as tmp_data:
         validations = yaml.load(tmp_data, Loader=yaml.FullLoader)
         for feat in validations["all"]:
             for idx, sub_feat in enumerate(validations["all"][feat]):
@@ -288,7 +286,7 @@ def task_template(
         str_desired_state: str = task.run(
             task=template_file,
             template=values["file"],
-            path=os.path.join(tmpl_path, feature),
+            path=files("nornir_validate").joinpath(tmpl_path, feature),
             os_type=os_type,
             feature=feature,
             sub_features=values["sub_features"],
@@ -322,6 +320,7 @@ def actual_state_engine(
                 result = {}
             else:
                 # Gets per-sub-feature actual state structured data from imported feature_templates (python imports)
+                # breakpoint()
                 result = eval(feature).format_actual_state(
                     val_file, str(os_type), sub_feature, output
                 )

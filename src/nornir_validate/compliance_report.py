@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from typing import Any
 
-from napalm.base import validate
+from napalm.base import validate  # type: ignore
 
 
 # ----------------------------------------------------------------------------

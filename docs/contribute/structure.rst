@@ -1,7 +1,7 @@
 Feature Structure (-cf)
 =======================
 
-Generate the test directory, feature directory, base files (templated from `skelton_new_feature <https://github.com/sjhloco/nornir_validate/tree/main/skeleton_new_feature>`_) and sub-feature_index using the ``-cf`` (*--create_feature*) flag. This step is always required no matter whether you are creating a new feature, new sub-feature or adding an os_type to an existing sub-feature. Only directories and files that do not already exist will be created.
+Generate the test directory, feature directory, base files (templated from `skelton_new_feature <https://github.com/sjhloco/nornir-validate/tree/main/skeleton_new_feature>`_) and sub-feature_index using the ``-cf`` (*--create_feature*) flag. This step is always required no matter whether you are creating a new feature, new sub-feature or adding an os_type to an existing sub-feature. Only directories and files that do not already exist will be created.
 
 .. code-block:: bash
 

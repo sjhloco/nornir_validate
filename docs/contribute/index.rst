@@ -11,7 +11,7 @@ Contribute
 Feature Layout
 --------------
 
-Each **feature** (`feature_templates <https://github.com/sjhloco/nornir_validate/tree/main/feature_templates>`_) consists of one or more **sub-features** with the directory structured as follows:
+Each **feature** (`feature_templates <https://github.com/sjhloco/nornir-validate/tree/main/feature_templates>`_) consists of one or more **sub-features** with the directory structured as follows:
 
 .. code-block:: bash
 
@@ -23,7 +23,7 @@ Each **feature** (`feature_templates <https://github.com/sjhloco/nornir_validate
 OS-Specific Testing Layout
 --------------------------
 
-Each platform (``os_type``) must have a corresponding unit test directory (`tests/os_test_files/ <https://github.com/sjhloco/nornir_validate/tree/main/tests/os_test_files>`_) and *sub-feature index*, the directory structure is as follows:
+Each platform (``os_type``) must have a corresponding unit test directory (`tests/os_test_files/ <https://github.com/sjhloco/nornir-validate/tree/main/tests/os_test_files>`_) and *sub-feature index*, the directory structure is as follows:
 
 .. code-block:: bash
 

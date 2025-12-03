@@ -7,9 +7,10 @@ actual_state.py is used for formatting the actual_state and the validation file.
 
 import json
 import os
+from collections.abc import Generator
 from glob import glob
 from os import DirEntry
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
 import yaml
@@ -17,8 +18,8 @@ from nornir import InitNornir
 from nornir.core.filter import F
 from nornir.core.task import Result, Task
 
-from compliance_report import generate_validate_report
-from nr_val import (
+from nornir_validate.compliance_report import generate_validate_report
+from nornir_validate.nr_val import (
     actual_state_engine,
     import_actual_state_modules,
     merge_os_types,
@@ -26,9 +27,6 @@ from nr_val import (
     task_desired_state,
     task_template,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import Generator
 
 # ----------------------------------------------------------------------------
 # Directory that holds inventory files and load ACL dict (show, delete, wcard, mask, prefix)
@@ -245,6 +243,7 @@ def task_get_desired_state(task: Task, validations: dict[str, Any]) -> Result:
         validations=validations,
         task_template=task_template,
     )
+
     return Result(host=task.host, result=task.host["desired_state"])
 
 

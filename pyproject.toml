@@ -1,9 +1,19 @@
 [project]
 name = "nornir-validate"
 version = "0.1.0"
-description = "Add your description here"
+description = "Nornir plugin to validate network state on a per-device basis"
 readme = "README.md"
-requires-python = ">=3.14"
+license = "MIT"
+requires-python = ">=3.12"
+
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14"
+]
+
 dependencies = [
     "napalm>=5.1.0",
     "nornir-jinja2>=0.2.0",
@@ -12,21 +22,56 @@ dependencies = [
     "nornir-utils>=0.2.0",
     "ntc-templates>=8.1.0",
     "pyaml>=25.7.0",
-    "sphinx>=8.2.3",
-    "sphinx-rtd-theme>=3.0.2",
     "types-pyyaml>=6.0.12.20250915",
 ]
+# uv-specific dependency groups (used only by uv tooling)
 [dependency-groups]
+dev = [
+    "ipdb>=0.13.13", 
+    "mypy>=1.18.2", 
+    "pytest>=8.4.2", 
+    "ruff>=0.14.4"
+]
+docs = [
+    "sphinx>=8.2.3", 
+    "sphinx-rtd-theme>=3.0.2"
+]
+# Standard PEP 621 optional dependencies (pip extras)
+[project.optional-dependencies]
 dev = [
     "ipdb>=0.13.13",
     "mypy>=1.18.2",
     "pytest>=8.4.2",
     "ruff>=0.14.4",
-    "typing>=3.10.0.0",
+]
+docs = [
+    "sphinx>=8.2.3",
+    "sphinx-rtd-theme>=3.0.2",
 ]
 
+[project.urls]
+Homepage = "https://github.com/sjhloco/nornir-validate"
+Repository = "https://github.com/sjhloco/nornir-validate"
+Issues = "https://github.com/sjhloco/nornir-validate/issues"
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+
 [tool.mypy]
-ignore_missing_imports = true # stops missing library stubs or py.typed marker warning
+python_version = "3.12"
+# Core type checking (not as aggressive as strict)
+check_untyped_defs = true          # Check body of untyped functions
+disallow_untyped_calls = true      # Can't call untyped functions from typed ones
+disallow_incomplete_defs = true    # Functions need all args typed, or none
+# Practical warnings
+warn_unused_configs = true         # config options that don't actually do anything (typos, deprecated options, etc.)
+warn_redundant_casts = true        # Warns about unnecessary type casts
+warn_unused_ignores = true         # Warns when `# type: ignore` comments aren't needed anymore.
+warn_return_any = true             # Warns when a typed function returns `Any` (defeats the purpose of type hints)
+# None/Optional handling
+no_implicit_optional = true        # Prevents default `None` from automatically making parameters `Optional`
+
 
 # [tool.ruff]
 # line-length = 88 
@@ -67,3 +112,6 @@ convention = "google"
 nornir-rich = { git = "https://github.com/sjhloco/nornir_rich", rev = "format_string_result" }
 ntc-templates = { git = "https://github.com/networktocode/ntc-templates" }
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

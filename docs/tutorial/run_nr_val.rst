@@ -49,7 +49,7 @@ The following validation file example demonstrates the inheritance mechanism, it
             area: 0
             nbr: [192.168.10.2, 192.168.10.3]
 
-Comprehensive examples for all supported operating systems and features can be found in the `validation-files <https://github.com/sjhloco/nornir_validate/tree/main/example_validations/validation_files>`_ directory.
+Comprehensive examples for all supported operating systems and features can be found in the `validation-files <https://github.com/sjhloco/nornir-validate/tree/main/example_validation_files>`_ directory.
 
 Running Nornir Validate
 -----------------------

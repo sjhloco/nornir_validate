@@ -126,7 +126,7 @@ This would result in the following validation file being generated:
                 nh: Vlan20
                 rtype: L
 
-Examples of complete index files for all supported operating systems can be found in the `subfeature_index_files <https://github.com/sjhloco/nornir_validate/tree/main/example_validations/subfeature_index_files>`_ directory. 
+Examples of complete index files for all supported operating systems can be found in the `index_files <https://github.com/sjhloco/nornir-validate/tree/main/src/nornir_validate/index_files>`_ directory. 
 
 By default the validation file is saved to the local directory (*<hostname>_vals.yml*), pass in a directory argument to save it elsewhere.
 
