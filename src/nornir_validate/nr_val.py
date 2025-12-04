@@ -7,8 +7,8 @@ import os
 import re
 from collections import defaultdict
 from collections.abc import Callable
-from glob import glob
 from importlib.resources import files
+from types import ModuleType
 from typing import Any
 
 import yaml
@@ -23,39 +23,34 @@ from nornir_utils.plugins.tasks.files import write_file  # type: ignore
 
 from .compliance_report import generate_validate_report
 
+# Module-level cache
+_loaded_modules: dict[str, Any] = {}
+
 
 # ----------------------------------------------------------------------------
-# IMPORT: Import all the actual_state modules required based on validation input data
+# IMPORT: Import actual_state modules required based on validations in input data
 # ----------------------------------------------------------------------------
-def import_actual_state_modules(
-    input_data: str | dict[str, Any] | set[str],
-) -> None:
-    """Imports the actual_state.py modules for all the features used in the validation input file.
+def import_actual_state_modules(feature: str) -> dict[str, ModuleType]:
+    """Imports the actual_state.py modules for the feature used in the validation input file, caches results to avoid re-importing.
 
     Args:
-        input_data (str | dict[str, Any] | set[str]): File path to the validation input file or the validation input data itself
-        directory (str): The path to the data directory where the input file might be located
+        feature (str): Feature name used in file path and xx__actual_state.py
+
+    Returns:
+        dict[str, ModuleType]: Dictionary of {feature_name: imported_module}
     """
-    # Load the validation input file (dont need to serialize yaml as just searching it)
-    if isinstance(input_data, str) and ".yml" in input_data:
-        with open(input_data) as f:
-            validations = f.read()
-    else:
-        validations = str(input_data)
-    actual_state_modules = {}
-    # Get the feature_templates directory
-    feat_tmpl_dir = files("nornir_validate").joinpath("feature_templates")
-    # Loop through subdirectories
-    for each_feature in feat_tmpl_dir.iterdir():
-        if not each_feature.is_dir():
-            continue
-        feature_name = each_feature.name
-        # Only load if in validations list
-        if feature_name in validations:
-            module_path = f"nornir_validate.feature_templates.{feature_name}.{feature_name}_actual_state"
-            actual_state_modules[feature_name] = module_path
-    for name, each_module in actual_state_modules.items():
-        globals()[f"{name}"] = importlib.import_module(each_module)
+    # Only import if not already cached
+    if feature not in _loaded_modules:
+        module_path = (
+            f"nornir_validate.feature_templates.{feature}.{feature}_actual_state"
+        )
+        try:
+            _loaded_modules[feature] = importlib.import_module(module_path)
+        except ImportError as e:
+            print(f"❌ Could not import {module_path}: {e}")
+        except Exception as e:
+            print(f"❌ Error loading {module_path}: {e}")
+    return _loaded_modules
 
 
 # ----------------------------------------------------------------------------
@@ -320,8 +315,8 @@ def actual_state_engine(
                 result = {}
             else:
                 # Gets per-sub-feature actual state structured data from imported feature_templates (python imports)
-                # breakpoint()
-                result = eval(feature).format_actual_state(
+                modules = import_actual_state_modules(feature)
+                result = modules[feature].format_actual_state(
                     val_file, str(os_type), sub_feature, output
                 )
             actual_state[feature][sub_feature] = result
@@ -343,16 +338,14 @@ def validate(
     Returns:
         Result: The final result of nornir_validate (all tasks), a special Nornir Result object passed back to the main() method to be printed
     """
-    # 4a, Import the actual state modules and load the input file of validations
-    import_actual_state_modules(input_data)
-    # 4b. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task_template (2)
+    # 4a. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task_template (2)
     task.run(
         task=task_desired_state,
         validations=input_data,
         task_template=task_template,
         severity_level=logging.DEBUG,
     )
-    # 4c. CMD: Using commands crunched from the desired output gathers per-feature/sub-feature actual config of the device
+    # 4b. CMD: Using commands crunched from the desired output gathers per-feature/sub-feature actual config of the device
     feat_actual_data: dict[str, dict[str, Any]] = defaultdict(dict)
     for feature, sub_feature in task.host["desired_state"].items():
         for sub_feat_name, sub_feat_cmds in sub_feature.items():
@@ -374,15 +367,15 @@ def validate(
                 cmd_output.extend(tmp_cmd_output)
             feat_actual_data[feature][sub_feat_name] = cmd_output
 
-    # 4d. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
+    # 4c. ACTUAL: Formats the returned data into dict of cmds {cmd: {seq: key:val}} same as desired_state
     os_type = merge_os_types(task.host)
     actual_state = actual_state_engine(False, os_type, feat_actual_data)
-    # 4e. VAL: Uses Napalm_validate validate method to generate a compliance report
+    # 4d. VAL: Uses Napalm_validate validate method to generate a compliance report
     desired_state = remove_cmds_desired_state(task.host["desired_state"])
     comp_result = generate_validate_report(
         desired_state, actual_state, str(task.host), save_report
     )
-    # 4f. RSLT: Nornir returns compliance result or if fails the compliance report
+    # 4e. RSLT: Nornir returns compliance result or if fails the compliance report
     return Result(
         host=task.host,
         failed=comp_result["failed"],
@@ -415,7 +408,6 @@ def val_file_builder(
     ]
     # 5a. Use input input validation DM or if empty create one of all the possible validations
     validations = create_val_dm() if len(input_data) == 0 else input_data
-    import_actual_state_modules(validations)
     # 5b. TMPL: Creates desired states using the jinja template by calling task_desired_state (1) which in term calls task)template (2)
     task.run(
         task=task_desired_state,

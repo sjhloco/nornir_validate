@@ -131,16 +131,6 @@ def return_os_feature_name(request: pytest.FixtureRequest) -> Any:  # noqa: ANN4
     return str(request.param)
 
 
-@pytest.fixture(scope="class")
-def import_modules() -> None:
-    """Import actual state modules for any feature that has a validation file."""
-    all_features = []
-    validation_files = glob("tests/os_test_files/*/*/*.yml")
-    for each_val_file in validation_files:
-        all_features.append(each_val_file.split("/")[3])
-    import_actual_state_modules(set(all_features))
-
-
 # ----------------------------------------------------------------------------
 # SHARED_FUNCTIONS: Functions used by both the desired and actual state classes
 # ----------------------------------------------------------------------------
@@ -284,7 +274,6 @@ class TestCommands:
 # ----------------------------------------------------------------------------
 # 2. VAL_FILE: Asserts the validation file is created properly (is auto generated from actual state
 # ----------------------------------------------------------------------------
-@pytest.mark.usefixtures("import_modules")
 class TestValFile:
     def test_create_validation_file(self, return_os_feature_name: str) -> None:
         """Formats "cmd_output.json" with "actual_state.create_validation" and compares result against the file "validate.yml".
@@ -351,7 +340,6 @@ class TestDesiredState:
 # ----------------------------------------------------------------------------
 # 4. ACTUAL_STATE: Asserts desired state created properly on a per-subfeat basis
 # ----------------------------------------------------------------------------
-@pytest.mark.usefixtures("import_modules")
 class TestActualState:
     def test_actual_state_formatting(self, return_os_feature_name: str) -> None:
         """Formats "cmd_output.json" with "actual_state.format_actual_state" and compares result against the file "actual_state.yml".
