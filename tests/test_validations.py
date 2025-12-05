@@ -8,8 +8,10 @@ actual_state.py is used for formatting the actual_state and the validation file.
 import json
 import os
 from collections.abc import Generator
-from glob import glob
+from importlib.resources import files
+from importlib.resources.abc import Traversable
 from os import DirEntry
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -19,9 +21,8 @@ from nornir.core.filter import F
 from nornir.core.task import Result, Task
 
 from nornir_validate.compliance_report import generate_validate_report
-from nornir_validate.nr_val import (
+from nornir_validate.core import (
     actual_state_engine,
-    import_actual_state_modules,
     merge_os_types,
     remove_cmds_desired_state,
     task_desired_state,
@@ -134,7 +135,7 @@ def return_os_feature_name(request: pytest.FixtureRequest) -> Any:  # noqa: ANN4
 # ----------------------------------------------------------------------------
 # SHARED_FUNCTIONS: Functions used by both the desired and actual state classes
 # ----------------------------------------------------------------------------
-def load_yaml_file(input_yml_file: str) -> dict[str, Any]:
+def load_yaml_file(input_yml_file: str | Traversable) -> dict[str, Any]:
     """Return the YAML file structured data.
 
     Args:
@@ -143,6 +144,8 @@ def load_yaml_file(input_yml_file: str) -> dict[str, Any]:
     Returns:
         dict[str, object]: Contents of the loaded file as a dictionary
     """
+    # Normalize to Path object (as Traversable would need diff open method)
+    input_yml_file = Path(str(input_yml_file))
     with open(input_yml_file) as input_data:
         output_yml_data: dict[str, Any] = yaml.load(input_data, Loader=yaml.FullLoader)
     return output_yml_data
@@ -252,7 +255,9 @@ class TestCommands:
         cmd_file = feature["cmd_file"]
         os_type = feature["os_type"]
         vendor_os = feature["vendor_os"].lower()
-        index_file = os.path.join(OS_TEST_FILES, vendor_os, "subfeature_index.yml")
+        index_file = files("nornir_validate").joinpath(
+            "index_files", f"{vendor_os}_index.yml"
+        )
 
         # Load all the files needed for the validation
         expected_cmd = load_yaml_file(cmd_file)

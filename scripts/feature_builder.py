@@ -10,6 +10,7 @@ python feature_builder.py -as <os_type> <feature>                               
 
 import argparse
 import ast
+import copy
 import importlib
 import json
 import os
@@ -17,7 +18,9 @@ import re
 import shutil
 from collections import defaultdict
 from getpass import getpass
+from importlib.resources import files
 from ipaddress import ip_address
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -94,7 +97,7 @@ def _render_tmpl(
     os_type: str,
     feature: str,
     input_data: dict[str, dict[str, list[str]]],
-    tmpl_path: str,
+    tmpl_path: Path,
 ) -> Any:  # noqa: ANN401
     """Renders Jinja template for commands and desired state.
 
@@ -102,7 +105,7 @@ def _render_tmpl(
         os_type (str): The network operating system type (based off netmiko platform)
         feature (str): The name of the feature new feature that is to be created
         input_data (dict[str, dict[str, list[str]]]): Contains sub-features that are to be rendered
-        tmpl_path (str): The path to the templates folder, includes feature name
+        tmpl_path (Path): The path to the templates folder, includes feature name
     Returns:
         Any: The rendered template as a nested dictionary (mypy only sees as Any) of {feature: {sub_feature: {key: value}}}
     """
@@ -204,33 +207,26 @@ def _check_file_change(index_file: str, new_data: dict[str, dict[str, Any]]) -> 
 
 
 # ----------------------------------------------------------------------------
-# FEAT_DIR: Create the Feature and feature test directories
+# FEAT_DIR: Create the feature directory, feature test directory and update index files
 # ----------------------------------------------------------------------------
-def create_feature_dir(
-    feature: str,
-    subfeat: str | None,
-    test_path: str,
-    tmpl_path: str,
-) -> None:
-    """Create new feature and feature test folders (copies those from skeleton_new_feature so includes all files).
+def _create_feature_dir(feature: str, test_path: str, tmpl_path: Path) -> list[str]:
+    """Create new feature (copied from newfeature_skelton with desired/actual_state files) and feature test directories.
 
     Args:
         feature (str): The name of the feature new feature that is to be created
-        subfeat (str): The name of the new sub-feature that is to be created
         test_path (str): The path to the test directory, includes os_type and feature name
-        tmpl_path (str): The path to the templates folder, includes feature name
-    """
-    # Needed as pyaml doesn't indent lists correctly (purely cosmetic)
-    yaml = YAML()
-    yaml.indent(mapping=2, sequence=4, offset=2)  # control indentation depth
+        tmpl_path (Path): The path to the templates folder, includes feature name
 
-    # Create new feature (copies those from skeleton_new_feature so includes all files) and feature test folders
+    Returns:
+        list[str]: Feature and feature test directory paths
+    """
+    # Create new feature (copies those from newfeature_skelton so includes all files) and feature test directories
     dir_created = []
-    feat_dir = os.path.join(os.getcwd(), "skeleton_new_feature")
+    feat_dir = os.path.join(os.getcwd(), "newfeature_skeleton")
     if not os.path.exists(tmpl_path):
         shutil.copytree(feat_dir, tmpl_path, ignore=None, dirs_exist_ok=False)
         os.makedirs(test_path, exist_ok=True)
-        dir_created.extend([tmpl_path, test_path])
+        dir_created.extend([str(tmpl_path), str(test_path)])
     # Rename the files within the feature and feature test directories
     old_names = [
         os.path.join(tmpl_path, "newfeature_desired_state.j2"),
@@ -243,42 +239,96 @@ def create_feature_dir(
     for old_name, new_name in zip(old_names, new_names, strict=False):
         if os.path.exists(old_name):
             os.rename(old_name, new_name)
+    # Return directory paths for user feedback
+    return dir_created
 
-    # Add subfeature_index if it doesn't already exist
-    index_file = os.path.join(os.path.split(test_path)[0], "subfeature_index.yml")
+
+def _update_index(feature: str, subfeat: str, index_file: Path) -> str:
+    """Create or update os-specific index file and update all_index file.
+
+    Args:
+        feature (str): The name of the feature new feature that is to be created
+        subfeat (str): The name of the new sub-feature that is to be created
+        index_file (Path): Full path to os-specific index or all_index file
+    Returns:
+        list[str]: Details of the index file updated
+    """
+    # Needed as pyaml doesn't indent lists correctly (purely cosmetic)
+    yaml = YAML()
+    yaml.indent(mapping=2, sequence=4, offset=2)  # control indentation depth
+    # Check if index file already exists
     try:
         with open(index_file) as input_data:
             index_data = yaml.load(input_data)
-            prt_msg = f"✅ Updated the file '{index_file}'"
+            prt_msg = f"✅ Updated the file '{str(index_file)}'"
     except FileNotFoundError:
         index_data = {"all": {}}
-        prt_msg = f"✅ Created the file '{index_file}'"
+        prt_msg = f"✅ Created the file '{str(index_file)}'"
+    orig_index_data = copy.deepcopy(index_data)
     # Add sub feature to index file
     if index_data["all"].get(feature) is None:
         index_data["all"][feature] = [subfeat]
-    elif "subfeat" not in str(index_data["all"][feature]):
+    elif subfeat not in str(index_data["all"][feature]):
         index_data["all"][feature].append(subfeat)
     with open(index_file, "w", encoding="utf-8") as f:
         yaml.dump(index_data, f)
+    # Return details on index file changes for user feedback
+    if orig_index_data != index_data:
+        return prt_msg
+    else:
+        return ""
 
-    # Print result of what was done
+
+def create_feature(
+    os_type: str,
+    feature: str,
+    subfeat: str,
+    test_path: str,
+    tmpl_path: Path,
+) -> None:
+    """Create the feature directory, feature test directory and update index files.
+
+    Args:
+        os_type (str): The network operating system type (based off netmiko platform)
+        feature (str): The name of the feature new feature that is to be created
+        subfeat (str): The name of the new sub-feature that is to be created
+        test_path (str): The path to the test directory, includes os_type and feature name
+        tmpl_path (Path): The path to the templates folder, includes feature name
+    """
+    # Create feature and feature test directories
+    dir_created = _create_feature_dir(feature, test_path, tmpl_path)
+
+    # Create or update os specific index file if it doesn't already exist
+    os_index_file = files("nornir_validate").joinpath(
+        "index_files", f"{os_type}_index.yml"
+    )
+    prt_os_msg = _update_index(feature, subfeat, Path(str(os_index_file)))
+    # Update all_index file if feat/subfeat not already in it
+    all_index_file = files("nornir_validate").joinpath("index_files", f"all_index.yml")
+    prt_all_msg = _update_index(feature, subfeat, Path(str(all_index_file)))
+
+    # Print result of what directories and files have been touched
     if len(dir_created) != 0:
         result = "'\n '".join(dir_created)
         rc.print(f"✅ Created directories: \n '{result}'")
-        rc.print(prt_msg)
+    for prt_msg in [prt_os_msg, prt_all_msg]:
+        if len(prt_msg) != 0:
+            rc.print(prt_msg)
 
 
 # ----------------------------------------------------------------------------
 # COMMANDS: Generates a dictionary of commands for validation (used to create validation files)
 # ----------------------------------------------------------------------------
-def create_commands(os_type: str, feature: str, test_path: str, tmpl_path: str) -> None:
+def create_commands(
+    os_type: str, feature: str, test_path: str, tmpl_path: Path
+) -> None:
     """Using the Jinja template conditionally (OS and feature) creates a YAML file containing the commands to be executed.
 
     Args:
         os_type (str): The network operating system type (based off netmiko platform)
         feature (str): The name of the new feature that is to be created
         test_path (str): The path to the test directory, includes os_type and feature name
-        tmpl_path (str): The path to the templates folder, includes feature name
+        tmpl_path (Path): The path to the templates folder, includes feature name
     """
     # Loads data from YAML file
     index_file = os.path.join(os.path.split(test_path)[0], "subfeature_index.yml")
@@ -307,7 +357,7 @@ def create_commands(os_type: str, feature: str, test_path: str, tmpl_path: str) 
 def generate_cmd_data(
     os_type: str,
     feature: str,
-    subfeat: str | None,
+    subfeat: str,
     test_path: str,
     host_or_file: str,
 ) -> None:
@@ -405,7 +455,7 @@ def create_val_file(os_type: str, feature: str, test_path: str) -> None:
 # DESIRED_STATE: Create the desired state yaml test file
 # ----------------------------------------------------------------------------
 def create_desired_state(
-    os_type: str, feature: str, test_path: str, tmpl_path: str
+    os_type: str, feature: str, test_path: str, tmpl_path: Path
 ) -> None:
     """Renders the template using the data from validate.yml saving the result to file.
 
@@ -413,7 +463,7 @@ def create_desired_state(
         os_type (str): The network operating system type (based off netmiko platform)
         feature (str): The name of the new feature to create the desired state for
         test_path (str): The path to the test directory, includes os_type and feature name
-        tmpl_path (str): The path to the templates folder, includes feature name
+        tmpl_path (Path): The path to the templates folder, includes feature name
     """
     # Loads data from YAML file
     val_file = os.path.join(test_path, f"{os_type}_{feature}_validate.yml")
@@ -480,16 +530,24 @@ def main() -> None:
     feature = feat_subfeat.split(".")[0]
     subfeat = feat_subfeat.split(".")[1] if len(feat_subfeat.split(".")) > 1 else None
     test_path = os.path.join(os.getcwd(), "tests", "os_test_files", os_type, feature)
-    tmpl_path = os.path.join(os.getcwd(), "feature_templates", feature)
+    tmpl_path = files("nornir_validate").joinpath("feature_templates", feature)
+    # Convert to Path as importlib.resources.files().joinpath() returns a Traversable
+    tmpl_path = Path(str(tmpl_path))
 
     # Dependant on the flag run the relevant function
     if args["create_feature"] is not None:
-        create_feature_dir(feature, subfeat, test_path, tmpl_path)
+        if subfeat is not None:
+            create_feature(os_type, feature, subfeat, test_path, tmpl_path)
+        else:
+            rc.print("❌ Missing sub-feature for feature 'f{feature}' on 'f{os_type}'")
     elif args["create_commands"] is not None:
         create_commands(os_type, feature, test_path, tmpl_path)
     elif args["discovery"] is not None:
         host_or_file = args["discovery"][2]
-        generate_cmd_data(os_type, feature, subfeat, test_path, host_or_file)
+        if subfeat is not None:
+            generate_cmd_data(os_type, feature, subfeat, test_path, host_or_file)
+        else:
+            rc.print("❌ Missing sub-feature for feature 'f{feature}' on 'f{os_type}'")
     elif args["create_val_file"] is not None:
         create_val_file(os_type, feature, test_path)
     elif args["format_actual_state"] is not None:

@@ -44,4 +44,3 @@ all:
     - control_conn
     - omp_peer
     - bfd_session
-

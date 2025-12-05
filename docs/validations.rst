@@ -114,7 +114,7 @@ Validation-specific details
 
 - **Management ACL:**  
   Allowed addresses for SSH and HTTP on ASA, or the SSH and SNMP extended ACLs (not standard ACLs) on other platforms  
-  (assumes +10 for each sequence number)
+  (assumes +10 for each seq number)
 
 - **SLA:**
   For Palo it is HA path-monitoring and for IOS-XE SDWAN endpoint tracker and endpoint tracker-groups. The *RTT* is rounded up or down to the nearest integer (can't be a float) to allow for the use *lessthan*, *morethan*, etc

@@ -49,7 +49,7 @@ The following validation file example demonstrates the inheritance mechanism, it
             area: 0
             nbr: [192.168.10.2, 192.168.10.3]
 
-Comprehensive examples for all supported operating systems and features can be found in the `validation-files <https://github.com/sjhloco/nornir-validate/tree/main/example_validation_files>`_ directory.
+Comprehensive examples for all supported operating systems and features can be found in the `example_validation_files <https://github.com/sjhloco/nornir-validate/tree/main/example_validation_files>`_ directory.
 
 Running Nornir Validate
 -----------------------
@@ -60,8 +60,8 @@ The validate method is imported directly into a script leveraging the existing N
 
     import yaml
     from nornir import InitNornir
-    from nr_val import validate, print_val_result
-
+    from nornir_validate import validate, print_val_result
+  
     nr = InitNornir(config_file="config.yml")
 
     with open("input_val_data.yml") as tmp_data:

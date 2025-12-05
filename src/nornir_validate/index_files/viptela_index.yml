@@ -1,6 +1,0 @@
-all:
-  sdwan:
-    # Control Connections (strict): Control Connections (system IP), color (remote) and their state
-    - control_conn
-    # OMP Peers (strict): OMP peers and prefix count
-    - omp_peer

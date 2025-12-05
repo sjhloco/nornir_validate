@@ -1,13 +1,13 @@
 Feature Structure (-cf)
 =======================
 
-Generate the test directory, feature directory, base files (templated from `skelton_new_feature <https://github.com/sjhloco/nornir-validate/tree/main/skeleton_new_feature>`_) and sub-feature_index using the ``-cf`` (*--create_feature*) flag. This step is always required no matter whether you are creating a new feature, new sub-feature or adding an os_type to an existing sub-feature. Only directories and files that do not already exist will be created.
+Generate the test directory, feature directory, base files (templated from `newfeature_skeleton <https://github.com/sjhloco/nornir-validate/tree/main/newfeature_skeleton>`_) and sub-feature_index using the ``-cf`` (*--create_feature*) flag. This step is always required no matter whether you are creating a new feature, new sub-feature or adding an os_type to an existing sub-feature. Only directories and files that do not already exist will be created.
 
 .. code-block:: bash
 
-    python feature_builder.py -cf <ostype> <feature.sub-feature>
+    python scripts/feature_builder.py -cf <ostype> <feature.sub-feature>
 
-For example, ``python feature_builder.py -cf cisco_viptela sdwan.omp`` will create the following:
+For example, ``python scripts/feature_builder.py -cf cisco_viptela sdwan.omp`` will create the following:
 
 .. code-block:: bash
 
@@ -18,25 +18,24 @@ For example, ``python feature_builder.py -cf cisco_viptela sdwan.omp`` will crea
     ├── tests
     │   ├── os_test_files
     │   │   ├── cisco_viptela
-    │   │   │   ├── sdwan                    # Folder that will hold all the test files
-    │   │   │   ├── subfeature_index.yml     # Index of all features and sub-features for this os_type, will be updated if already exists           
+    │   │   │   ├── sdwan                    # Folder that will hold all the test files          
 
 Index
 -----
 
-The **subfeature_index.yml** is automatically created or updated, it is used for unit-testing and the generation of validation files if no index is specified. The below snippet shows the *system* feature with its *image, mgmt_acl* and *module* sub-features.
+As part of the script the `index_files <https://github.com/sjhloco/nornir-validate/tree/main/src/nornir_validate/index_files>`_ **all_index.yml** and **os_type_index.yml** are updated (created if don't yet exist) with the former used for generation of validation files (if no index file specified) and the later for unit-testing. The below snippet shows the *system* feature with its *image, mgmt_acl* and *module* sub-features.
 
 .. code-block:: yaml
     
   all:
     system:
       - image
-      - mgmt_acl: ["TEST_SSH_ACCESS", "TEST_SNMP_ACCESS"]
+      - mgmt_acl: [TEST_SSH_ACCESS, TEST_SNMP_ACCESS]
       - module
 
 .. note::
 
-    The majority of the time sub-features will be a string, however for more complex validations that require multiple commands (VRF route-tables, ACLs, etc) this will be a dictionary of lists. In these situations the *subfeature_index.yml* file will need to be edited manually.
+    The majority of the time sub-features will be a string, however for more complex validations that require multiple commands (VRF route-tables, ACLs, etc) this will be a dictionary of list. In these situations the *xx_index.yml* file will need to be edited manually.
 
 
 Test Inventory

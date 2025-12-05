@@ -16,10 +16,10 @@ Key Behaviors
 - The below validations can have **environment-specific** elements (such as VRF name), these must be manually defined in the index file.
 
     - *Management ACL (system.mgmt_acl)*: If ACL names not specified will return all ACLs
-    - *MAC address count (layer2.mac_table)*: If no *VLANs* defined returns total number of MACs
-    - *Route table count (route_table.route_count)*: If no *VRFs* defined returns total number of routes in global RT
-    - *Route table routes (route_table.route)*: If no *VRFs* defined returns routes in the global RT
-    - *WiFi client count (wifi.client_count)*: If no *WLANs* defined returns total number of clients
+    - *MAC address count (layer2.mac_table)*: If no *VLANs* defined only returns total number of MACs
+    - *Route table count (route_table.route_count)*: If no *VRFs* defined only returns total number of routes in global RT
+    - *Route table routes (route_table.route)*: If no *VRFs* defined only returns routes in global RT
+    - *WiFi client count (wifi.client_count)*: If no *WLANs* defined only returns total number of clients
 
 Generating Validation Files
 ---------------------------
@@ -29,7 +29,7 @@ Running the *val_file_builder* task without any arguments will generate a valida
 .. code-block:: python
 
     from nornir import InitNornir
-    from nr_val import val_file_builder, print_build_result
+    from nornir_validate import val_file_builder, print_build_result
 
     nr = InitNornir(config_file="config.yml")
 

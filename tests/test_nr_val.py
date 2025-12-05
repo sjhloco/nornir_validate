@@ -8,7 +8,7 @@ import os
 import pytest
 from nornir import InitNornir
 
-from nornir_validate.nr_val import (
+from nornir_validate.core import (
     merge_os_types,
     remove_cmds_desired_state,
     return_feature_desired_data,

@@ -1,7 +1,4 @@
 all:
-  route_table:
-    - route_count
-    - route
   system:
     - image
     - sla
@@ -10,6 +7,9 @@ all:
   interface:
     - intf
     - ip_brief
+  route_table:
+    - route_count
+    - route
   route_protocol:
     - bgp_peer
   fw:
