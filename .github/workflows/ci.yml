@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Python versions to run in parallel on
+        python-version: ["3.13", "3.14"]
+    
+    steps:
+    # Download repo to use in workflow
+    - uses: actions/checkout@v5
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        version: "0.9.5"
+        python-version: ${{ matrix.python-version }}
+    # Sequential jobs to run
+    - name: Install dependencies (project and developer)
+      run: |
+        uv sync --dev
+    # --check so fail the build if code isn't formatted, dot means "current directory and all subdirectories"
+    - name: Run ruff format (style conventions similar to black)
+      run: |
+        uv run ruff format --check .
+    # Doesn't use --fix so will fail build if errors
+    - name: Run ruff check (linting like Flake8, organizing imports like iSort)
+      run: |
+        uv run ruff check .
+    - name: Run MyPy type checking
+      run: |
+        uv run mypy .
+    - name: Run unit tests
+      run: |
+        uv run pytest -v
