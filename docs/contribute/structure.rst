@@ -5,9 +5,9 @@ Generate the test directory, feature directory, base files (templated from `newf
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -cf <ostype> <feature.sub-feature>
+    uv run scripts/feature_builder.py -cf <ostype> <feature.sub-feature>
 
-For example, ``python scripts/feature_builder.py -cf cisco_viptela sdwan.omp`` will create the following:
+For example, ``uv run scripts/feature_builder.py -cf cisco_viptela sdwan.omp`` will create the following:
 
 .. code-block:: bash
 

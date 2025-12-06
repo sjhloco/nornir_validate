@@ -3,7 +3,7 @@ New feature/sub-feature
 
 The method for creating a new feature and sub-feature or just a new sub-feature within an existing feature is very much the same, you need to define what you are validating (*validation file*) and format the returned command output into the correct structure (*actual state*). The easiest way to do this is to work backwards by first deciding how the *actual state* looks (based on *command outputs*) before creating the validation file of what is to be validated (used to create the *desired state*). 
 
-The below steps run through an example to add a new **cisco_viptela omp_peer** sub-feature within a new **sdwan** feature. The feature directory, base feature state files and test directory have already been created and sub-feature index updated as per :doc:`feature structure <structure>` (``python scripts/feature_builder.py -cf cisco_viptela sdwan.omp_peer``).
+The below steps run through an example to add a new **cisco_viptela omp_peer** sub-feature within a new **sdwan** feature. The feature directory, base feature state files and test directory have already been created and sub-feature index updated as per :doc:`feature structure <structure>` (``uv run scripts/feature_builder.py -cf cisco_viptela sdwan.omp_peer``).
 
 1. Commands (-cmd)
 ------------------
@@ -42,11 +42,11 @@ Use ``-cmd`` (*--create_commands*) to create the **xx_commands.yml** file and th
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -cmd <os_type> <feature>
-    pytest 'tests/test_validations.py::TestCommands::test_command_templating[<ostype>_<feature>]' -vv
+    uv run scripts/feature_builder.py -cmd <os_type> <feature>
+    uv run pytest 'tests/test_validations.py::TestCommands::test_command_templating[<ostype>_<feature>]' -vv
 
-    ❯ python scripts/feature_builder.py -cmd  cisco_viptela sdwan
-    ❯ pytest 'tests/test_validations.py::TestCommands::test_command_templating[cisco_viptela_sdwan]' -vv
+    ❯ uv run scripts/feature_builder.py -cmd  cisco_viptela sdwan
+    ❯ uv run pytest 'tests/test_validations.py::TestCommands::test_command_templating[cisco_viptela_sdwan]' -vv
 
 2. Command Output (-di) 
 -----------------------
@@ -55,9 +55,9 @@ The command output can be a parsed `ntc-template <https://github.com/networktoco
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -di <netmiko_ostype> <feature.subfeature> <ip address or filename>
+    uv run scripts/feature_builder.py -di <netmiko_ostype> <feature.subfeature> <ip address or filename>
 
-    ❯ python scripts/feature_builder.py -di cisco_viptela sdwan.omp_peer show_omp_peers.raw
+    ❯ uv run scripts/feature_builder.py -di cisco_viptela sdwan.omp_peer show_omp_peers.raw
 
 .. note::
 
@@ -156,15 +156,15 @@ Use ``-as`` (*--format_actual_state*) to create the **xx_actual_state.yml** test
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -as <os_type> <feature> 
-    pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[ostype_newfeature]' -vv
-    python scripts/feature_builder.py -vf <os_type> <feature> 
-    pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[ostype_newfeature]' -vv
+    uv run scripts/feature_builder.py -as <os_type> <feature> 
+    uv run pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[ostype_newfeature]' -vv
+    uv run scripts/feature_builder.py -vf <os_type> <feature> 
+    uv run pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[ostype_newfeature]' -vv
 
-    ❯ python scripts/feature_builder.py -as cisco_viptela sdwan
-    ❯ pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[cisco_viptela_sdwan]' -vv
-    ❯ python scripts/feature_builder.py -vf cisco_viptela sdwan
-    ❯ pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[cisco_viptela_sdwan]' -vv
+    ❯ uv run scripts/feature_builder.py -as cisco_viptela sdwan
+    ❯ uv run pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[cisco_viptela_sdwan]' -vv
+    ❯ uv run scripts/feature_builder.py -vf cisco_viptela sdwan
+    ❯ uv run pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[cisco_viptela_sdwan]' -vv
 
 4. Desired state
 ----------------
@@ -213,11 +213,11 @@ Use ``-ds`` (*--create_desired_state*) to render the data from the validation fi
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -ds <os_type> <feature> 
-    pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[ostype_newfeature]' -vv
+    uv run scripts/feature_builder.py -ds <os_type> <feature> 
+    uv run pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[ostype_newfeature]' -vv
 
-    ❯ python scripts/feature_builder.py -ds cisco_viptela sdwan
-    ❯ pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[cisco_viptela_sdwan]' -vv
+    ❯ uv run scripts/feature_builder.py -ds cisco_viptela sdwan
+    ❯ uv run pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[cisco_viptela_sdwan]' -vv
 
 5. Compliance Report 
 --------------------
@@ -226,6 +226,6 @@ The final thing to do is test that the *"desired_state.yml"* and *"actual_state.
 
 .. code-block:: bash
 
-    pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[ostype_newfeature]' -vv
+    uv run pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[ostype_newfeature]' -vv
 
-    ❯ pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[cisco_viptela_sdwan]' -vv
+    ❯ uv run pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[cisco_viptela_sdwan]' -vv

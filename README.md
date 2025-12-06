@@ -40,7 +40,7 @@ The compliance report is generated based on a YAML formatted validation file des
 ```python
 import yaml
 from nornir import InitNornir
-from nr_val import validate, print_val_result
+from nornir_validate import validate, print_val_result
 
 nr = InitNornir(config_file="config.yml")
 
@@ -59,7 +59,7 @@ Rather than defining validation files manually from scratch they can be automati
 
 ```python
 from nornir import InitNornir
-from nr_val import val_file_builder, print_build_result
+from nornir_validate import val_file_builder, print_build_result
 
 nr = InitNornir(config_file="config.yml")
 

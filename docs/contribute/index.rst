@@ -49,18 +49,18 @@ To be able to develop a new validation you need to answer these questions:
 
 The following steps take you through the different tasks that are required, the **feature_builder.py** script will assist with the majority of these.
 
+* :doc:`Formatting, linting, testing, documentation and PR <fmt_lint_test_doc_pr>` - The boring stuff required to submit a PR
 * :doc:`Feature structure <structure>` - Create the feature directory structure and index of sub-features
 * :doc:`New OS for existing sub-feature <newos_exist_subfeat>` - Steps to add a new OS type to an existing sub-feature
 * :doc:`New feature/sub-feature <new_sudfeature>` - Steps to create a new feature and/or sub-feature
-* :doc:`Formatting, linting, testing and documentation <test_lint_doc>` - The boring stuff required to submit a PR
 * :doc:`Unittest appendix <test_appendix>` - More details on unit testing
 
 .. toctree::
     :hidden:
     :maxdepth: 1
     
+    fmt_lint_test_doc_pr
     structure
     newos_exist_subfeat
     new_sudfeature
-    test_lint_doc
     test_appendix

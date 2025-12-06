@@ -1,11 +1,11 @@
 """Can be running using any for the following flags.
 
-python feature_builder.py -cf <os_type> <feature.subfeature>                          Creates the feature and test feature directory structure (folders and files)
-python feature_builder.py -cmd <os_type> <feature>                                    Generates the commands used to generates a validation file (saved to <os_type>_<feature>_cmds.yml)
-python feature_builder.py -di <netmiko_ostype> <feature.subfeature> <ip or filename>  Generates the cmd_output data structure (prints to screen)
-python feature_builder.py -vf <os_type> <feature>                                     Generates the validate file (saved to <os_type>_<feature>_desired_state.yml)
-python feature_builder.py -ds <os_type> <feature>                                     Creates the desired_state data structure (saved to <os_type>_<feature>_desired_state.yml)
-python feature_builder.py -as <os_type> <feature>                                     Creates the actual_state data structure (saved to <os_type>_<feature>_actual_state.yml)
+uv run feature_builder.py -cf <os_type> <feature.subfeature>                          Creates the feature and test feature directory structure (folders and files)
+uv run feature_builder.py -cmd <os_type> <feature>                                    Generates the commands used to generates a validation file (saved to <os_type>_<feature>_cmds.yml)
+uv run feature_builder.py -di <netmiko_ostype> <feature.subfeature> <ip or filename>  Generates the cmd_output data structure (prints to screen)
+uv run feature_builder.py -vf <os_type> <feature>                                     Generates the validate file (saved to <os_type>_<feature>_desired_state.yml)
+uv run feature_builder.py -ds <os_type> <feature>                                     Creates the desired_state data structure (saved to <os_type>_<feature>_desired_state.yml)
+uv run feature_builder.py -as <os_type> <feature>                                     Creates the actual_state data structure (saved to <os_type>_<feature>_actual_state.yml)
 """
 
 import argparse
@@ -33,6 +33,11 @@ from ntc_templates.parse import (  # type: ignore[import-untyped]
 from rich.console import Console
 from rich.theme import Theme
 from ruamel.yaml import YAML
+
+# Get project root (reliable regardless of where script is run)
+project_root = Path(__file__).parent.parent
+# Module-level cache
+loaded_modules: dict[str, Any] = {}
 
 # ----------------------------------------------------------------------------
 # Rich console used to print by
@@ -130,6 +135,8 @@ def _render_tmpl(
 # ----------------------------------------------------------------------------
 # PY_FORMAT: Format command output (validation file or actual state)
 # ----------------------------------------------------------------------------
+
+
 def _format_cmd_output(
     os_type: str, feature: str, val_file: bool, cmd_output: dict[str, dict[str, Any]]
 ) -> dict[str, dict[str, Any]]:
@@ -144,9 +151,18 @@ def _format_cmd_output(
     Returns:
         dict[str, dict[str, Any]]: Actual state or validation file (same as actual state but without state info (i.e. interface status))
     """
-    # import the feature formatting module
-    feat_mod = f"feature_templates.{feature}.{feature}_actual_state"
-    globals()[f"{feature}"] = importlib.import_module(feat_mod)
+    # import the feature formatting module, only import if not already cached
+    if feature not in loaded_modules:
+        module_path = (
+            f"nornir_validate.feature_templates.{feature}.{feature}_actual_state"
+        )
+        try:
+            loaded_modules[feature] = importlib.import_module(module_path)
+        except ImportError as e:
+            print(f"❌ Could not import {module_path}: {e}")
+        except Exception as e:
+            print(f"❌ Error loading {module_path}: {e}")
+
     # Generate the validation file or actual state
     actual_state: dict[str, dict[str, Any]] = defaultdict(dict)
     for sub_feature, output in cmd_output[feature].items():
@@ -155,7 +171,7 @@ def _format_cmd_output(
             result = {}
         else:
             # Gets per-sub-feature actual state structured data from imported feature_templates (python imports)
-            result = eval(feature).format_actual_state(
+            result = loaded_modules[feature].format_actual_state(
                 val_file, str(os_type), sub_feature, output
             )
             actual_state[feature][sub_feature] = result
@@ -222,7 +238,7 @@ def _create_feature_dir(feature: str, test_path: str, tmpl_path: Path) -> list[s
     """
     # Create new feature (copies those from newfeature_skelton so includes all files) and feature test directories
     dir_created = []
-    feat_dir = os.path.join(os.getcwd(), "newfeature_skeleton")
+    feat_dir = os.path.join(project_root, "newfeature_skeleton")
     if not os.path.exists(tmpl_path):
         shutil.copytree(feat_dir, tmpl_path, ignore=None, dirs_exist_ok=False)
         os.makedirs(test_path, exist_ok=True)
@@ -331,8 +347,12 @@ def create_commands(
         tmpl_path (Path): The path to the templates folder, includes feature name
     """
     # Loads data from YAML file
-    index_file = os.path.join(os.path.split(test_path)[0], "subfeature_index.yml")
-    with open(index_file) as input_data:
+    files("nornir_validate").joinpath("feature_templates", feature)
+    index_file = files("nornir_validate").joinpath(
+        "index_files", f"{os_type}_index.yml"
+    )
+    # index_file = os.path.join(os.path.split(test_path)[0], "subfeature_index.yml")
+    with index_file.open("r") as input_data:
         index_data = yaml.load(input_data, Loader=yaml.FullLoader)
     # Render and format the data
     commands = _render_tmpl(os_type, feature, index_data, tmpl_path)
@@ -529,7 +549,7 @@ def main() -> None:
     feat_subfeat = [x for x in args.values() if x is not None][0][1]
     feature = feat_subfeat.split(".")[0]
     subfeat = feat_subfeat.split(".")[1] if len(feat_subfeat.split(".")) > 1 else None
-    test_path = os.path.join(os.getcwd(), "tests", "os_test_files", os_type, feature)
+    test_path = os.path.join(project_root, "tests", "os_test_files", os_type, feature)
     tmpl_path = files("nornir_validate").joinpath("feature_templates", feature)
     # Convert to Path as importlib.resources.files().joinpath() returns a Traversable
     tmpl_path = Path(str(tmpl_path))

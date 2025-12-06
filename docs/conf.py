@@ -1,7 +1,9 @@
-import os
 import sys
+from importlib.metadata import version as get_version
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath(".."))
+# Add your package to the Python path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -10,8 +12,8 @@ project = "Nornir Validate"
 copyright = "2025, sjhloco"  # noqa: A001
 author = "sjhloco"
 
-version = "v0.0.1"
-release = "v0.0.1"
+# Get version from package
+version = release = get_version("nornir-validate")
 
 
 # -- General configuration ---------------------------------------------------

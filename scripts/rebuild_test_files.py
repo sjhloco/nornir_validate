@@ -9,7 +9,9 @@ from feature_builder import (
     format_actual_state,
 )
 
-OS_TEST_FILES = os.path.join(os.path.dirname(__file__), "tests", "os_test_files")
+# Get project root (reliable regardless of where script is run)
+project_root = Path(__file__).parent.parent
+OS_TEST_FILES = os.path.join(project_root, "tests", "os_test_files")
 
 for os_type in os.scandir(OS_TEST_FILES):
     if os_type.is_dir():

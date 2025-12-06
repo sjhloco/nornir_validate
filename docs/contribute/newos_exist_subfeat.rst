@@ -3,7 +3,7 @@ New OS for existing sub-feature
 
 This is the simplest form of collaboration as the majority of the structure is already in place. As long as the structured data of the command output follows the same pattern as other OS types for that sub-feature then it is just a simple case of adding the new os_type command (*xx_desired_state.j2*) and dictionary keys (*xx_actual_state.py*). If the structured data is different you will also need to update the actual state formatting function to handle these differences.
 
-The below steps run through an example to add **paloalto_panos** support to the existing sub-feature **route_table.route_count**. The test directory has already been created and index updated as per :doc:`feature structure <structure>` (``python scripts/feature_builder.py -cf paloalto_panos route_table.route_count``)
+The below steps run through an example to add **paloalto_panos** support to the existing sub-feature **route_table.route_count**. The test directory has already been created and index updated as per :doc:`feature structure <structure>` (``uv run scripts/feature_builder.py -cf paloalto_panos route_table.route_count``)
 
 1. Validation commands (-cmd)
 -----------------------------
@@ -19,11 +19,11 @@ Use ``-cmd`` (*--create_commands*) to create (render) the **xx_commands.yml** fi
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -cmd <os_type> <feature>
-    pytest 'tests/test_validations.py::TestCommands::test_command_templating[<ostype>_<feature>]' -vv
+    uv run scripts/feature_builder.py -cmd <os_type> <feature>
+    uv run pytest 'tests/test_validations.py::TestCommands::test_command_templating[<ostype>_<feature>]' -vv
 
-    ❯ python scripts/feature_builder.py -cmd paloalto_panos route_table
-    ❯ pytest 'tests/test_validations.py::TestCommands::test_command_templating[paloalto_panos_route_table]' -vv
+    ❯ uv run scripts/feature_builder.py -cmd paloalto_panos route_table
+    ❯ uv run pytest 'tests/test_validations.py::TestCommands::test_command_templating[paloalto_panos_route_table]' -vv
 
 2. Command Output (-di) 
 -----------------------
@@ -32,9 +32,9 @@ The command output can be a parsed `ntc-template <https://github.com/networktoco
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -di <netmiko_ostype> <feature.subfeature> <ip address or filename>
+    uv run scripts/feature_builder.py -di <netmiko_ostype> <feature.subfeature> <ip address or filename>
 
-    ❯ python scripts/feature_builder.py -di paloalto_panos route_table.route_count route_count_output.raw
+    ❯ uv run scripts/feature_builder.py -di paloalto_panos route_table.route_count route_count_output.raw
 
 .. note::
 
@@ -86,15 +86,15 @@ Use ``-as`` (*--format_actual_state*) to create the **xx_actual_state.yml** test
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -as <os_type> <feature> 
-    pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[ostype_newfeature]' -vv
-    python scripts/feature_builder.py -vf <os_type> <feature> 
-    pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[ostype_newfeature]' -vv
+    uv run scripts/feature_builder.py -as <os_type> <feature> 
+    uv run pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[ostype_newfeature]' -vv
+    uv run scripts/feature_builder.py -vf <os_type> <feature> 
+    uv run pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[ostype_newfeature]' -vv
 
-    ❯ python scripts/feature_builder.py -as paloalto_panos route_table
-    ❯ pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[paloalto_panos_route_table]' -vv
-    ❯ python scripts/feature_builder.py -vf paloalto_panos route_table
-    ❯ pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[paloalto_panos_route_table]' -vv
+    ❯ uv run scripts/feature_builder.py -as paloalto_panos route_table
+    ❯ uv run pytest 'tests/test_validations.py::TestActualState::test_actual_state_formatting[paloalto_panos_route_table]' -vv
+    ❯ uv run scripts/feature_builder.py -vf paloalto_panos route_table
+    ❯ uv run pytest 'tests/test_validations.py::TestValFile::test_create_validation_file[paloalto_panos_route_table]' -vv
 
 .. note::
 
@@ -107,11 +107,11 @@ The validation file defines what *"correct"* looks like for each sub-feature, ho
 
 .. code-block:: bash
 
-    python scripts/feature_builder.py -ds <os_type> <feature> 
-    pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[ostype_newfeature]' -vv
+    uv run scripts/feature_builder.py -ds <os_type> <feature> 
+    uv run pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[ostype_newfeature]' -vv
 
-    ❯ python scripts/feature_builder.py -ds paloalto_panos route_table
-    ❯ pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[paloalto_panos_route_table]' -vv
+    ❯ uv run scripts/feature_builder.py -ds paloalto_panos route_table
+    ❯ uv run pytest 'tests/test_validations.py::TestDesiredState::test_desired_state_templating[paloalto_panos_route_table]' -vv
 
 5. Compliance Report 
 --------------------
@@ -120,6 +120,6 @@ The final thing to do is test that the *"desired_state.yml"* and *"actual_state.
 
 .. code-block:: bash
 
-    pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[ostype_newfeature]' -vv
+    uv run pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[ostype_newfeature]' -vv
 
-    ❯ pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[paloalto_panos_route_table]' -vv
+    ❯ uv run pytest 'tests/test_validations.py::TestComplianceReport::test_report_passes[paloalto_panos_route_table]' -vv

@@ -1,6 +1,4 @@
-alabaster==1.0.0
 asttokens==3.0.1
-babel==2.17.0
 bcrypt==5.0.0
 certifi==2025.11.12
 cffi==2.0.0
@@ -8,10 +6,8 @@ charset-normalizer==3.4.4
 colorama==0.4.6
 cryptography==46.0.3
 decorator==5.2.1
-docutils==0.21.2
 executing==2.2.1
 idna==3.11
-imagesize==1.4.1
 iniconfig==2.3.0
 invoke==2.2.1
 ipdb==0.13.13
@@ -37,6 +33,7 @@ nornir-jinja2==0.2.0
 nornir-netmiko==1.0.1
 nornir-rich @ git+https://github.com/sjhloco/nornir_rich@cf2674259c24d001b71831482840b9ebd97caf21
 nornir-utils==0.2.0
+-e file:///Users/ste/Desktop/nornir-validate
 ntc-templates @ git+https://github.com/networktocode/ntc-templates@3f1a8bc009f4bed52eb8aec009c897844aab59f0
 packaging==25.0
 paramiko==4.0.0
@@ -58,22 +55,11 @@ pytest==9.0.1
 pyyaml==6.0.3
 requests==2.32.5
 rich==13.9.4
-roman-numerals-py==3.1.0
 ruamel-yaml==0.18.16
 ruff==0.14.5
 scp==0.15.0
 setuptools==80.9.0
 six==1.17.0
-snowballstemmer==3.0.1
-sphinx==8.2.3
-sphinx-rtd-theme==3.0.2
-sphinxcontrib-applehelp==2.0.0
-sphinxcontrib-devhelp==2.0.0
-sphinxcontrib-htmlhelp==2.1.0
-sphinxcontrib-jquery==4.1
-sphinxcontrib-jsmath==1.0.1
-sphinxcontrib-qthelp==2.0.0
-sphinxcontrib-serializinghtml==2.0.0
 stack-data==0.6.3
 textfsm==2.1.0
 traitlets==5.14.3
@@ -81,7 +67,6 @@ transitions==0.9.3
 ttp==0.10.0
 ttp-templates==0.3.7
 types-pyyaml==6.0.12.20250915
-typing==3.10.0.0
 typing-extensions==4.15.0
 urllib3==2.5.0
 wcwidth==0.2.14
