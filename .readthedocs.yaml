@@ -10,4 +10,8 @@ sphinx:
 
 python:
   install:
+    # Install your actual package (THIS IS MISSING RIGHT NOW)
+    - method: pip
+      path: .
+    # Install your documentation dependencies
     - requirements: docs/requirements.txt
